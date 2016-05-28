@@ -744,6 +744,15 @@ config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
 	select OF_CONTROL
 
+config TARGET_BUBBLEGUM
+	bool "Support Bubblegum 96Board"
+	select ARM64
+	select SUPPORT_SPL
+	select SPL
+	  help
+	  Support for Bubblegum 96boards platform based on Actions S900 Soc,
+	  with 4xA53 CPU, PowerVR G6230 GPU, 2GB RAM, and USB 3.0 support.
+
 endchoice
 
 source "arch/arm/mach-at91/Kconfig"
@@ -881,6 +890,7 @@ source "board/vscom/baltos/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/work-microwave/work_92105/Kconfig"
 source "board/zipitz2/Kconfig"
+source "board/actions/bubblegum/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 

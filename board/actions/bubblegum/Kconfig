@@ -1,0 +1,23 @@
+#
+# (C) Copyright 2016 wowotech
+#
+# wowo<wowo@wowotech.net>
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
+if TARGET_BUBBLEGUM
+
+config SYS_BOARD
+	default "bubblegum"
+
+config SYS_VENDOR
+	default "actions"
+
+config SYS_SOC
+	default "s900"
+
+config SYS_CONFIG_NAME
+	default "bubblegum"
+
+endif
