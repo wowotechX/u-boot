@@ -9,7 +9,6 @@
 #include <errno.h>
 #include <asm/io.h>
 #include <asm/armv8/mmu.h>
-#include <serial.h>
 
 #define GPIOA_OUTEN	(0xe01b0000)
 #define GPIOA_OUTDAT	(0xe01b0008)
@@ -44,25 +43,29 @@ static struct mm_region bubblegum_mem_map[] = {
  * we use four LEDs to display sixteen debug codes, from 0 to 15.
  * Using it, we can know, at least roughly, at where out code is run.
  */
-static void bubblegum_early_debug(int debug_code)
+void bubblegum_early_debug(int debug_code)
 {
 	uint8_t val;
 
 	val = debug_code & 0x1;
-	writel(readl(GPIOA_OUTEN) | (1 << DEBUG_LED0_GPIO), GPIOA_OUTEN);
-	writel(readl(GPIOA_OUTDAT) | (val << DEBUG_LED0_GPIO), GPIOA_OUTDAT);
+	setbits_le32(GPIOA_OUTEN, 1 << DEBUG_LED0_GPIO);
+	clrsetbits_le32(GPIOA_OUTDAT, 1 << DEBUG_LED0_GPIO,
+			val << DEBUG_LED0_GPIO);
 
 	val = (debug_code >> 1) & 0x1;
-	writel(readl(GPIOA_OUTEN) | (1 << DEBUG_LED1_GPIO), GPIOA_OUTEN);
-	writel(readl(GPIOA_OUTDAT) | (val << DEBUG_LED1_GPIO), GPIOA_OUTDAT);
+	setbits_le32(GPIOA_OUTEN, 1 << DEBUG_LED1_GPIO);
+	clrsetbits_le32(GPIOA_OUTDAT, 1 << DEBUG_LED1_GPIO,
+			val << DEBUG_LED1_GPIO);
 
 	val = (debug_code >> 2) & 0x1;
-	writel(readl(GPIOF_OUTEN) | (1 << DEBUG_LED2_GPIO), GPIOF_OUTEN);
-	writel(readl(GPIOF_OUTDAT) | (val << DEBUG_LED2_GPIO), GPIOF_OUTDAT);
+	setbits_le32(GPIOF_OUTEN, 1 << DEBUG_LED2_GPIO);
+	clrsetbits_le32(GPIOF_OUTDAT, 1 << DEBUG_LED2_GPIO,
+			val << DEBUG_LED2_GPIO);
 
 	val = (debug_code >> 3) & 0x1;
-	writel(readl(GPIOF_OUTEN) | (1 << DEBUG_LED3_GPIO), GPIOF_OUTEN);
-	writel(readl(GPIOF_OUTDAT) | (val << DEBUG_LED3_GPIO), GPIOF_OUTDAT);
+	setbits_le32(GPIOF_OUTEN, 1 << DEBUG_LED3_GPIO);
+	clrsetbits_le32(GPIOF_OUTDAT, 1 << DEBUG_LED3_GPIO,
+			val << DEBUG_LED3_GPIO);
 }
 
 struct mm_region *mem_map = bubblegum_mem_map;
@@ -82,13 +85,14 @@ void panic(const char *fmt, ...)
 int board_early_init_f(void)
 {
 	bubblegum_early_debug(1);
-	while (1);
+	//while (1);
 
 	return 0;
 }
 
 int board_init(void)
 {
+	bubblegum_early_debug(2);
 	return 0;
 }
 
@@ -103,5 +107,6 @@ void reset_cpu(ulong addr)
 
 int dram_init(void)
 {
+	bubblegum_early_debug(3);
 	return 0;
 }

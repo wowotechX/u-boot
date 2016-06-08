@@ -147,13 +147,20 @@ CONFIG_DMA_ADDR_T_64BIT=y
 # CONFIG_ARCH_ROCKCHIP is not set
 # CONFIG_TARGET_THUNDERX_88XX is not set
 CONFIG_TARGET_BUBBLEGUM=y
-# CONFIG_SYS_MALLOC_F is not set
+CONFIG_SYS_MALLOC_F_LEN=0x400
+CONFIG_SYS_MALLOC_F=y
 # CONFIG_SPL_SYS_MALLOC_SIMPLE is not set
+# CONFIG_SPL_DM is not set
+CONFIG_DM_SERIAL=y
+# CONFIG_DM_SPI is not set
+# CONFIG_DM_I2C is not set
+# CONFIG_DM_GPIO is not set
 # CONFIG_ARMV8_MULTIENTRY is not set
 
 #
 # ARM debug
 #
+# CONFIG_DM_KEYBOARD is not set
 
 #
 # General setup
@@ -240,6 +247,8 @@ CONFIG_SYS_PROMPT="=> "
 #
 # Device access commands
 #
+CONFIG_CMD_DM=y
+# CONFIG_CMD_DEMO is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 # CONFIG_CMD_FLASH is not set
@@ -306,15 +315,26 @@ CONFIG_NET_TFTP_VARS=y
 #
 # Generic Driver Options
 #
-# CONFIG_DM is not set
+CONFIG_DM=y
+CONFIG_DM_WARN=y
+# CONFIG_DM_DEVICE_REMOVE is not set
+CONFIG_DM_STDIO=y
+CONFIG_DM_SEQ_ALIAS=y
+# CONFIG_SPL_DM_SEQ_ALIAS is not set
+# CONFIG_REGMAP is not set
+# CONFIG_SPL_REGMAP is not set
+# CONFIG_DEVRES is not set
 # CONFIG_ADC is not set
 # CONFIG_ADC_EXYNOS is not set
 # CONFIG_ADC_SANDBOX is not set
+# CONFIG_BLK is not set
+CONFIG_DISK=y
 # CONFIG_BLOCK_CACHE is not set
 
 #
 # Clock
 #
+# CONFIG_CLK is not set
 # CONFIG_CPU is not set
 
 #
@@ -325,6 +345,7 @@ CONFIG_NET_TFTP_VARS=y
 #
 # Demo for driver model
 #
+# CONFIG_DM_DEMO is not set
 
 #
 # DFU support
@@ -334,20 +355,27 @@ CONFIG_NET_TFTP_VARS=y
 #
 # DMA Support
 #
+# CONFIG_DMA is not set
 # CONFIG_TI_EDMA3 is not set
 
 #
 # GPIO Support
 #
+# CONFIG_ATMEL_PIO4 is not set
+# CONFIG_INTEL_BROADWELL_GPIO is not set
+# CONFIG_LPC32XX_GPIO is not set
+# CONFIG_VYBRID_GPIO is not set
 
 #
 # I2C support
 #
+# CONFIG_DM_I2C_COMPAT is not set
 # CONFIG_CROS_EC_KEYB is not set
 
 #
 # LED Support
 #
+# CONFIG_LED is not set
 
 #
 # Memory Controller drivers
@@ -356,19 +384,24 @@ CONFIG_NET_TFTP_VARS=y
 #
 # Multifunction device drivers
 #
+# CONFIG_MISC is not set
 # CONFIG_CROS_EC is not set
 # CONFIG_FSL_SEC_MON is not set
 # CONFIG_MXC_OCOTP is not set
+# CONFIG_PWRSEQ is not set
 # CONFIG_PCA9551_LED is not set
+# CONFIG_RESET is not set
 # CONFIG_WINBOND_W83627 is not set
 
 #
 # MMC Host controller Support
 #
+# CONFIG_DM_MMC is not set
 
 #
 # MTD Support
 #
+# CONFIG_MTD is not set
 
 #
 # NAND Device Support
@@ -387,20 +420,27 @@ CONFIG_NET_TFTP_VARS=y
 # SPI Flash Support
 #
 # CONFIG_SPI_FLASH is not set
+# CONFIG_DM_ETH is not set
 # CONFIG_PHYLIB is not set
 # CONFIG_NETDEVICES is not set
 
 #
 # PCI
 #
+# CONFIG_DM_PCI is not set
 
 #
 # Pin controllers
 #
+# CONFIG_PINCTRL is not set
 
 #
 # Power
 #
+# CONFIG_DM_PMIC is not set
+# CONFIG_DM_REGULATOR is not set
+# CONFIG_DM_PWM is not set
+# CONFIG_RAM is not set
 
 #
 # Remote Processor drivers
@@ -409,14 +449,22 @@ CONFIG_NET_TFTP_VARS=y
 #
 # Real Time Clock
 #
+# CONFIG_DM_RTC is not set
 
 #
 # Serial drivers
 #
+CONFIG_REQUIRE_SERIAL_CONSOLE=y
+CONFIG_SERIAL_PRESENT=y
+# CONFIG_SPL_SERIAL_PRESENT is not set
 # CONFIG_DEBUG_UART is not set
 # CONFIG_DEBUG_UART_SKIP_INIT is not set
+# CONFIG_ALTERA_JTAG_UART is not set
+# CONFIG_ALTERA_UART is not set
 # CONFIG_FSL_LPUART is not set
 # CONFIG_SYS_NS16550 is not set
+# CONFIG_MSM_SERIAL is not set
+CONFIG_OWL_SERIAL=y
 
 #
 # Sound support
@@ -432,11 +480,13 @@ CONFIG_NET_TFTP_VARS=y
 #
 # SPMI support
 #
+# CONFIG_SPMI is not set
 # CONFIG_DM_THERMAL is not set
 
 #
 # Timer Support
 #
+# CONFIG_TIMER is not set
 
 #
 # TPM support
@@ -446,6 +496,7 @@ CONFIG_NET_TFTP_VARS=y
 #
 # Graphics support
 #
+# CONFIG_DM_VIDEO is not set
 
 #
 # TrueType Fonts
@@ -454,6 +505,8 @@ CONFIG_NET_TFTP_VARS=y
 # CONFIG_VIDEO_LCD_ANX9804 is not set
 # CONFIG_VIDEO_LCD_SSD2828 is not set
 # CONFIG_VIDEO_MVEBU is not set
+# CONFIG_DISPLAY is not set
+# CONFIG_VIDEO_BRIDGE is not set
 # CONFIG_PHYS_TO_BUS is not set
 
 #
@@ -470,6 +523,7 @@ CONFIG_REGEX=y
 # CONFIG_LIB_RAND is not set
 # CONFIG_CMD_DHRYSTONE is not set
 # CONFIG_RSA is not set
+# CONFIG_TPM is not set
 
 #
 # Hashing Support
