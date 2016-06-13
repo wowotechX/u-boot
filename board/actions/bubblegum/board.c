@@ -107,6 +107,8 @@ void reset_cpu(ulong addr)
 
 int dram_init(void)
 {
-	bubblegum_early_debug(3);
+	printf("dram_init??\n");
+
+	bubblegum_early_debug(11);
 	return 0;
 }

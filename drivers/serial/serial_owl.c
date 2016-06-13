@@ -19,13 +19,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define HOSC_FREQ		(24000000)
 
-#define CMU_DEVCLKEN1		(0xE01680A4)
-#define CMU_DEVRST1		(0xE01680AC)
-#define CMU_UART2CLK		(0xE0168064)
+#define CMU_DEVCLKEN1		(0xE01600A4)
+#define CMU_DEVRST1		(0xE01600AC)
+#define CMU_UART2CLK		(0xE0160064)
+#define CMU_UART5CLK		(0xE01600B8)
 
-#define MFP_CTL2		(0xE01B0048)
+#define MFP_CTL1		(0xE01B0044)
 
 #define UART2_BASE		(0xE0124000)
+#define UART5_BASE		(0xE012a000)
 
 /* UART	Register offset	*/
 #define	UART_CTL		(0x0)
@@ -61,47 +63,45 @@ int owl_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	int divider;
 
-	divider = baudrate * 8;
-	divider = divider + divider / 2;	/* round */
-	divider = HOSC_FREQ / divider;
+	divider = HOSC_FREQ / (baudrate * 8);
+	if (divider > 0)
+		divider--;
 
-	divider -= 1;
-
-	clrsetbits_le32(CMU_UART2CLK, 0x1f, divider);
+	clrsetbits_le32(CMU_UART5CLK, 0x1f, divider);
 
 	/*
 	 * 8N1
 	 */
-	clrsetbits_le32(UART2_BASE + UART_CTL, UART_CTL_DATA_WIDTH,
+	clrsetbits_le32(UART5_BASE + UART_CTL, UART_CTL_DATA_WIDTH,
 			UART_DATA_WIDTH_8);
-	clrsetbits_le32(UART2_BASE + UART_CTL, UART_CTL_PARITY,
+	clrsetbits_le32(UART5_BASE + UART_CTL, UART_CTL_PARITY,
 			UART_PARITY_NONE);
-	clrbits_le32(UART2_BASE + UART_CTL, UART_CTL_STOP);
+	clrbits_le32(UART5_BASE + UART_CTL, UART_CTL_STOP);
 
 	return 0;
 }
 
 static int owl_serial_getc(struct udevice *dev)
 {
-	if (readl(UART2_BASE + UART_STAT) & UART_STAT_RFEM)
+	if (readl(UART5_BASE + UART_STAT) & UART_STAT_RFEM)
 		return -EAGAIN;
 
-	return (int)(readl(UART2_BASE + UART_RXDAT));
+	return (int)(readl(UART5_BASE + UART_RXDAT));
 }
 
 static int owl_serial_putc(struct udevice *dev,	const char ch)
 {
-	if (readl(UART2_BASE + UART_STAT) & UART_STAT_TFFU)
+	if (readl(UART5_BASE + UART_STAT) & UART_STAT_TFFU)
 		return -EAGAIN;
 
-	writel(ch, UART2_BASE +	UART_TXDAT);
+	writel(ch, UART5_BASE +	UART_TXDAT);
 
 	return 0;
 }
 
 static int owl_serial_pending(struct udevice *dev, bool	input)
 {
-	unsigned int stat = readl(UART2_BASE + UART_STAT);
+	unsigned int stat = readl(UART5_BASE + UART_STAT);
 
 	if (input)
 		return !(stat &	UART_STAT_RFEM);
@@ -116,17 +116,20 @@ static int owl_serial_probe(struct udevice *dev)
 	bubblegum_early_debug(4);
 
 	/* pinmux */
-	setbits_le32(MFP_CTL2, 1 << 22);
+	//setbits_le32(MFP_CTL1, 1 << 22);
+	clrsetbits_le32(MFP_CTL1, 0x3f << 23, 0xc << 23); /* uart5, GPIOA25/GPIOA27 */
 
 	bubblegum_early_debug(5);
 
 	/* device clock enable */
-	setbits_le32(CMU_DEVCLKEN1, 1 << 8);
+	//setbits_le32(CMU_DEVCLKEN1, 1 << 8);	/* uart2 */
+	setbits_le32(CMU_DEVCLKEN1, 1 << 21);
 
 	bubblegum_early_debug(6);
 
 	/* reset de-assert */
-	setbits_le32(CMU_DEVRST1, 1 << 7);
+	//setbits_le32(CMU_DEVRST1, 1 << 7);
+	setbits_le32(CMU_DEVRST1, 1 << 17);
 
 	bubblegum_early_debug(7);
 
@@ -134,7 +137,7 @@ static int owl_serial_probe(struct udevice *dev)
 	owl_serial_setbrg(dev, 115200);
 	
 	/* enable uart */
-	setbits_le32(UART2_BASE + UART_CTL, UART_CTL_EN);
+	setbits_le32(UART5_BASE + UART_CTL, UART_CTL_EN);
 
 	bubblegum_early_debug(8);
 	return 0;
