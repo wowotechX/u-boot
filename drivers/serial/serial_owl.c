@@ -168,15 +168,16 @@ static const struct dm_serial_ops owl_serial_ops = {
 	.setbrg	= owl_serial_setbrg,
 };
 
+static const struct udevice_id owl_serial_ids[] = {
+	{ .compatible = "actions,s900-serial", },
+	{ }
+};
+
 U_BOOT_DRIVER(serial_owl) = {
 	.name	= "serial_owl",
 	.id	= UCLASS_SERIAL,
+	.of_match = owl_serial_ids,
 	.probe = owl_serial_probe,
 	.ops	= &owl_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,
-};
-
-/* TODO */
-U_BOOT_DEVICE(stm32_serials) = {
-	.name = "serial_owl",
 };

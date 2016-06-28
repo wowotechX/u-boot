@@ -10,6 +10,8 @@
 #ifndef __BUBBLEGUM_H
 #define __BUBBLEGUM_H
 
+#define DEBUG
+
 /*
  * u-boot SPL definitions, which is resided in SRAM
  */

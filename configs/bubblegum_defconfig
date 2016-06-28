@@ -161,6 +161,7 @@ CONFIG_DM_SERIAL=y
 # ARM debug
 #
 # CONFIG_DM_KEYBOARD is not set
+CONFIG_DEFAULT_DEVICE_TREE="s900-bubblegum"
 
 #
 # General setup
@@ -178,8 +179,12 @@ CONFIG_SUPPORT_SPL=y
 CONFIG_SPL=y
 # CONFIG_SPL_STACK_R is not set
 # CONFIG_SPL_SEPARATE_BSS is not set
-# CONFIG_FIT is not set
+CONFIG_FIT=y
+# CONFIG_FIT_VERBOSE is not set
+# CONFIG_FIT_SIGNATURE is not set
+# CONFIG_FIT_BEST_MATCH is not set
 CONFIG_SYS_EXTRA_OPTIONS=""
+# CONFIG_SPL_LOAD_FIT is not set
 
 #
 # Boot timing
@@ -302,7 +307,10 @@ CONFIG_SUPPORT_OF_CONTROL=y
 #
 # Device Tree Control
 #
-# CONFIG_OF_CONTROL is not set
+CONFIG_OF_CONTROL=y
+# CONFIG_SPL_OF_CONTROL is not set
+CONFIG_OF_SEPARATE=y
+# CONFIG_OF_EMBED is not set
 CONFIG_NET=y
 # CONFIG_NET_RANDOM_ETHADDR is not set
 # CONFIG_NETCONSOLE is not set
@@ -324,6 +332,8 @@ CONFIG_DM_SEQ_ALIAS=y
 # CONFIG_REGMAP is not set
 # CONFIG_SPL_REGMAP is not set
 # CONFIG_DEVRES is not set
+CONFIG_SIMPLE_BUS=y
+CONFIG_OF_TRANSLATE=y
 # CONFIG_ADC is not set
 # CONFIG_ADC_EXYNOS is not set
 # CONFIG_ADC_SANDBOX is not set
@@ -506,6 +516,7 @@ CONFIG_OWL_SERIAL=y
 # CONFIG_VIDEO_LCD_SSD2828 is not set
 # CONFIG_VIDEO_MVEBU is not set
 # CONFIG_DISPLAY is not set
+# CONFIG_VIDEO_TEGRA20 is not set
 # CONFIG_VIDEO_BRIDGE is not set
 # CONFIG_PHYS_TO_BUS is not set
 

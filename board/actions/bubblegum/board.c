@@ -112,3 +112,10 @@ int dram_init(void)
 	bubblegum_early_debug(11);
 	return 0;
 }
+
+int board_run_command(const char *cmdline)
+{
+	printf("## Commands are disabled. Please enable CONFIG_CMDLINE.\n");
+
+	return 1;
+}
