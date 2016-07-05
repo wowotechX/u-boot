@@ -15,6 +15,10 @@
 #include <fdtdec.h>
 #include <serial.h>
 
+struct owl_serial_priv {
+	fdt_addr_t		base;	/* register address */
+};
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /* TODO, we need pinmux, device tree, clock framework, etc. */
@@ -31,12 +35,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define UART2_BASE		(0xE0124000)
 #define UART5_BASE		(0xE012a000)
-
-#ifdef USING_UART2
-#define UART_BASE		UART2_BASE
-#else
-#define UART_BASE		UART5_BASE
-#endif
 
 /* UART	Register offset	*/
 #define	UART_CTL		(0x0)
@@ -71,6 +69,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int owl_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	int divider;
+	struct owl_serial_priv *priv = dev_get_priv(dev);
 
 	divider = HOSC_FREQ / (baudrate * 8);
 	if (divider > 0)
@@ -81,36 +80,41 @@ int owl_serial_setbrg(struct udevice *dev, int baudrate)
 	/*
 	 * 8N1
 	 */
-	clrsetbits_le32(UART_BASE + UART_CTL, UART_CTL_DATA_WIDTH,
+	clrsetbits_le32(priv->base + UART_CTL, UART_CTL_DATA_WIDTH,
 			UART_DATA_WIDTH_8);
-	clrsetbits_le32(UART_BASE + UART_CTL, UART_CTL_PARITY,
+	clrsetbits_le32(priv->base + UART_CTL, UART_CTL_PARITY,
 			UART_PARITY_NONE);
-	clrbits_le32(UART_BASE + UART_CTL, UART_CTL_STOP);
+	clrbits_le32(priv->base + UART_CTL, UART_CTL_STOP);
 
 	return 0;
 }
 
 static int owl_serial_getc(struct udevice *dev)
 {
-	if (readl(UART_BASE + UART_STAT) & UART_STAT_RFEM)
+	struct owl_serial_priv *priv = dev_get_priv(dev);
+
+	if (readl(priv->base + UART_STAT) & UART_STAT_RFEM)
 		return -EAGAIN;
 
-	return (int)(readl(UART_BASE + UART_RXDAT));
+	return (int)(readl(priv->base + UART_RXDAT));
 }
 
 static int owl_serial_putc(struct udevice *dev,	const char ch)
 {
-	if (readl(UART_BASE + UART_STAT) & UART_STAT_TFFU)
+	struct owl_serial_priv *priv = dev_get_priv(dev);
+
+	if (readl(priv->base + UART_STAT) & UART_STAT_TFFU)
 		return -EAGAIN;
 
-	writel(ch, UART_BASE +	UART_TXDAT);
+	writel(ch, priv->base + UART_TXDAT);
 
 	return 0;
 }
 
 static int owl_serial_pending(struct udevice *dev, bool	input)
 {
-	unsigned int stat = readl(UART_BASE + UART_STAT);
+	struct owl_serial_priv *priv = dev_get_priv(dev);
+	unsigned int stat = readl(priv->base + UART_STAT);
 
 	if (input)
 		return !(stat &	UART_STAT_RFEM);
@@ -121,17 +125,14 @@ static int owl_serial_pending(struct udevice *dev, bool	input)
 extern void bubblegum_early_debug(int debug_code);
 static int owl_serial_probe(struct udevice *dev)
 {
-	bubblegum_early_debug(4);
+	struct owl_serial_priv *priv = dev_get_priv(dev);
 
-	/* pinmux */
-#ifdef USING_UART2
-	setbits_le32(MFP_CTL1, 1 << 22);
-#else
-	/* uart5, GPIOA25/GPIOA27 */
-	clrsetbits_le32(MFP_CTL1, 0x3f << 23, 0xc << 23);
-#endif
+	priv->base = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
+	if (priv->base == FDT_ADDR_T_NONE)
+		return -1;
 
-	bubblegum_early_debug(5);
+	debug("%s: base is 0x%llx\n", __func__, priv->base);
+
 
 	/* device clock enable */
 #ifdef USING_UART2
@@ -140,8 +141,6 @@ static int owl_serial_probe(struct udevice *dev)
 	setbits_le32(CMU_DEVCLKEN1, 1 << 21);	/* uart5 */
 #endif
 
-	bubblegum_early_debug(6);
-
 	/* reset de-assert */
 #ifdef USING_UART2
 	setbits_le32(CMU_DEVRST1, 1 << 7);
@@ -149,13 +148,11 @@ static int owl_serial_probe(struct udevice *dev)
 	setbits_le32(CMU_DEVRST1, 1 << 17);
 #endif
 
-	bubblegum_early_debug(7);
-
 	/* set default baudrate and enable UART */
 	owl_serial_setbrg(dev, 115200);
 	
 	/* enable uart */
-	setbits_le32(UART_BASE + UART_CTL, UART_CTL_EN);
+	setbits_le32(priv->base + UART_CTL, UART_CTL_EN);
 
 	bubblegum_early_debug(8);
 	return 0;
@@ -180,4 +177,5 @@ U_BOOT_DRIVER(serial_owl) = {
 	.probe = owl_serial_probe,
 	.ops	= &owl_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,
+	.priv_auto_alloc_size = sizeof(struct owl_serial_priv),
 };

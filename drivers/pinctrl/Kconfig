@@ -141,6 +141,11 @@ config PIC32_PINCTRL
 	  by a device tree node which contains both GPIO defintion and pin control
 	  functions.
 
+config OWL_PINCTRL
+	bool "Actions pin control driver for OWL soc"
+	depends on DM
+	help
+	  Support pin multiplexing control on Actions OWL SoCs.
 endif
 
 source "drivers/pinctrl/nxp/Kconfig"

@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) 2015 wowotech
+ *
+ * wowo<wowo@wowotech.net>
+ *
+ * SPDX-License-Identifier:     GPL-2.0+
+ */
+
+#include "s900.dtsi"
+
+/ {
+	pinctrl@e01b0000 {
+		/* actions,pins = <reg, offset, mask, valude>, ...*/
+		pinctrl_serial5: serial5 {
+			actions,pins = <0x0044 23 0x3f 0xc>;
+		};
+	};
+};

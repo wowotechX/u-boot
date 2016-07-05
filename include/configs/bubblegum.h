@@ -10,7 +10,7 @@
 #ifndef __BUBBLEGUM_H
 #define __BUBBLEGUM_H
 
-#define DEBUG
+#define DEBUGX
 
 /*
  * u-boot SPL definitions, which is resided in SRAM
@@ -52,7 +52,7 @@
 #define CONFIG_ENV_SIZE			0x1000	/* 4K Bytes */
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(16 * 1024 * 1024 + CONFIG_ENV_SIZE)
+#define CONFIG_SYS_MALLOC_LEN		(16 * 1024 + CONFIG_ENV_SIZE)
 
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_MAXARGS		16	/* max command args */

@@ -11,3 +11,5 @@ obj-$(CONFIG_PINCTRL_SANDBOX)	+= pinctrl-sandbox.o
 
 obj-$(CONFIG_PINCTRL_UNIPHIER)	+= uniphier/
 obj-$(CONFIG_PIC32_PINCTRL)	+= pinctrl_pic32.o
+
+obj-$(CONFIG_OWL_PINCTRL)	+= pinctrl-owl.o

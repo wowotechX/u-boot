@@ -1,13 +1,24 @@
 /*
- * Copyright (c) 2015 Actions Semi Co., Ltd.
+ * Copyright (c) 2015 wowotech
+ *
+ * wowo<wowo@wowotech.net>
  *
  * SPDX-License-Identifier:     GPL-2.0+
  */
 /dts-v1/;
 
+#include "s900.dtsi"
+#include "s900-bubblegum-pinctrl.dtsi"
+
 / {
-	uart5: serial@e012a000 {
-		compatible = "actions,s900-serial";
+	pinctrl@e01b0000 {
 		u-boot,dm-pre-reloc;
 	};
+
+	serial5: serial@e012a000 {
+		u-boot,dm-pre-reloc;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_serial5>;
+	};
+
 };

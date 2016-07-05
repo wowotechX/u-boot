@@ -1,0 +1,22 @@
+/*
+ * Copyright (c) 2015 wowotech
+ *
+ * wowo<wowo@wowotech.net>
+ *
+ * SPDX-License-Identifier:     GPL-2.0+
+ */
+
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	serial5: serial@e012a000 {
+		compatible = "actions,s900-serial";
+		reg = <0 0xe012a000 0 0x1000>;
+	};
+
+	pinctrl@e01b0000 {
+		compatible = "actions,s900-pinctrl";
+		reg = <0 0xe01b0000 0 0x1000>;
+	};
+};
