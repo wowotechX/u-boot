@@ -71,11 +71,16 @@ int owl_serial_setbrg(struct udevice *dev, int baudrate)
 	int divider;
 	struct owl_serial_priv *priv = dev_get_priv(dev);
 
-	divider = HOSC_FREQ / (baudrate * 8);
+	divider = (115200 * 8);
+	divider = (HOSC_FREQ + divider / 2) / divider;
 	if (divider > 0)
 		divider--;
 
+#ifdef USING_UART2
+	clrsetbits_le32(CMU_UART2CLK, 0x1f, divider);
+#else
 	clrsetbits_le32(CMU_UART5CLK, 0x1f, divider);
+#endif
 
 	/*
 	 * 8N1
