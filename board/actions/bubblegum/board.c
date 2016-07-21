@@ -10,6 +10,8 @@
 #include <asm/io.h>
 #include <asm/armv8/mmu.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define GPIOA_OUTEN	(0xe01b0000)
 #define GPIOA_OUTDAT	(0xe01b0008)
 #define DEBUG_LED0_GPIO	(19)	/* GPIOA19 */
@@ -37,6 +39,18 @@ static struct mm_region bubblegum_mem_map[] = {
 		0,
 	}
 };
+
+static void reboot_to_adfu(void)
+{
+	void (*call_adfu)(void);
+
+	//call_adfu = (void (*)(void))0xffff5a00;
+	call_adfu = (void (*)(void))0xffff0400;
+
+	call_adfu();
+	while (1);
+}
+
 
 /*
  * A simple debug function for early debug, in which,
@@ -74,7 +88,12 @@ struct mm_region *mem_map = bubblegum_mem_map;
 void board_init_f(ulong bootflag)
 {
 	bubblegum_early_debug(1);
-	while (1);
+
+#ifdef HAS_DDR_SOURCE_CODE
+	s900_ddr_init();
+#endif
+
+	reboot_to_adfu();
 }
 
 void panic(const char *fmt, ...)
@@ -105,13 +124,50 @@ void reset_cpu(ulong addr)
 {
 }
 
+extern void s900_ddr_init(void);
 int dram_init(void)
 {
-	printf("dram_init??\n");
+	printf("dram_init\n");
 
 	bubblegum_early_debug(11);
+
+	/* no need do dram init in here, we have done it in SPL */
+
+	gd->ram_size = 2 * 1024 * 1024 * 1024;	/* 2GB, TODO */
+
+	printf("dram_init OK\n");
 	return 0;
 }
+
+#if defined(CONFIG_SYS_DRAM_TEST)
+int testdram (void)
+{
+	uint32_t *pstart = (uint32_t *) CONFIG_SYS_MEMTEST_START;
+	uint32_t *pend = (uint32_t *) CONFIG_SYS_MEMTEST_END;
+	uint32_t *p;
+
+	printf("SDRAM test phase 1:\n");
+	for (p = pstart; p < pend; p++)
+		*p = 0xaaaaaaaa;
+
+	for (p = pstart; p < pend; p++) {
+		if (*p != 0xaaaaaaaa)
+			printf ("SDRAM test fails at: %08x=%08x\n", (uint32_t) p, *p);
+	}
+
+	printf("SDRAM test phase 2:\n");
+	for (p = pstart; p < pend; p++)
+		*p = 0x55555555;
+
+	for (p = pstart; p < pend; p++) {
+		if (*p != 0x55555555)
+			printf ("SDRAM test fails at: %08x=%08x\n", (uint32_t) p, *p);
+	}
+
+	printf("SDRAM test passed.\n");
+	return 0;
+}
+#endif
 
 int board_run_command(const char *cmdline)
 {
