@@ -10,7 +10,7 @@
 #ifndef __BUBBLEGUM_H
 #define __BUBBLEGUM_H
 
-#define DEBUGX
+#define DEBUG
 
 /*
  * u-boot SPL definitions, which is resided in SRAM
@@ -32,6 +32,8 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0x0
 #define CONFIG_NR_DRAM_BANKS		1
+
+#define CONFIG_SYS_SDRAM_SIZE		0x3FFFFFFF	/* TODO, should be 2GB */
 
 /* #define CONFIG_SYS_DRAM_TEST */
 #define CONFIG_SYS_MEMTEST_START	0x0
