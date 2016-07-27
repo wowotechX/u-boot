@@ -1,0 +1,26 @@
+#
+# (C) Copyright 2016 ooonebook
+#
+# Project for Tiny210.
+#
+# ooonebook <ooonebook@163.com>
+#
+# SPDX-License-Identifier:  GPL-2.0+
+#
+
+
+if TARGET_TINY210
+
+config SYS_BOARD
+	default "tiny210"
+
+config SYS_VENDOR
+	default "samsung"
+
+config SYS_SOC
+	default "s5pc1xx"
+
+config SYS_CONFIG_NAME
+	default "tiny210"
+
+endif

@@ -12,6 +12,14 @@ config TARGET_SMDKC100
 	bool "Support smdkc100 board"
 	select OF_CONTROL
 
+config TARGET_TINY210
+	bool "Support Samsung Tiny210"
+	select SUPPORT_SPL
+	select SPL
+		help
+		Support Samsung Tiny210 platform based on Samsung s5pv210.
+
+
 endchoice
 
 config SYS_SOC
@@ -19,5 +27,6 @@ config SYS_SOC
 
 source "board/samsung/goni/Kconfig"
 source "board/samsung/smdkc100/Kconfig"
+source "board/samsung/tiny210/Kconfig"
 
 endif
