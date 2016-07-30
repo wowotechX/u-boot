@@ -138,7 +138,7 @@ endif
 ALL-y	+= $(obj)/$(SPL_BIN).bin $(obj)/$(SPL_BIN).cfg
 
 ifdef CONFIG_SAMSUNG
-#ALL-y	+= $(obj)/$(BOARD)-spl.bin ###############need to fix me .
+ALL-y	+= $(obj)/$(BOARD)-spl.bin
 endif
 
 ifdef CONFIG_ARCH_SOCFPGA
@@ -209,10 +209,15 @@ VAR_SIZE_PARAM = --vs
 else
 VAR_SIZE_PARAM =
 endif
+ifdef CONFIG_S5PC110
+$(obj)/$(BOARD)-spl.bin: $(obj)/u-boot-spl.bin
+	$(objtree)/tools/mks5pc1xxspl $< $@
+else
 $(obj)/$(BOARD)-spl.bin: $(obj)/u-boot-spl.bin
 	$(if $(wildcard $(objtree)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl),\
 	$(objtree)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl,\
 	$(objtree)/tools/mkexynosspl) $(VAR_SIZE_PARAM) $< $@
+endif
 endif
 
 quiet_cmd_objcopy = OBJCOPY $@
