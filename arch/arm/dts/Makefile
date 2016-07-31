@@ -234,6 +234,9 @@ dtb-$(CONFIG_SOC_KEYSTONE) += k2hk-evm.dtb \
 dtb-$(CONFIG_TARGET_BUBBLEGUM) += \
 	s900-bubblegum.dtb
 
+dtb-$(CONFIG_TARGET_TINY210) += \
+	s5pv210-tiny210.dtb
+
 targets += $(dtb-y)
 
 # Add any required device tree compiler flags here

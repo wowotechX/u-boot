@@ -432,4 +432,8 @@
 #undef  CFG_NAND_FLASH_BBT
 #endif
 
+/* For s5p_sdhci */
+#define SDHCI_MAX_HOSTS 4
+
+
 #endif	/* __CONFIG_H */

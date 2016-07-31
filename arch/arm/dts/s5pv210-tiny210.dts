@@ -1,0 +1,14 @@
+/*
+* (C) Copyright 2016 wowotech
+*
+* Project for Tiny210.
+*
+* ooonebook <ooonebook@163.com>
+*
+* SPDX-License-Identifier:    GPL-2.0+
+*/ 
+
+/dts-v1/;
+
+/{
+};
