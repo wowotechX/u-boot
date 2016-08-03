@@ -11,28 +11,24 @@
 #include <common.h>
 #include <errno.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 
-DECLARE_GLOBAL_DATA_PTR;
+#define GPJ_CON 0xE0200280
+#define GPJ_DAT 0xE0200284
 
-#define GPIOA_OUTEN	(0xe01b0000)
-#define GPIOA_OUTDAT	(0xe01b0008)
-#define DEBUG_LED0_GPIO	(19)	/* GPIOA19 */
-#define DEBUG_LED1_GPIO	(20)	/* GPIOA20 */
-
-#define GPIOF_OUTEN	(0xe01b00f0)
-#define GPIOF_OUTDAT	(0xe01b00f8)
-#define DEBUG_LED2_GPIO	(1)	/* GPIOF1 */
-#define DEBUG_LED3_GPIO	(2)	/* GPIOF2 */
-
+void tiny210_early_debug(int debug_code)
+{
+	if(debug_code > 0xf)
+		debug_code = 0;
+	writel(0x1111, GPJ_CON);
+	writel(~(~0&debug_code), 0xE0200284);
+}
 
 
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong bootflag)
 {
-}
-
-void panic(const char *fmt, ...)
-{
+	tiny210_early_debug(1);
 }
 #endif
 
