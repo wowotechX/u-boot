@@ -28,7 +28,19 @@ void tiny210_early_debug(int debug_code)
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong bootflag)
 {
-	tiny210_early_debug(1);
+	int val;
+#define DDR_TEST_ADDR 0x20000000
+#define DDR_TEST_CODE 0xaa
+	tiny210_early_debug(0x1);
+	writel(DDR_TEST_CODE, DDR_TEST_ADDR);
+	val = readl(DDR_TEST_ADDR);
+	if(val == DDR_TEST_CODE)
+		tiny210_early_debug(0x3);
+	else
+	{
+		tiny210_early_debug(0x2);
+		while(1);
+	}
 }
 #endif
 
@@ -41,11 +53,6 @@ int board_early_init_f(void)
 int board_init(void)
 {
 	return 0;
-}
-
-void lowlevel_init(void)
-{
-
 }
 
 int dram_init(void)
