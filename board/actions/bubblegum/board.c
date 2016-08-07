@@ -133,7 +133,7 @@ int dram_init(void)
 
 	/* no need do dram init in here, we have done it in SPL */
 
-	gd->ram_size = 2 * 1024 * 1024 * 1024;	/* 2GB, TODO */
+	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 
 	printf("dram_init OK\n");
 	return 0;

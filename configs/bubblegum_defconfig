@@ -198,8 +198,9 @@ CONFIG_BOOTSTAGE_STASH_SIZE=4096
 #
 # Command line interface
 #
-# CONFIG_CMDLINE is not set
-CONFIG_SYS_PROMPT="=> "
+CONFIG_CMDLINE=y
+# CONFIG_HUSH_PARSER is not set
+CONFIG_SYS_PROMPT="[xprj]# "
 
 #
 # Autoboot options
@@ -213,8 +214,8 @@ CONFIG_SYS_PROMPT="=> "
 #
 # Info commands
 #
-# CONFIG_CMD_BDI is not set
-# CONFIG_CMD_CONSOLE is not set
+CONFIG_CMD_BDI=y
+CONFIG_CMD_CONSOLE=y
 # CONFIG_CMD_CPU is not set
 # CONFIG_CMD_LICENSE is not set
 
