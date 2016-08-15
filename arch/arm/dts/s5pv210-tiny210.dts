@@ -9,6 +9,16 @@
 */ 
 
 /dts-v1/;
-
+#include "skeleton.dtsi"
 /{
+	aliases {
+		console = "/serial@e2900000";
+	};
+
+	serial@e2900000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0xe2900000 0x100>;
+		interrupts = <0 51 0>;
+		id = <0>;
+	};
 };

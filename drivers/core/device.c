@@ -620,10 +620,8 @@ fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 		 * Use the full-fledged translate function for complex
 		 * bus setups.
 		 */
-		#ifndef CONFIG_TINY210 //add by ooonebook for pass build, please fix me later!!!
-			addr = fdt_translate_address((void *)gd->fdt_blob,
+		addr = fdt_translate_address((void *)gd->fdt_blob,
 					     dev->of_offset, reg);
-		#endif
 	} else {
 		/*
 		 * Use the "simple" translate function for less complex
