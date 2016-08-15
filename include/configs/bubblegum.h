@@ -71,4 +71,6 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
+#define CONFIG_CMD_BOOTI
+
 #endif
