@@ -13,6 +13,8 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 
+/* Get the global_data point */
+DECLARE_GLOBAL_DATA_PTR;
 
 /* led gpio register address */
 #define GPJ_CON 0xE0200280
@@ -100,7 +102,16 @@ int board_init(void)
 
 int dram_init(void)
 {
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
+}
+
+
+void dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = get_ram_size((long *)PHYS_SDRAM_1,
+							PHYS_SDRAM_1_SIZE);
 }
 
 struct serial_device *default_serial_console(void)

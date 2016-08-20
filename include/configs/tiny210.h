@@ -22,6 +22,9 @@
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
+/* Enable DEBUG for get more information from uart */
+#define DEBUG	/* it will print the log that debug() to uart */
+
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -152,7 +155,7 @@
 
 /* MINI210 has 4 bank of DRAM */
 #define CONFIG_NR_DRAM_BANKS	1
-#define SDRAM_BANK_SIZE		0x20000000	/* 256256 MB */
+#define SDRAM_BANK_SIZE		0x20000000	/* 512 MB */
 #define PHYS_SDRAM_1		MEMORY_BASE_ADDRESS
 #define PHYS_SDRAM_1_SIZE	SDRAM_BANK_SIZE
 #if 0
@@ -416,6 +419,8 @@
 #define CONFIG_GATEWAYIP	192.168.0.1
 
 /*   For nand driver   */
+/* Just for start to console, please fix me when need enable nand flash */
+#if 0
 #define CONFIG_CMD_NAND
 #if defined(CONFIG_CMD_NAND)
 #define CONFIG_NAND_S5PC1XX 1
@@ -431,6 +436,7 @@
 #define CONFIG_CMD_NAND_YAFFS_SKIPFB
 #define CONFIG_NAND_USE_CHIP_NAME 1
 #undef  CFG_NAND_FLASH_BBT
+#endif
 #endif
 
 /* For s5p_sdhci */

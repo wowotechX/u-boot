@@ -199,8 +199,8 @@ CONFIG_BOOTSTAGE_STASH_SIZE=4096
 #
 # Command line interface
 #
-# CONFIG_CMDLINE is not set
-CONFIG_SYS_PROMPT="=> "
+CONFIG_CMDLINE=y
+CONFIG_SYS_PROMPT="TINY210 => "
 
 #
 # Autoboot options
