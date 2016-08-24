@@ -183,6 +183,9 @@ CONFIG_FIT=y
 # CONFIG_FIT_VERBOSE is not set
 # CONFIG_FIT_SIGNATURE is not set
 # CONFIG_FIT_BEST_MATCH is not set
+# CONFIG_OF_BOARD_SETUP is not set
+# CONFIG_OF_SYSTEM_SETUP is not set
+# CONFIG_OF_STDOUT_VIA_ALIAS is not set
 CONFIG_SYS_EXTRA_OPTIONS=""
 # CONFIG_SPL_LOAD_FIT is not set
 
@@ -225,6 +228,7 @@ CONFIG_CMD_CONSOLE=y
 # CONFIG_CMD_BOOTD is not set
 CONFIG_CMD_BOOTM=y
 # CONFIG_CMD_ELF is not set
+CONFIG_CMD_FDT=y
 # CONFIG_CMD_GO is not set
 # CONFIG_CMD_RUN is not set
 # CONFIG_CMD_IMI is not set
@@ -550,6 +554,7 @@ CONFIG_REGEX=y
 #
 # CONFIG_LZ4 is not set
 # CONFIG_ERRNO_STR is not set
-# CONFIG_OF_LIBFDT is not set
+CONFIG_OF_LIBFDT=y
 # CONFIG_SPL_OF_LIBFDT is not set
+# CONFIG_EFI_LOADER is not set
 # CONFIG_UNIT_TEST is not set
