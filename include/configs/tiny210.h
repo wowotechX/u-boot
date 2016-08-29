@@ -442,5 +442,8 @@
 /* For s5p_sdhci */
 #define SDHCI_MAX_HOSTS 4
 
+/* Enable board_late_init */
+#define CONFIG_BOARD_LATE_INIT
+
 
 #endif	/* __CONFIG_H */

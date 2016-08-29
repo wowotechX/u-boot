@@ -28,8 +28,29 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MOVI_BL1_ENV_BLKCNT     (CONFIG_ENV_SIZE / MOVI_BLKSIZE)   /* CONFIG_ENV_SIZE defined in tiny210.h, 32 sections */
 
 #define MOVI_BL2_SDCARD_POS		((MOVI_BL1_SDCARD_POS / MOVI_BLKSIZE) + MOVI_BL1_BLKCNT + MOVI_BL1_ENV_BLKCNT) /* place at forty-ninth section in sdcard*/
-#define MOVI_BL2_SIZE			(512 * 1024)
-#define MOVI_BL2_BLKCNT			(MOVI_BL2_SIZE / MOVI_BLKSIZE)        /* 1024 sections */
+#define MOVI_BL2_SIZE			(512 * 1024) /* uboot.bin 512 KB */
+#define MOVI_BL2_BLKCNT			(MOVI_BL2_SIZE / MOVI_BLKSIZE)
+
+#define IMAGE_IN_SDCARD
+
+#ifdef IMAGE_IN_SDCARD
+
+#define MOVI_KERNEL_SDCARD_POS	(MOVI_BL2_SDCARD_POS+MOVI_BL2_BLKCNT)
+#define MOVI_KERNEL_SIZE		(2*1024*1024) /* uImage 2MB */
+#define MOVI_KERNEL_BLKCNT		(MOVI_KERNEL_SIZE / MOVI_BLKSIZE)
+#define KERNEL_TEXT_BASE		0x20008000
+
+#define MOVI_DTB_SDCARD_POS		(MOVI_KERNEL_SDCARD_POS+MOVI_KERNEL_BLKCNT)
+#define MOVI_DTB_SIZE			(64*1024) /* DTB 64KB */
+#define MOVI_DTB_BLKCNT			(MOVI_DTB_SIZE / MOVI_BLKSIZE)
+#define DTB_BASE_ADDR			0x22000000
+
+#define MOVI_ROOTFS_SDCARD_POS		(MOVI_DTB_SDCARD_POS+MOVI_DTB_BLKCNT)
+#define MOVI_ROOTFS_SIZE			(4*1024*1024) /* rootfs 4MB */
+#define MOVI_ROOTFS_BLKCNT			(MOVI_ROOTFS_SIZE / MOVI_BLKSIZE)
+#define ROOTFS_BASE_ADDR			0x21000000
+
+#endif
 
 
 /* The point of the addr function "copy_sd_mmc_to_mem" */
@@ -54,6 +75,30 @@ void copy_bl2_to_ddr(void)
 	if(sdmmc_base_addr == SDMMC_CH2_BASE_ADDR)
 		copy_bl2(2, MOVI_BL2_SDCARD_POS, MOVI_BL2_BLKCNT, (u32 *)CONFIG_SYS_TEXT_BASE, 0);
 }
+
+
+#ifdef IMAGE_IN_SDCARD
+void copy_kernel_to_ddr(void)
+{
+	u32 sdmmc_base_addr;
+	copy_sd_mmc_to_mem copy_bl2 = (copy_sd_mmc_to_mem)(*(u32*)CopySDMMCtoMem);
+
+	sdmmc_base_addr = *(u32 *)SDMMC_BASE;
+
+	if(sdmmc_base_addr == SDMMC_CH0_BASE_ADDR)
+	{
+		copy_bl2(0, MOVI_KERNEL_SDCARD_POS, MOVI_KERNEL_BLKCNT, (u32 *)KERNEL_TEXT_BASE, 0);
+		copy_bl2(0, MOVI_DTB_SDCARD_POS, MOVI_DTB_BLKCNT, (u32 *)DTB_BASE_ADDR, 0);
+		copy_bl2(0, MOVI_ROOTFS_SDCARD_POS, MOVI_ROOTFS_BLKCNT, (u32 *)ROOTFS_BASE_ADDR, 0);
+	}
+	if(sdmmc_base_addr == SDMMC_CH2_BASE_ADDR)
+	{
+		copy_bl2(2, MOVI_KERNEL_SDCARD_POS, MOVI_KERNEL_BLKCNT, (u32 *)KERNEL_TEXT_BASE, 0);
+		copy_bl2(2, MOVI_DTB_SDCARD_POS, MOVI_DTB_BLKCNT, (u32 *)DTB_BASE_ADDR, 0);
+		copy_bl2(2, MOVI_ROOTFS_SDCARD_POS, MOVI_ROOTFS_BLKCNT, (u32 *)ROOTFS_BASE_ADDR, 0);
+	}
+}
+#endif
 
 
 void tiny210_early_debug(int debug_code)
@@ -106,6 +151,26 @@ int dram_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+#ifdef IMAGE_IN_SDCARD
+	__attribute__((noreturn)) void (*jump_kernel)(void);
+	printf("This is in board_late_init\n");
+	printf("Ready copy kernel image to ddr\n");
+	printf("MOVI_BL1_SDCARD_POS=%d\n", MOVI_BL1_SDCARD_POS);
+	printf("MOVI_BL2_SDCARD_POS=%d\n", MOVI_BL2_SDCARD_POS);
+	printf("MOVI_KERNEL_SDCARD_POS=%d\n", MOVI_KERNEL_SDCARD_POS);
+	printf("MOVI_DTB_SDCARD_POS=%d\n", MOVI_DTB_SDCARD_POS);
+	printf("MOVI_ROOTFS_SDCARD_POS=%d\n", MOVI_ROOTFS_SDCARD_POS);
+	copy_kernel_to_ddr();
+	jump_kernel=(void *)KERNEL_TEXT_BASE;
+	printf("Finish copy kernel image to ddr\n");
+	//(*jump_kernel)();
+#endif
+	return 0;
+}
+#endif
 
 void dram_init_banksize(void)
 {
