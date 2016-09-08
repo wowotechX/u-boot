@@ -50,6 +50,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MOVI_ROOTFS_BLKCNT			(MOVI_ROOTFS_SIZE / MOVI_BLKSIZE)
 #define ROOTFS_BASE_ADDR			0x21000000
 
+#define MOVI_FIT_IMAGE_SDCARD_POS	(MOVI_ROOTFS_SDCARD_POS+MOVI_ROOTFS_BLKCNT)
+#define MOVI_FIT_IMAGE_SIZE			(20*1024*1024) /* fit_image 20MB */
+#define MOVI_FIT_IMAGE_BLKCNT		(MOVI_FIT_IMAGE_SIZE / MOVI_BLKSIZE)
+#define FIT_IMAGE_BASE_ADDR			0x30000000
 #endif
 
 
@@ -98,6 +102,24 @@ void copy_kernel_to_ddr(void)
 		copy_bl2(2, MOVI_ROOTFS_SDCARD_POS, MOVI_ROOTFS_BLKCNT, (u32 *)ROOTFS_BASE_ADDR, 0);
 	}
 }
+
+void copy_fit_image_to_ddr(void)
+{
+	u32 sdmmc_base_addr;
+	copy_sd_mmc_to_mem copy_bl2 = (copy_sd_mmc_to_mem)(*(u32*)CopySDMMCtoMem);
+
+	sdmmc_base_addr = *(u32 *)SDMMC_BASE;
+
+	if(sdmmc_base_addr == SDMMC_CH0_BASE_ADDR)
+	{
+		copy_bl2(0, MOVI_FIT_IMAGE_SDCARD_POS, MOVI_FIT_IMAGE_BLKCNT, (u32 *)FIT_IMAGE_BASE_ADDR, 0);
+	}
+	if(sdmmc_base_addr == SDMMC_CH2_BASE_ADDR)
+	{
+		copy_bl2(2, MOVI_FIT_IMAGE_SDCARD_POS, MOVI_FIT_IMAGE_BLKCNT, (u32 *)FIT_IMAGE_BASE_ADDR, 0);
+	}
+}
+
 #endif
 
 
@@ -163,9 +185,10 @@ int board_late_init(void)
 	printf("MOVI_KERNEL_SDCARD_POS=%d\n", MOVI_KERNEL_SDCARD_POS);
 	printf("MOVI_DTB_SDCARD_POS=%d\n", MOVI_DTB_SDCARD_POS);
 	printf("MOVI_ROOTFS_SDCARD_POS=%d\n", MOVI_ROOTFS_SDCARD_POS);
-	copy_kernel_to_ddr();
-	jump_kernel=(void *)KERNEL_TEXT_BASE;
+	printf("MOVI_FIT_IMAGE_SDCARD_POS=%d\n", MOVI_FIT_IMAGE_SDCARD_POS);
+	copy_fit_image_to_ddr();
 	printf("Finish copy kernel image to ddr\n");
+	//jump_kernel=(void *)KERNEL_TEXT_BASE;
 	//(*jump_kernel)();
 #endif
 	return 0;
