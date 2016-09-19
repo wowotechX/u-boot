@@ -14,6 +14,7 @@
 #include <asm/gpio.h>
 #include <dm/device-internal.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

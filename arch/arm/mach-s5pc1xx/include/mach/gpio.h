@@ -9,6 +9,8 @@
 #define __ASM_ARCH_GPIO_H
 
 #ifndef __ASSEMBLY__
+
+#include <asm/arch/cpu.h>
 struct s5p_gpio_bank {
 	unsigned int	con;
 	unsigned int	dat;
@@ -716,6 +718,62 @@ enum s5pc110_gpio_pin {
 	S5PC110_GPIO_H37,
 
 	S5PC110_GPIO_MAX_PORT
+};
+
+struct s5pc110_gpio {
+	struct s5p_gpio_bank a0;
+	struct s5p_gpio_bank a1;
+	struct s5p_gpio_bank b;
+	struct s5p_gpio_bank c0;
+	struct s5p_gpio_bank c1;
+	struct s5p_gpio_bank d0;
+	struct s5p_gpio_bank d1;
+	struct s5p_gpio_bank e0;
+	struct s5p_gpio_bank e1;
+	struct s5p_gpio_bank f0;
+	struct s5p_gpio_bank f1;
+	struct s5p_gpio_bank f2;
+	struct s5p_gpio_bank f3;
+	struct s5p_gpio_bank g0;
+	struct s5p_gpio_bank g1;
+	struct s5p_gpio_bank g2;
+	struct s5p_gpio_bank g3;
+	struct s5p_gpio_bank i;
+	struct s5p_gpio_bank j0;
+	struct s5p_gpio_bank j1;
+	struct s5p_gpio_bank j2;
+	struct s5p_gpio_bank j3;
+	struct s5p_gpio_bank j4;
+	struct s5p_gpio_bank mp0_1;
+	struct s5p_gpio_bank mp0_2;
+	struct s5p_gpio_bank mp0_3;
+	struct s5p_gpio_bank mp0_4;
+	struct s5p_gpio_bank mp0_5;
+	struct s5p_gpio_bank mp0_6;
+	struct s5p_gpio_bank mp0_7;
+	struct s5p_gpio_bank mp1_0;
+	struct s5p_gpio_bank mp1_1;
+	struct s5p_gpio_bank mp1_2;
+	struct s5p_gpio_bank mp1_3;
+	struct s5p_gpio_bank mp1_4;
+	struct s5p_gpio_bank mp1_5;
+	struct s5p_gpio_bank mp1_6;
+	struct s5p_gpio_bank mp1_7;
+    struct s5p_gpio_bank mp1_8;
+	struct s5p_gpio_bank mp2_0;
+	struct s5p_gpio_bank mp2_1;
+	struct s5p_gpio_bank mp2_2;
+	struct s5p_gpio_bank mp2_3;
+	struct s5p_gpio_bank mp2_4;
+	struct s5p_gpio_bank mp2_5;
+	struct s5p_gpio_bank mp2_6;
+	struct s5p_gpio_bank mp2_7;
+	struct s5p_gpio_bank mp2_8;
+	struct s5p_gpio_bank res1[48];
+	struct s5p_gpio_bank h0;
+	struct s5p_gpio_bank h1;
+	struct s5p_gpio_bank h2;
+	struct s5p_gpio_bank h3;
 };
 
 struct gpio_info {
