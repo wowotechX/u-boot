@@ -33,11 +33,7 @@
 #define CONFIG_SYS_SDRAM_BASE		0x0
 #define CONFIG_NR_DRAM_BANKS		1
 
-#define CONFIG_SYS_SDRAM_SIZE		0x3FFFFFFF	/* TODO, should be 2GB */
-
-/* #define CONFIG_SYS_DRAM_TEST */
-#define CONFIG_SYS_MEMTEST_START	0x0
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 2048)
+#define CONFIG_SYS_SDRAM_SIZE		0x80000000	/* 2GB */
 
 /*
  * u-boot definitions, which is resided in SDRAM, TODO
@@ -48,6 +44,11 @@
 
 /* Some commands use this as the default load address, TODO */
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7ffc0)
+
+/* for DRAM test */
+/* #define CONFIG_SYS_DRAM_TEST */
+#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SYS_MEMTEST_END		CONFIG_SYS_TEXT_BASE
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE			(0xe00f1000)

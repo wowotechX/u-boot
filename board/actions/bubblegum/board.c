@@ -142,26 +142,34 @@ int dram_init(void)
 #if defined(CONFIG_SYS_DRAM_TEST)
 int testdram (void)
 {
-	uint32_t *pstart = (uint32_t *) CONFIG_SYS_MEMTEST_START;
-	uint32_t *pend = (uint32_t *) CONFIG_SYS_MEMTEST_END;
+	uint32_t *pstart = (uint32_t *)CONFIG_SYS_MEMTEST_START;
+	uint32_t *pend = (uint32_t *)CONFIG_SYS_MEMTEST_END;
 	uint32_t *p;
 
 	printf("SDRAM test phase 1:\n");
+	printf("write...\n");
 	for (p = pstart; p < pend; p++)
 		*p = 0xaaaaaaaa;
 
+	printf("read back and check...\n");
 	for (p = pstart; p < pend; p++) {
-		if (*p != 0xaaaaaaaa)
-			printf ("SDRAM test fails at: %08x=%08x\n", (uint32_t) p, *p);
+		if (*p != 0xaaaaaaaa) {
+			printf ("SDRAM test fails at: %08x=%08x\n", (uint32_t)p, *p);
+			while (1);
+		}
 	}
 
 	printf("SDRAM test phase 2:\n");
+	printf("write...\n");
 	for (p = pstart; p < pend; p++)
 		*p = 0x55555555;
 
+	printf("read back and check...\n");
 	for (p = pstart; p < pend; p++) {
-		if (*p != 0x55555555)
-			printf ("SDRAM test fails at: %08x=%08x\n", (uint32_t) p, *p);
+		if (*p != 0x55555555) {
+			printf ("SDRAM test fails at: %08x=%08x\n", (uint32_t)p, *p);
+			while (1);
+		}
 	}
 
 	printf("SDRAM test passed.\n");

@@ -247,19 +247,19 @@ CONFIG_CMD_FDT=y
 #
 # Memory commands
 #
-# CONFIG_CMD_MEMORY is not set
-# CONFIG_CMD_CRC32 is not set
-# CONFIG_LOOPW is not set
-# CONFIG_CMD_MEMTEST is not set
-# CONFIG_CMD_MX_CYCLIC is not set
-# CONFIG_CMD_MEMINFO is not set
+CONFIG_CMD_MEMORY=y
+CONFIG_CMD_CRC32=y
+CONFIG_LOOPW=y
+CONFIG_CMD_MEMTEST=y
+CONFIG_CMD_MX_CYCLIC=y
+CONFIG_CMD_MEMINFO=y
 
 #
 # Device access commands
 #
 CONFIG_CMD_DM=y
 # CONFIG_CMD_DEMO is not set
-# CONFIG_CMD_LOADB is not set
+CONFIG_CMD_LOADB=y
 # CONFIG_CMD_LOADS is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_NAND is not set
