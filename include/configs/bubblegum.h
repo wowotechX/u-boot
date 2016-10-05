@@ -74,4 +74,7 @@
 
 #define CONFIG_CMD_BOOTI
 
+#define CONFIG_BOOTDELAY		-2
+#define CONFIG_BOOTCOMMAND		"bootm 0x6400000"
+
 #endif
