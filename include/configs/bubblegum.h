@@ -51,6 +51,8 @@
 #define CONFIG_SYS_MEMTEST_END		CONFIG_SYS_TEXT_BASE
 
 /* Generic Interrupt Controller Definitions */
+#define CONFIG_GICV2
+
 #define GICD_BASE			(0xe00f1000)
 #define GICC_BASE			(0xe00f2000)
 
@@ -78,4 +80,5 @@
 #define CONFIG_BOOTCOMMAND		"bootm 0x6400000"
 
 #define COUNTER_FREQUENCY		(24000000)      /* 24MHz */
+
 #endif
