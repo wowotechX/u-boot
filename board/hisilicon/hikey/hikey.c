@@ -416,3 +416,17 @@ void reset_cpu(ulong addr)
 {
 	/* TODO program the watchdog */
 }
+
+#ifdef CONFIG_SPL_BUILD
+void board_init_f(ulong bootflag)
+{
+	/* GPIO4_2(User LED3), 0xF7020000, GPIODIR(0x400), GPIODAT2(0x10) */
+	writel(readl(0xF7020400) | (1 << 2), 0xF7020400);
+	writel(readl(0xF7020010) | 0xFF, 0xF7020010);
+	while (1);
+}
+
+void panic(const char *fmt, ...)
+{
+}
+#endif
