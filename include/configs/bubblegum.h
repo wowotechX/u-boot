@@ -74,6 +74,12 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
+#define CONFIG_BOOTARGS                 "earlycon=owl_serial " \
+					"console=ttyS5 " \
+					"root=/dev/ram0 " \
+					"init=/sbin/init " \
+					"loglevel=8"
+
 #define CONFIG_BOOTCOMMAND		"bootm 0x6400000"
 
 #define COUNTER_FREQUENCY		(24000000)      /* 24MHz */
