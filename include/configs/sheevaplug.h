@@ -10,12 +10,6 @@
 #ifndef _CONFIG_SHEEVAPLUG_H
 #define _CONFIG_SHEEVAPLUG_H
 
-
-/*
- * Version number information
- */
-#define CONFIG_IDENT_STRING	"\nMarvell-Sheevaplug"
-
 /*
  * High Level Configuration Options (easy to change)
  */
@@ -25,7 +19,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_MMC
 
 /*
  * Standard filesystems
@@ -90,7 +83,6 @@
  * SDIO/MMC Card Configuration
  */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MVEBU_MMC
 #define CONFIG_SYS_MMC_BASE KW_SDIO_BASE

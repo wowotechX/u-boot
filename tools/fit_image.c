@@ -51,8 +51,10 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 	}
 
 	/* for first image creation, add a timestamp at offset 0 i.e., root  */
-	if (params->datafile)
-		ret = fit_set_timestamp(ptr, 0, sbuf.st_mtime);
+	if (params->datafile) {
+		time_t time = imagetool_get_source_date(params, sbuf.st_mtime);
+		ret = fit_set_timestamp(ptr, 0, time);
+	}
 
 	if (!ret) {
 		ret = fit_add_verification_data(params->keydir, dest_blob, ptr,
@@ -83,8 +85,15 @@ static int fit_calc_size(struct image_tool_params *params)
 	size = imagetool_get_filesize(params, params->datafile);
 	if (size < 0)
 		return -1;
-
 	total_size = size;
+
+	if (params->fit_ramdisk) {
+		size = imagetool_get_filesize(params, params->fit_ramdisk);
+		if (size < 0)
+			return -1;
+		total_size += size;
+	}
+
 	for (cont = params->content_head; cont; cont = cont->next) {
 		size = imagetool_get_filesize(params, cont->fname);
 		if (size < 0)
@@ -193,7 +202,8 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 	fdt_begin_node(fdt, str);
 	fdt_property_string(fdt, "description", params->imagename);
 	fdt_property_string(fdt, "type", typename);
-	fdt_property_string(fdt, "arch", genimg_get_arch_name(params->arch));
+	fdt_property_string(fdt, "arch",
+			    genimg_get_arch_short_name(params->arch));
 	fdt_property_string(fdt, "os", genimg_get_os_short_name(params->os));
 	fdt_property_string(fdt, "compression",
 			    genimg_get_comp_short_name(params->comp));
@@ -227,6 +237,20 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 				    genimg_get_arch_short_name(params->arch));
 		fdt_property_string(fdt, "compression",
 				    genimg_get_comp_short_name(IH_COMP_NONE));
+		fdt_end_node(fdt);
+	}
+
+	/* And a ramdisk file if available */
+	if (params->fit_ramdisk) {
+		fdt_begin_node(fdt, FIT_RAMDISK_PROP "@1");
+
+		fdt_property_string(fdt, "type", FIT_RAMDISK_PROP);
+		fdt_property_string(fdt, "os", genimg_get_os_short_name(params->os));
+
+		ret = fdt_property_file(params, fdt, "data", params->fit_ramdisk);
+		if (ret)
+			return ret;
+
 		fdt_end_node(fdt);
 	}
 
@@ -269,15 +293,25 @@ static void fit_write_configs(struct image_tool_params *params, char *fdt)
 		snprintf(str, sizeof(str), "%s@1", typename);
 		fdt_property_string(fdt, typename, str);
 
+		if (params->fit_ramdisk)
+			fdt_property_string(fdt, FIT_RAMDISK_PROP,
+					    FIT_RAMDISK_PROP "@1");
+
 		snprintf(str, sizeof(str), FIT_FDT_PROP "@%d", upto);
 		fdt_property_string(fdt, FIT_FDT_PROP, str);
 		fdt_end_node(fdt);
 	}
+
 	if (!upto) {
 		fdt_begin_node(fdt, "conf@1");
 		typename = genimg_get_type_short_name(params->fit_image_type);
 		snprintf(str, sizeof(str), "%s@1", typename);
 		fdt_property_string(fdt, typename, str);
+
+		if (params->fit_ramdisk)
+			fdt_property_string(fdt, FIT_RAMDISK_PROP,
+					    FIT_RAMDISK_PROP "@1");
+
 		fdt_end_node(fdt);
 	}
 
@@ -343,7 +377,6 @@ static int fit_build(struct image_tool_params *params, const char *fname)
 	if (ret != size) {
 		fprintf(stderr, "%s: Can't write %s: %s\n",
 			params->cmdname, fname, strerror(errno));
-		close(fd);
 		goto err;
 	}
 	close(fd);
@@ -417,7 +450,13 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 			ret = -EPERM;
 			goto err_munmap;
 		}
-		fdt_setprop_u32(fdt, node, "data-offset", buf_ptr);
+		if (params->external_offset > 0) {
+			/* An external offset positions the data absolutely. */
+			fdt_setprop_u32(fdt, node, "data-position",
+					params->external_offset + buf_ptr);
+		} else {
+			fdt_setprop_u32(fdt, node, "data-offset", buf_ptr);
+		}
 		fdt_setprop_u32(fdt, node, "data-size", len);
 
 		buf_ptr += (len + 3) & ~3;
@@ -437,6 +476,17 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 		      strerror(errno));
 		ret = -EIO;
 		goto err;
+	}
+
+	/* Check if an offset for the external data was set. */
+	if (params->external_offset > 0) {
+		if (params->external_offset < new_size) {
+			debug("External offset %x overlaps FIT length %x",
+			      params->external_offset, new_size);
+			ret = -EINVAL;
+			goto err;
+		}
+		new_size = params->external_offset;
 	}
 	if (lseek(fd, new_size, SEEK_SET) < 0) {
 		debug("%s: Failed to seek to end of file: %s\n", __func__,
@@ -632,8 +682,8 @@ static int fit_handle_file(struct image_tool_params *params)
 	}
 
 	if (ret) {
-		fprintf(stderr, "%s Can't add hashes to FIT blob\n",
-			params->cmdname);
+		fprintf(stderr, "%s Can't add hashes to FIT blob: %d\n",
+			params->cmdname, ret);
 		goto err_system;
 	}
 

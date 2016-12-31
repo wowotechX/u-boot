@@ -557,12 +557,10 @@ int usb_clear_halt(struct usb_device *dev, int pipe)
 static int usb_get_descriptor(struct usb_device *dev, unsigned char type,
 			unsigned char index, void *buf, int size)
 {
-	int res;
-	res = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
-			USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
-			(type << 8) + index, 0,
-			buf, size, USB_CNTL_TIMEOUT);
-	return res;
+	return usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
+			       USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
+			       (type << 8) + index, 0, buf, size,
+			       USB_CNTL_TIMEOUT);
 }
 
 /**********************************************************************
@@ -612,14 +610,10 @@ int usb_get_configuration_no(struct usb_device *dev, int cfgno,
  */
 static int usb_set_address(struct usb_device *dev)
 {
-	int res;
-
 	debug("set address %d\n", dev->devnum);
-	res = usb_control_msg(dev, usb_snddefctrl(dev),
-				USB_REQ_SET_ADDRESS, 0,
-				(dev->devnum), 0,
-				NULL, 0, USB_CNTL_TIMEOUT);
-	return res;
+
+	return usb_control_msg(dev, usb_snddefctrl(dev), USB_REQ_SET_ADDRESS,
+			       0, (dev->devnum), 0, NULL, 0, USB_CNTL_TIMEOUT);
 }
 
 /********************************************************************
@@ -1064,7 +1058,7 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 
 int usb_select_config(struct usb_device *dev)
 {
-	unsigned char *tmpbuf = 0;
+	unsigned char *tmpbuf = NULL;
 	int err;
 
 	err = get_descriptor_len(dev, USB_DT_DEVICE_SIZE, USB_DT_DEVICE_SIZE);
@@ -1076,6 +1070,14 @@ int usb_select_config(struct usb_device *dev)
 	le16_to_cpus(&dev->descriptor.idVendor);
 	le16_to_cpus(&dev->descriptor.idProduct);
 	le16_to_cpus(&dev->descriptor.bcdDevice);
+
+	/*
+	 * Kingston DT Ultimate 32GB USB 3.0 seems to be extremely sensitive
+	 * about this first Get Descriptor request. If there are any other
+	 * requests in the first microframe, the stick crashes. Wait about
+	 * one microframe duration here (1mS for USB 1.x , 125uS for USB 2.0).
+	 */
+	mdelay(1);
 
 	/* only support for one config for now */
 	err = usb_get_configuration_len(dev, 0);
@@ -1107,6 +1109,14 @@ int usb_select_config(struct usb_device *dev)
 			"len %d, status %lX\n", dev->act_len, dev->status);
 		return err;
 	}
+
+	/*
+	 * Wait until the Set Configuration request gets processed by the
+	 * device. This is required by at least SanDisk Cruzer Pop USB 2.0
+	 * and Kingston DT Ultimate 32GB USB 3.0 on DWC2 OTG controller.
+	 */
+	mdelay(10);
+
 	debug("new device strings: Mfr=%d, Product=%d, SerialNumber=%d\n",
 	      dev->descriptor.iManufacturer, dev->descriptor.iProduct,
 	      dev->descriptor.iSerialNumber);
@@ -1166,7 +1176,7 @@ int usb_new_device(struct usb_device *dev)
 	 * with the device. So a get_descriptor will fail before any
 	 * of that is done for XHCI unlike EHCI.
 	 */
-#ifdef CONFIG_USB_XHCI
+#ifdef CONFIG_USB_XHCI_HCD
 	do_read = false;
 #endif
 	err = usb_setup_device(dev, do_read, dev->parent);

@@ -19,7 +19,6 @@
 #define CONFIG_MPX5200		1	/* MPX5200 board */
 #define CONFIG_MPC5200_DDR	1	/* use DDR RAM */
 #define CONFIG_IPEK01           	/* Motherboard is ipek01 */
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0xfc000000
 
@@ -44,18 +43,12 @@
 /*
  * Video configuration for LIME GDC
  */
-#define CONFIG_VIDEO
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_MB862xx
 #define CONFIG_VIDEO_MB862xx_ACCEL
 #define VIDEO_FB_16BPP_WORD_SWAP
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_CONSOLE_EXTRA_INFO
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)	/* decompressed img */
@@ -70,8 +63,6 @@
  * 0x40000000 - 0x4fffffff - PCI Memory
  * 0x50000000 - 0x50ffffff - PCI IO Space
  */
-#define CONFIG_PCI		1
-#define CONFIG_PCI_PNP		1
 #define CONFIG_PCI_SCAN_SHOW	1
 
 #define CONFIG_PCI_MEM_BUS	0x40000000
@@ -92,7 +83,6 @@
 /* USB */
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_OHCI_BE_CONTROLLER
-#define CONFIG_USB_STORAGE
 
 #define CONFIG_SYS_USB_OHCI_CPU_INIT
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		MPC5XXX_USB
@@ -106,21 +96,15 @@
 #define CONFIG_CMD_BMP		/* BMP support */
 #endif
 #define CONFIG_CMD_DATE		/* support for RTC, date/time...*/
-#define CONFIG_CMD_DHCP		/* DHCP Support */
-#define CONFIG_CMD_FAT		/* FAT support */
-#define CONFIG_CMD_I2C		/* I2C serial bus support */
 #define CONFIG_CMD_IDE		/* IDE harddisk support */
 #define CONFIG_CMD_IRQ		/* irqinfo */
-#define CONFIG_CMD_MII		/* MII support */
 #define CONFIG_CMD_PCI		/* pciinfo */
-#define CONFIG_CMD_USB		/* USB Support */
 
 #define CONFIG_SYS_LOWBOOT	1
 
 /*
  * Autobooting
  */
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
@@ -290,8 +274,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1...15 MB in DRAM */
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000 /* default load address */
-
-#define CONFIG_LOOPW
 
 /*
  * Various low-level settings

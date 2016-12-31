@@ -5,6 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+extra-y	+= start.o
 
 obj-y	+= board.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o

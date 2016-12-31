@@ -15,7 +15,6 @@
 #define CONFIG_OMAP			/* in a TI OMAP core */
 #define CONFIG_OMAP3_MCX		/* working with mcx */
 #define CONFIG_OMAP_GPIO
-#define CONFIG_OMAP_COMMON
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_454179
 #define CONFIG_ARM_ERRATA_430973
@@ -24,9 +23,6 @@
 #define MACH_TYPE_MCX			3656
 #define CONFIG_MACH_TYPE	MACH_TYPE_MCX
 #define CONFIG_BOARD_LATE_INIT
-
-
-#define CONFIG_SYS_CACHELINE_SIZE	64
 
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
@@ -38,12 +34,6 @@
  * and older u-boot.bin with the new U-Boot SPL.
  */
 #define CONFIG_SYS_TEXT_BASE		0x80008000
-
-/*
- * Display CPU and Board information
- */
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 /* Clock Defines */
 #define V_OSCK			26000000	/* Clock output from T2 */
@@ -91,13 +81,11 @@
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
-#define CONFIG_MMC
 #define CONFIG_OMAP_HSMMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DOS_PARTITION
 
 /* EHCI */
-#define CONFIG_USB_STORAGE
 #define CONFIG_OMAP3_GPIO_2
 #define CONFIG_OMAP3_GPIO_5
 #define CONFIG_USB_EHCI
@@ -109,20 +97,10 @@
 #define CONFIG_USB_ETHER_MCS7830
 
 /* commands to include */
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C		/* I2C serial bus support	*/
-#define CONFIG_CMD_MMC		/* MMC support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
 #define CONFIG_LZO
@@ -140,7 +118,6 @@
 #define CONFIG_RTC_DS1337
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68
 
-#define CONFIG_CMD_MII
 /*
  * Board NAND Info.
  */
@@ -160,7 +137,6 @@
 #define CONFIG_JFFS2_PART_SIZE		0xf980000	/* sz of jffs2 part */
 
 /* Environment information */
-#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_BOOTFILE		"uImage"
 
@@ -263,7 +239,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_CBSIZE		1024/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
@@ -336,19 +311,10 @@
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NAND_SIMPLE
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBDISK_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_POWER_SUPPORT
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
 #define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
@@ -360,7 +326,6 @@
 #define CONFIG_SPL_BSS_START_ADDR	0x8f080000 /* end of RAM */
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
@@ -397,13 +362,9 @@
 #define CONFIG_NET_RETRY_COUNT 10
 #endif
 
-#define CONFIG_VIDEO
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_CMD_BMP
 #define CONFIG_VIDEO_OMAP3
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #endif /* __CONFIG_H */

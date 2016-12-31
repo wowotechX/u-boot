@@ -43,9 +43,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_DISPLAY_CPUINFO
-
-#define CONFIG_CMD_BOOTZ
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
@@ -63,7 +60,6 @@
 #define	CONFIG_RED_LED		AT91_PIN_PA9	/* this is the power led */
 #define	CONFIG_GREEN_LED	AT91_PIN_PA6	/* this is the user led */
 
-#define CONFIG_BOOTDELAY	3
 
 /*
  * BOOTP options
@@ -76,11 +72,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING		1
-#define CONFIG_CMD_DHCP		1
 #define CONFIG_CMD_NAND		1
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_USB		1
 
 /*
  * SDRAM: 1 bank, min 32, max 128 MB
@@ -131,7 +123,6 @@
 #define AT91_SPI_CLK			15000000
 #else
 /* Enable MMC. The MCCK is conflicted with DataFlash */
-#define CONFIG_CMD_MMC
 #endif
 
 #ifdef CONFIG_AT91SAM9G20EK
@@ -155,7 +146,6 @@
 
 /* MMC */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_GENERIC_ATMEL_MCI
 #endif
@@ -183,7 +173,6 @@
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00500000	/* AT91SAM9260_UHP_BASE */
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9260"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
-#define CONFIG_USB_STORAGE		1
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
 

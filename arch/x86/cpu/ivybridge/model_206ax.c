@@ -12,17 +12,14 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>
-#include <asm/acpi.h>
 #include <asm/cpu.h>
 #include <asm/cpu_x86.h>
-#include <asm/lapic.h>
 #include <asm/msr.h>
 #include <asm/msr-index.h>
 #include <asm/mtrr.h>
 #include <asm/processor.h>
 #include <asm/speedstep.h>
 #include <asm/turbo.h>
-#include <asm/arch/bd82x6x.h>
 #include <asm/arch/model_206ax.h>
 
 static void enable_vmx(void)
@@ -419,7 +416,6 @@ static int model_206ax_init(struct udevice *dev)
 
 	/* Enable the local cpu apics */
 	enable_lapic_tpr();
-	lapic_setup();
 
 	/* Enable virtualization if enabled in CMOS */
 	enable_vmx();
@@ -481,6 +477,7 @@ static const struct cpu_ops cpu_x86_model_206ax_ops = {
 	.get_desc	= cpu_x86_get_desc,
 	.get_info	= model_206ax_get_info,
 	.get_count	= model_206ax_get_count,
+	.get_vendor	= cpu_x86_get_vendor,
 };
 
 static const struct udevice_id cpu_x86_model_206ax_ids[] = {

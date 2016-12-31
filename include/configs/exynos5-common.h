@@ -13,7 +13,6 @@
 
 #include "exynos-common.h"
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
 #define CONFIG_EXYNOS_SPL
 
 #ifdef FTRACE
@@ -43,9 +42,6 @@
 /* select serial console configuration */
 #define CONFIG_BAUDRATE			115200
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000
-#define CONFIG_SILENT_CONSOLE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_CONSOLE_MUX
 
 #define CONFIG_CMD_HASH
 
@@ -57,11 +53,6 @@
 /* MMC SPL */
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 #define CONFIG_SUPPORT_EMMC_BOOT
-
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_GPIO_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
 
 /* specific .lds file */
 #define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
@@ -121,16 +112,12 @@
 #define SPI_FLASH_UBOOT_POS	(CONFIG_SEC_FW_SIZE + CONFIG_BL1_SIZE)
 
 /* I2C */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C_S3C24X0
 #define CONFIG_SYS_I2C_S3C24X0_SPEED	100000		/* 100 Kbps */
 #define CONFIG_SYS_I2C_S3C24X0_SLAVE    0x0
-#define CONFIG_I2C_EDID
 
 /* SPI */
 #ifdef CONFIG_SPI_FLASH
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED		50000000
 #endif
@@ -157,13 +144,8 @@
 #define CONFIG_SHA256
 
 /* Enable Time Command */
-#define CONFIG_CMD_TIME
-
 
 /* USB */
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
-#define CONFIG_USB_XHCI_DWC3
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 

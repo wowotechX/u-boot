@@ -7,8 +7,6 @@
 #ifndef __CONFIG_TQMA6_WRU4_H
 #define __CONFIG_TQMA6_WRU4_H
 
-#define CONFIG_DEFAULT_FDT_FILE		"imx6s-wru4.dtb"
-
 /* DTT sensors */
 #define CONFIG_DTT_SENSORS		{ 0, 1 }
 #define CONFIG_SYS_DTT_BUS_NUM		2
@@ -21,7 +19,7 @@
 
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART4_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc3"
+#define CONSOLE_DEV		"ttymxc3"
 
 #define CONFIG_MISC_INIT_R
 
@@ -37,7 +35,6 @@
 /* Turn off RTC square-wave output to save battery */
 #define CONFIG_SYS_RTC_DS1337_NOOSC
 #define CONFIG_CMD_DATE
-
 
 /* LED */
 #define CONFIG_CMD_LED
@@ -71,8 +68,6 @@
  * Remove all unused interfaces / commands that are defined in
  * the common header tqms6.h
  */
-#undef CONFIG_CMD_SF
-#undef CONFIG_CMD_SPI
 #undef CONFIG_MXC_SPI
 
 #endif /* __CONFIG_TQMA6_WRU4_H */

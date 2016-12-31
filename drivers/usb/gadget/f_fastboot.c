@@ -39,6 +39,11 @@
 #define TX_ENDPOINT_MAXIMUM_PACKET_SIZE      (0x0040)
 
 #define EP_BUFFER_SIZE			4096
+/*
+ * EP_BUFFER_SIZE must always be an integral multiple of maxpacket size
+ * (64 or 512 or 1024), else we break on certain controllers like DWC3
+ * that expect bulk OUT requests to be divisible by maxpacket size.
+ */
 
 struct f_fastboot {
 	struct usb_function usb_function;
@@ -54,18 +59,15 @@ static inline struct f_fastboot *func_to_fastboot(struct usb_function *f)
 }
 
 static struct f_fastboot *fastboot_func;
-static unsigned int fastboot_flash_session_id;
 static unsigned int download_size;
 static unsigned int download_bytes;
-static bool is_high_speed;
 
 static struct usb_endpoint_descriptor fs_ep_in = {
 	.bLength            = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType    = USB_DT_ENDPOINT,
 	.bEndpointAddress   = USB_DIR_IN,
 	.bmAttributes       = USB_ENDPOINT_XFER_BULK,
-	.wMaxPacketSize     = TX_ENDPOINT_MAXIMUM_PACKET_SIZE,
-	.bInterval          = 0x00,
+	.wMaxPacketSize     = cpu_to_le16(64),
 };
 
 static struct usb_endpoint_descriptor fs_ep_out = {
@@ -73,8 +75,15 @@ static struct usb_endpoint_descriptor fs_ep_out = {
 	.bDescriptorType	= USB_DT_ENDPOINT,
 	.bEndpointAddress	= USB_DIR_OUT,
 	.bmAttributes		= USB_ENDPOINT_XFER_BULK,
-	.wMaxPacketSize		= RX_ENDPOINT_MAXIMUM_PACKET_SIZE_1_1,
-	.bInterval		= 0x00,
+	.wMaxPacketSize		= cpu_to_le16(64),
+};
+
+static struct usb_endpoint_descriptor hs_ep_in = {
+	.bLength		= USB_DT_ENDPOINT_SIZE,
+	.bDescriptorType	= USB_DT_ENDPOINT,
+	.bEndpointAddress	= USB_DIR_IN,
+	.bmAttributes		= USB_ENDPOINT_XFER_BULK,
+	.wMaxPacketSize		= cpu_to_le16(512),
 };
 
 static struct usb_endpoint_descriptor hs_ep_out = {
@@ -82,8 +91,7 @@ static struct usb_endpoint_descriptor hs_ep_out = {
 	.bDescriptorType	= USB_DT_ENDPOINT,
 	.bEndpointAddress	= USB_DIR_OUT,
 	.bmAttributes		= USB_ENDPOINT_XFER_BULK,
-	.wMaxPacketSize		= RX_ENDPOINT_MAXIMUM_PACKET_SIZE_2_0,
-	.bInterval		= 0x00,
+	.wMaxPacketSize		= cpu_to_le16(512),
 };
 
 static struct usb_interface_descriptor interface_desc = {
@@ -97,12 +105,27 @@ static struct usb_interface_descriptor interface_desc = {
 	.bInterfaceProtocol	= FASTBOOT_INTERFACE_PROTOCOL,
 };
 
-static struct usb_descriptor_header *fb_runtime_descs[] = {
+static struct usb_descriptor_header *fb_fs_function[] = {
 	(struct usb_descriptor_header *)&interface_desc,
 	(struct usb_descriptor_header *)&fs_ep_in,
+	(struct usb_descriptor_header *)&fs_ep_out,
+};
+
+static struct usb_descriptor_header *fb_hs_function[] = {
+	(struct usb_descriptor_header *)&interface_desc,
+	(struct usb_descriptor_header *)&hs_ep_in,
 	(struct usb_descriptor_header *)&hs_ep_out,
 	NULL,
 };
+
+static struct usb_endpoint_descriptor *
+fb_ep_desc(struct usb_gadget *g, struct usb_endpoint_descriptor *fs,
+	    struct usb_endpoint_descriptor *hs)
+{
+	if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
+		return hs;
+	return fs;
+}
 
 /*
  * static strings, in UTF-8
@@ -128,16 +151,18 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req);
 static int strcmp_l1(const char *s1, const char *s2);
 
 
-void fastboot_fail(char *response, const char *reason)
+static char *fb_response_str;
+
+void fastboot_fail(const char *reason)
 {
-	strncpy(response, "FAIL\0", 5);
-	strncat(response, reason, FASTBOOT_RESPONSE_LEN - 4 - 1);
+	strncpy(fb_response_str, "FAIL\0", 5);
+	strncat(fb_response_str, reason, FASTBOOT_RESPONSE_LEN - 4 - 1);
 }
 
-void fastboot_okay(char *response, const char *reason)
+void fastboot_okay(const char *reason)
 {
-	strncpy(response, "OKAY\0", 5);
-	strncat(response, reason, FASTBOOT_RESPONSE_LEN - 4 - 1);
+	strncpy(fb_response_str, "OKAY\0", 5);
+	strncat(fb_response_str, reason, FASTBOOT_RESPONSE_LEN - 4 - 1);
 }
 
 static void fastboot_complete(struct usb_ep *ep, struct usb_request *req)
@@ -177,7 +202,15 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 		return -ENODEV;
 	f_fb->out_ep->driver_data = c->cdev;
 
-	hs_ep_out.bEndpointAddress = fs_ep_out.bEndpointAddress;
+	f->descriptors = fb_fs_function;
+
+	if (gadget_is_dualspeed(gadget)) {
+		/* Assume endpoint addresses are the same for both speeds */
+		hs_ep_in.bEndpointAddress = fs_ep_in.bEndpointAddress;
+		hs_ep_out.bEndpointAddress = fs_ep_out.bEndpointAddress;
+		/* copy HS descriptors */
+		f->hs_descriptors = fb_hs_function;
+	}
 
 	s = getenv("serial#");
 	if (s)
@@ -236,18 +269,13 @@ static int fastboot_set_alt(struct usb_function *f,
 	struct usb_composite_dev *cdev = f->config->cdev;
 	struct usb_gadget *gadget = cdev->gadget;
 	struct f_fastboot *f_fb = func_to_fastboot(f);
+	const struct usb_endpoint_descriptor *d;
 
 	debug("%s: func: %s intf: %d alt: %d\n",
 	      __func__, f->name, interface, alt);
 
-	/* make sure we don't enable the ep twice */
-	if (gadget->speed == USB_SPEED_HIGH) {
-		ret = usb_ep_enable(f_fb->out_ep, &hs_ep_out);
-		is_high_speed = true;
-	} else {
-		ret = usb_ep_enable(f_fb->out_ep, &fs_ep_out);
-		is_high_speed = false;
-	}
+	d = fb_ep_desc(gadget, &fs_ep_out, &hs_ep_out);
+	ret = usb_ep_enable(f_fb->out_ep, d);
 	if (ret) {
 		puts("failed to enable out ep\n");
 		return ret;
@@ -261,7 +289,8 @@ static int fastboot_set_alt(struct usb_function *f,
 	}
 	f_fb->out_req->complete = rx_handler_command;
 
-	ret = usb_ep_enable(f_fb->in_ep, &fs_ep_in);
+	d = fb_ep_desc(gadget, &fs_ep_in, &hs_ep_in);
+	ret = usb_ep_enable(f_fb->in_ep, d);
 	if (ret) {
 		puts("failed to enable in ep\n");
 		goto err;
@@ -302,7 +331,6 @@ static int fastboot_add(struct usb_configuration *c)
 	}
 
 	f_fb->usb_function.name = "f_fastboot";
-	f_fb->usb_function.hs_descriptors = fb_runtime_descs;
 	f_fb->usb_function.bind = fastboot_bind;
 	f_fb->usb_function.unbind = fastboot_unbind;
 	f_fb->usb_function.set_alt = fastboot_set_alt;
@@ -397,15 +425,6 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 
 		sprintf(str_num, "0x%08x", CONFIG_FASTBOOT_BUF_SIZE);
 		strncat(response, str_num, chars_left);
-
-		/*
-		 * This also indicates the start of a new flashing
-		 * "session", in which we could have 1-N buffers to
-		 * write to a partition.
-		 *
-		 * Reset our session counter.
-		 */
-		fastboot_flash_session_id = 0;
 	} else if (!strcmp_l1("serialno", cmd)) {
 		s = getenv("serial#");
 		if (s)
@@ -427,20 +446,27 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	fastboot_tx_write_str(response);
 }
 
-static unsigned int rx_bytes_expected(unsigned int maxpacket)
+static unsigned int rx_bytes_expected(struct usb_ep *ep)
 {
 	int rx_remain = download_size - download_bytes;
-	int rem = 0;
-	if (rx_remain < 0)
+	unsigned int rem;
+	unsigned int maxpacket = ep->maxpacket;
+
+	if (rx_remain <= 0)
 		return 0;
-	if (rx_remain > EP_BUFFER_SIZE)
+	else if (rx_remain > EP_BUFFER_SIZE)
 		return EP_BUFFER_SIZE;
-	if (rx_remain < maxpacket) {
-		rx_remain = maxpacket;
-	} else if (rx_remain % maxpacket != 0) {
-		rem = rx_remain % maxpacket;
+
+	/*
+	 * Some controllers e.g. DWC3 don't like OUT transfers to be
+	 * not ending in maxpacket boundary. So just make them happy by
+	 * always requesting for integral multiple of maxpackets.
+	 * This shouldn't bother controllers that don't care about it.
+	 */
+	rem = rx_remain % maxpacket;
+	if (rem > 0)
 		rx_remain = rx_remain + (maxpacket - rem);
-	}
+
 	return rx_remain;
 }
 
@@ -452,7 +478,6 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 	const unsigned char *buffer = req->buf;
 	unsigned int buffer_size = req->actual;
 	unsigned int pre_dot_num, now_dot_num;
-	unsigned int max;
 
 	if (req->status != 0) {
 		printf("Bad status: %d\n", req->status);
@@ -490,11 +515,7 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 
 		printf("\ndownloading of %d bytes finished\n", download_bytes);
 	} else {
-		max = is_high_speed ? hs_ep_out.wMaxPacketSize :
-				fs_ep_out.wMaxPacketSize;
-		req->length = rx_bytes_expected(max);
-		if (req->length < ep->maxpacket)
-			req->length = ep->maxpacket;
+		req->length = rx_bytes_expected(ep);
 	}
 
 	req->actual = 0;
@@ -505,7 +526,6 @@ static void cb_download(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
 	char response[FASTBOOT_RESPONSE_LEN];
-	unsigned int max;
 
 	strsep(&cmd, ":");
 	download_size = simple_strtoul(cmd, NULL, 16);
@@ -521,11 +541,7 @@ static void cb_download(struct usb_ep *ep, struct usb_request *req)
 	} else {
 		sprintf(response, "DATA%08x", download_size);
 		req->complete = rx_handler_dl_image;
-		max = is_high_speed ? hs_ep_out.wMaxPacketSize :
-			fs_ep_out.wMaxPacketSize;
-		req->length = rx_bytes_expected(max);
-		if (req->length < ep->maxpacket)
-			req->length = ep->maxpacket;
+		req->length = rx_bytes_expected(ep);
 	}
 	fastboot_tx_write_str(response);
 }
@@ -574,18 +590,19 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 		return;
 	}
 
-	strcpy(response, "FAILno flash device defined");
+	/* initialize the response buffer */
+	fb_response_str = response;
+
+	fastboot_fail("no flash device defined");
 #ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
-	fb_mmc_flash_write(cmd, fastboot_flash_session_id,
-			   (void *)CONFIG_FASTBOOT_BUF_ADDR,
-			   download_bytes, response);
+	fb_mmc_flash_write(cmd, (void *)CONFIG_FASTBOOT_BUF_ADDR,
+			   download_bytes);
 #endif
 #ifdef CONFIG_FASTBOOT_FLASH_NAND_DEV
-	fb_nand_flash_write(cmd, fastboot_flash_session_id,
+	fb_nand_flash_write(cmd,
 			    (void *)CONFIG_FASTBOOT_BUF_ADDR,
-			    download_bytes, response);
+			    download_bytes);
 #endif
-	fastboot_flash_session_id++;
 	fastboot_tx_write_str(response);
 }
 #endif
@@ -625,13 +642,15 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 		return;
 	}
 
-	strcpy(response, "FAILno flash device defined");
+	/* initialize the response buffer */
+	fb_response_str = response;
 
+	fastboot_fail("no flash device defined");
 #ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
-	fb_mmc_erase(cmd, response);
+	fb_mmc_erase(cmd);
 #endif
 #ifdef CONFIG_FASTBOOT_FLASH_NAND_DEV
-	fb_nand_erase(cmd, response);
+	fb_nand_erase(cmd);
 #endif
 	fastboot_tx_write_str(response);
 }

@@ -11,7 +11,7 @@ endif
 arch-$(CONFIG_CPU_ARM720T)	=-march=armv4
 arch-$(CONFIG_CPU_ARM920T)	=-march=armv4t
 arch-$(CONFIG_CPU_ARM926EJS)	=-march=armv5te
-arch-$(CONFIG_CPU_ARM946ES)	=-march=armv4
+arch-$(CONFIG_CPU_ARM946ES)	=-march=armv5te
 arch-$(CONFIG_CPU_SA1100)	=-march=armv4
 arch-$(CONFIG_CPU_PXA)		=
 arch-$(CONFIG_CPU_ARM1136)	=-march=armv5
@@ -19,6 +19,14 @@ arch-$(CONFIG_CPU_ARM1176)	=-march=armv5t
 arch-$(CONFIG_CPU_V7)		=$(call cc-option, -march=armv7-a, \
 				 $(call cc-option, -march=armv7, -march=armv5))
 arch-$(CONFIG_ARM64)		=-march=armv8-a
+
+# On Tegra systems we must build SPL for the armv4 core on the device
+# but otherwise we can use the value in CONFIG_SYS_ARM_ARCH
+ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TEGRA),yy)
+arch-y += -D__LINUX_ARM_ARCH__=4
+else
+arch-y += -D__LINUX_ARM_ARCH__=$(CONFIG_SYS_ARM_ARCH)
+endif
 
 # Evaluate arch cc-option calls now
 arch-y := $(arch-y)
@@ -50,14 +58,18 @@ machine-$(CONFIG_ARCH_HIGHBANK)		+= highbank
 machine-$(CONFIG_ARCH_KEYSTONE)		+= keystone
 # TODO: rename CONFIG_KIRKWOOD -> CONFIG_ARCH_KIRKWOOD
 machine-$(CONFIG_KIRKWOOD)		+= kirkwood
+machine-$(CONFIG_LITESOM)		+= litesom
+machine-$(CONFIG_ARCH_MESON)		+= meson
 machine-$(CONFIG_ARCH_MVEBU)		+= mvebu
 # TODO: rename CONFIG_TEGRA -> CONFIG_ARCH_TEGRA
 # TODO: rename CONFIG_ORION5X -> CONFIG_ARCH_ORION5X
 machine-$(CONFIG_ORION5X)		+= orion5x
+machine-$(CONFIG_ARCH_OMAP2)		+= omap2
 machine-$(CONFIG_ARCH_S5PC1XX)		+= s5pc1xx
 machine-$(CONFIG_ARCH_SUNXI)		+= sunxi
 machine-$(CONFIG_ARCH_SNAPDRAGON)	+= snapdragon
 machine-$(CONFIG_ARCH_SOCFPGA)		+= socfpga
+machine-$(CONFIG_ARCH_RMOBILE)		+= rmobile
 machine-$(CONFIG_ARCH_ROCKCHIP)		+= rockchip
 machine-$(CONFIG_STM32)			+= stm32
 machine-$(CONFIG_TEGRA)			+= tegra

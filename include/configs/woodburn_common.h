@@ -19,9 +19,6 @@
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
-#define CONFIG_DISPLAY_CPUINFO
 
 /* Only in case the value is not present in mach-types.h */
 #ifndef MACH_TYPE_FLEA3
@@ -62,9 +59,7 @@
 #define CONFIG_SYS_FSL_PMIC_I2C_ADDR	0x8
 #define CONFIG_RTC_MC13XXX
 
-
 /* mmc driver */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
@@ -84,34 +79,22 @@
 /*
  * Command definition
  */
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_DNS
 
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_CACHE
 
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_MII
-
-#define CONFIG_CMD_MMC
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 
 #define CONFIG_MXC_GPIO
 
 #define CONFIG_NET_RETRY_COUNT	100
 
-#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
-
 
 /*
  * Ethernet on SOC (FEC)
@@ -132,7 +115,6 @@
  */
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_HUSH_PARSER	/* Use the HUSH parser */
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */

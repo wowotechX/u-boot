@@ -80,11 +80,13 @@ class BuilderThread(threading.Thread):
         thread_num: Our thread number (0-n-1), used to decide on a
                 temporary directory
     """
-    def __init__(self, builder, thread_num):
+    def __init__(self, builder, thread_num, incremental, per_board_out_dir):
         """Set up a new builder thread"""
         threading.Thread.__init__(self)
         self.builder = builder
         self.thread_num = thread_num
+        self.incremental = incremental
+        self.per_board_out_dir = per_board_out_dir
 
     def Make(self, commit, brd, stage, cwd, *args, **kwargs):
         """Run 'make' on a particular commit and board.
@@ -108,8 +110,8 @@ class BuilderThread(threading.Thread):
         return self.builder.do_make(commit, brd, stage, cwd, *args,
                 **kwargs)
 
-    def RunCommit(self, commit_upto, brd, work_dir, do_config, force_build,
-                  force_build_failures):
+    def RunCommit(self, commit_upto, brd, work_dir, do_config, config_only,
+                  force_build, force_build_failures):
         """Build a particular commit.
 
         If the build is already done, and we are not forcing a build, we skip
@@ -120,6 +122,7 @@ class BuilderThread(threading.Thread):
             brd: Board object to build
             work_dir: Directory to which the source will be checked out
             do_config: True to run a make <board>_defconfig on the source
+            config_only: Only configure the source, do not build it
             force_build: Force a build even if one was previously done
             force_build_failures: Force a bulid if the previous result showed
                 failure
@@ -136,7 +139,11 @@ class BuilderThread(threading.Thread):
         if self.builder.in_tree:
             out_dir = work_dir
         else:
-            out_dir = os.path.join(work_dir, 'build')
+            if self.per_board_out_dir:
+                out_rel_dir = os.path.join('..', brd.target)
+            else:
+                out_rel_dir = 'build'
+            out_dir = os.path.join(work_dir, out_rel_dir)
 
         # Check if the job was already completed last time
         done_file = self.builder.GetDoneFile(commit_upto, brd.target)
@@ -197,12 +204,12 @@ class BuilderThread(threading.Thread):
                         #
                         # Symlinks can confuse U-Boot's Makefile since
                         # we may use '..' in our path, so remove them.
-                        work_dir = os.path.realpath(work_dir)
-                        args.append('O=%s/build' % work_dir)
+                        out_dir = os.path.realpath(out_dir)
+                        args.append('O=%s' % out_dir)
                         cwd = None
                         src_dir = os.getcwd()
                     else:
-                        args.append('O=build')
+                        args.append('O=%s' % out_rel_dir)
                 if self.builder.verbose_build:
                     args.append('V=1')
                 else:
@@ -215,14 +222,18 @@ class BuilderThread(threading.Thread):
 
                 # If we need to reconfigure, do that now
                 if do_config:
-                    result = self.Make(commit, brd, 'mrproper', cwd,
-                            'mrproper', *args, env=env)
-                    config_out = result.combined
+                    config_out = ''
+                    if not self.incremental:
+                        result = self.Make(commit, brd, 'mrproper', cwd,
+                                'mrproper', *args, env=env)
+                        config_out += result.combined
                     result = self.Make(commit, brd, 'config', cwd,
                             *(args + config_args), env=env)
                     config_out += result.combined
                     do_config = False   # No need to configure next time
                 if result.return_code == 0:
+                    if config_only:
+                        args.append('cfg')
                     result = self.Make(commit, brd, 'build', cwd, *args,
                             env=env)
                 result.stderr = result.stderr.replace(src_dir + '/', '')
@@ -295,10 +306,6 @@ class BuilderThread(threading.Thread):
                 print >>fd, 'cross', result.toolchain.cross
                 print >>fd, 'arch', result.toolchain.arch
                 fd.write('%s' % result.return_code)
-
-            with open(os.path.join(build_dir, 'toolchain'), 'w') as fd:
-                print >>fd, 'gcc', result.toolchain.gcc
-                print >>fd, 'path', result.toolchain.path
 
             # Write out the image and function size information and an objdump
             env = result.toolchain.MakeEnvironment(self.builder.full_path)
@@ -397,7 +404,7 @@ class BuilderThread(threading.Thread):
             force_build = False
             for commit_upto in range(0, len(job.commits), job.step):
                 result, request_config = self.RunCommit(commit_upto, brd,
-                        work_dir, do_config,
+                        work_dir, do_config, self.builder.config_only,
                         force_build or self.builder.force_build,
                         self.builder.force_build_failures)
                 failed = result.return_code or result.stderr
@@ -407,7 +414,7 @@ class BuilderThread(threading.Thread):
                     # with a reconfig.
                     if self.builder.force_config_on_failure:
                         result, request_config = self.RunCommit(commit_upto,
-                            brd, work_dir, True, True, False)
+                            brd, work_dir, True, False, True, False)
                         did_config = True
                 if not self.builder.force_reconfig:
                     do_config = request_config
@@ -451,7 +458,8 @@ class BuilderThread(threading.Thread):
         else:
             # Just build the currently checked-out build
             result, request_config = self.RunCommit(None, brd, work_dir, True,
-                        True, self.builder.force_build_failures)
+                        self.builder.config_only, True,
+                        self.builder.force_build_failures)
             result.commit_upto = 0
             self._WriteResult(result, job.keep_outputs)
             self.builder.out_queue.put(result)
@@ -462,17 +470,7 @@ class BuilderThread(threading.Thread):
         This thread picks a job from the queue, runs it, and then goes to the
         next job.
         """
-        alive = True
         while True:
             job = self.builder.queue.get()
-            if self.builder.active and alive:
-                self.RunJob(job)
-            '''
-            try:
-                if self.builder.active and alive:
-                    self.RunJob(job)
-            except Exception as err:
-                alive = False
-                print err
-            '''
+            self.RunJob(job)
             self.builder.queue.task_done()

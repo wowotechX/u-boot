@@ -8,10 +8,18 @@
 #include <fsl_ifc.h>
 #include <ahci.h>
 #include <scsi.h>
+#include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
 #include <asm/io.h>
 #include <asm/global_data.h>
 #include <asm/arch-fsl-layerscape/config.h>
+#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
+#include <fsl_csu.h>
+#endif
+#ifdef CONFIG_SYS_FSL_DDR
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr.h>
+#endif
 #ifdef CONFIG_CHAIN_OF_TRUST
 #include <fsl_validate.h>
 #endif
@@ -23,8 +31,10 @@ bool soc_has_dp_ddr(void)
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	u32 svr = gur_in32(&gur->svr);
 
-	/* LS2085A has DP_DDR */
-	if (SVR_SOC_VER(svr) == SVR_LS2085)
+	/* LS2085A, LS2088A, LS2048A has DP_DDR */
+	if ((SVR_SOC_VER(svr) == SVR_LS2085A) ||
+	    (SVR_SOC_VER(svr) == SVR_LS2088A) ||
+	    (SVR_SOC_VER(svr) == SVR_LS2048A))
 		return true;
 
 	return false;
@@ -36,29 +46,31 @@ bool soc_has_aiop(void)
 	u32 svr = gur_in32(&gur->svr);
 
 	/* LS2085A has AIOP */
-	if (SVR_SOC_VER(svr) == SVR_LS2085)
+	if (SVR_SOC_VER(svr) == SVR_LS2085A)
 		return true;
 
 	return false;
 }
 
-#ifdef CONFIG_LS2080A
+#if defined(CONFIG_FSL_LSCH3)
 /*
  * This erratum requires setting a value to eddrtqcr1 to
  * optimal the DDR performance.
  */
 static void erratum_a008336(void)
 {
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008336
 	u32 *eddrtqcr1;
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008336
 #ifdef CONFIG_SYS_FSL_DCSR_DDR_ADDR
 	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR_ADDR + 0x800;
-	out_le32(eddrtqcr1, 0x63b30002);
+	if (fsl_ddr_get_version(0) == 0x50200)
+		out_le32(eddrtqcr1, 0x63b30002);
 #endif
 #ifdef CONFIG_SYS_FSL_DCSR_DDR2_ADDR
 	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR2_ADDR + 0x800;
-	out_le32(eddrtqcr1, 0x63b30002);
+	if (fsl_ddr_get_version(0) == 0x50200)
+		out_le32(eddrtqcr1, 0x63b30002);
 #endif
 #endif
 }
@@ -69,9 +81,9 @@ static void erratum_a008336(void)
  */
 static void erratum_a008514(void)
 {
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008514
 	u32 *eddrtqcr1;
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008514
 #ifdef CONFIG_SYS_FSL_DCSR_DDR3_ADDR
 	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR3_ADDR + 0x800;
 	out_le32(eddrtqcr1, 0x63b20002);
@@ -120,15 +132,6 @@ void erratum_a009635(void)
 }
 #endif	/* CONFIG_SYS_FSL_ERRATUM_A009635 */
 
-static void erratum_a008751(void)
-{
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008751
-	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
-
-	writel(0x27672b2a, scfg + SCFG_USB3PRM1CR / 4);
-#endif
-}
-
 static void erratum_rcw_src(void)
 {
 #if defined(CONFIG_SPL)
@@ -175,6 +178,7 @@ static void erratum_a009203(void)
 #endif
 #endif
 }
+
 void bypass_smmu(void)
 {
 	u32 val;
@@ -185,7 +189,6 @@ void bypass_smmu(void)
 }
 void fsl_lsch3_early_init_f(void)
 {
-	erratum_a008751();
 	erratum_rcw_src();
 	init_early_memctl_regs();	/* tighten IFC timing */
 	erratum_a009203();
@@ -222,16 +225,19 @@ int sata_init(void)
 }
 #endif
 
-#elif defined(CONFIG_LS1043A)
+#elif defined(CONFIG_FSL_LSCH2)
 #ifdef CONFIG_SCSI_AHCI_PLAT
 int sata_init(void)
 {
 	struct ccsr_ahci __iomem *ccsr_ahci = (void *)CONFIG_SYS_SATA;
 
+#ifdef CONFIG_ARCH_LS1046A
+	/* Disable SATA ECC */
+	out_le32((void *)CONFIG_SYS_DCSR_DCFG_ADDR + 0x520, 0x80000000);
+#endif
 	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
-	out_le32(&ccsr_ahci->pp2c, AHCI_PORT_PHY_2_CFG);
-	out_le32(&ccsr_ahci->pp3c, AHCI_PORT_PHY_3_CFG);
 	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
+	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
 
 	ahci_init((void __iomem *)CONFIG_SYS_SATA);
 	scsi_scan(0);
@@ -271,10 +277,73 @@ static void erratum_a009660(void)
 #endif
 }
 
+static void erratum_a008850_early(void)
+{
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008850
+	/* part 1 of 2 */
+	struct ccsr_cci400 __iomem *cci = (void *)CONFIG_SYS_CCI400_ADDR;
+	struct ccsr_ddr __iomem *ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+
+	/* disables propagation of barrier transactions to DDRC from CCI400 */
+	out_le32(&cci->ctrl_ord, CCI400_CTRLORD_TERM_BARRIER);
+
+	/* disable the re-ordering in DDRC */
+	ddr_out32(&ddr->eor, DDR_EOR_RD_REOD_DIS | DDR_EOR_WD_REOD_DIS);
+#endif
+}
+
+void erratum_a008850_post(void)
+{
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008850
+	/* part 2 of 2 */
+	struct ccsr_cci400 __iomem *cci = (void *)CONFIG_SYS_CCI400_ADDR;
+	struct ccsr_ddr __iomem *ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+	u32 tmp;
+
+	/* enable propagation of barrier transactions to DDRC from CCI400 */
+	out_le32(&cci->ctrl_ord, CCI400_CTRLORD_EN_BARRIER);
+
+	/* enable the re-ordering in DDRC */
+	tmp = ddr_in32(&ddr->eor);
+	tmp &= ~(DDR_EOR_RD_REOD_DIS | DDR_EOR_WD_REOD_DIS);
+	ddr_out32(&ddr->eor, tmp);
+#endif
+}
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A010315
+void erratum_a010315(void)
+{
+	int i;
+
+	for (i = PCIE1; i <= PCIE4; i++)
+		if (!is_serdes_configured(i)) {
+			debug("PCIe%d: disabled all R/W permission!\n", i);
+			set_pcie_ns_access(i, 0);
+		}
+}
+#endif
+
+static void erratum_a010539(void)
+{
+#if defined(CONFIG_SYS_FSL_ERRATUM_A010539) && defined(CONFIG_QSPI_BOOT)
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	u32 porsr1;
+
+	porsr1 = in_be32(&gur->porsr1);
+	porsr1 &= ~FSL_CHASSIS2_CCSR_PORSR1_RCW_MASK;
+	out_be32((void *)(CONFIG_SYS_DCSR_DCFG_ADDR + DCFG_DCSR_PORCR1),
+		 porsr1);
+#endif
+}
+
 void fsl_lsch2_early_init_f(void)
 {
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+
+#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
+	enable_layerscape_ns_access();
+#endif
 
 #ifdef CONFIG_FSL_IFC
 	init_early_memctl_regs();	/* tighten IFC timing */
@@ -285,7 +354,9 @@ void fsl_lsch2_early_init_f(void)
 #endif
 	/* Make SEC reads and writes snoopable */
 	setbits_be32(&scfg->snpcnfgcr, SCFG_SNPCNFGCR_SECRDSNP |
-		     SCFG_SNPCNFGCR_SECWRSNP);
+		     SCFG_SNPCNFGCR_SECWRSNP |
+		     SCFG_SNPCNFGCR_SATARDSNP |
+		     SCFG_SNPCNFGCR_SATAWRSNP);
 
 	/*
 	 * Enable snoop requests and DVM message requests for
@@ -295,8 +366,49 @@ void fsl_lsch2_early_init_f(void)
 		 CCI400_DVM_MESSAGE_REQ_EN | CCI400_SNOOP_REQ_EN);
 
 	/* Erratum */
+	erratum_a008850_early(); /* part 1 of 2 */
 	erratum_a009929();
 	erratum_a009660();
+	erratum_a010539();
+}
+#endif
+
+#ifdef CONFIG_QSPI_AHB_INIT
+/* Enable 4bytes address support and fast read */
+int qspi_ahb_init(void)
+{
+	u32 *qspi_lut, lut_key, *qspi_key;
+
+	qspi_key = (void *)SYS_FSL_QSPI_ADDR + 0x300;
+	qspi_lut = (void *)SYS_FSL_QSPI_ADDR + 0x310;
+
+	lut_key = in_be32(qspi_key);
+
+	if (lut_key == 0x5af05af0) {
+		/* That means the register is BE */
+		out_be32(qspi_key, 0x5af05af0);
+		/* Unlock the lut table */
+		out_be32(qspi_key + 1, 0x00000002);
+		out_be32(qspi_lut, 0x0820040c);
+		out_be32(qspi_lut + 1, 0x1c080c08);
+		out_be32(qspi_lut + 2, 0x00002400);
+		/* Lock the lut table */
+		out_be32(qspi_key, 0x5af05af0);
+		out_be32(qspi_key + 1, 0x00000001);
+	} else {
+		/* That means the register is LE */
+		out_le32(qspi_key, 0x5af05af0);
+		/* Unlock the lut table */
+		out_le32(qspi_key + 1, 0x00000002);
+		out_le32(qspi_lut, 0x0820040c);
+		out_le32(qspi_lut + 1, 0x1c080c08);
+		out_le32(qspi_lut + 2, 0x00002400);
+		/* Lock the lut table */
+		out_le32(qspi_key, 0x5af05af0);
+		out_le32(qspi_key + 1, 0x00000001);
+	}
+
+	return 0;
 }
 #endif
 
@@ -308,6 +420,9 @@ int board_late_init(void)
 #endif
 #ifdef CONFIG_CHAIN_OF_TRUST
 	fsl_setenv_chain_of_trust();
+#endif
+#ifdef CONFIG_QSPI_AHB_INIT
+	qspi_ahb_init();
 #endif
 
 	return 0;

@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * High Level Configuration Options
  */
@@ -19,8 +17,6 @@
 #define CONFIG_MPC832x		1	/* MPC832x CPU specific */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
-
-#define CONFIG_PCI		1
 
 /*
  * System Clock Setup
@@ -156,7 +152,7 @@
 #endif
 
 /* CONFIG_SYS_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
-#define CONFIG_SYS_MONITOR_LEN	(384 * 1024)	/* Reserve 384 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN	(512 * 1024)	/* Reserve 512 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN	(256 * 1024)	/* Reserved for malloc */
 
 /*
@@ -224,8 +220,6 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support   */
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -260,7 +254,6 @@
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCI_SKIP_HOST_BRIDGE
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
@@ -328,10 +321,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_ASKENV
 
 #if defined(CONFIG_PCI)
 	#define CONFIG_CMD_PCI
@@ -364,6 +354,7 @@
  */
 					/* Initial Memory map for Linux */
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
 /*
  * Core HID Setup
@@ -497,7 +488,6 @@
 
 				/* default location for tftp and bootm */
 #define CONFIG_LOADADDR		800000
-#define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #define CONFIG_BAUDRATE		115200
 
 #define CONFIG_EXTRA_ENV_SETTINGS \

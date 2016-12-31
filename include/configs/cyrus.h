@@ -7,23 +7,17 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_CYRUS
 
-#define CONFIG_PHYS_64BIT
-
-#if !defined(CONFIG_PPC_P5020) && !defined(CONFIG_PPC_P5040)
+#if !defined(CONFIG_ARCH_P5020) && !defined(CONFIG_ARCH_P5040)
 #error Must call Cyrus CONFIG with a specific CPU enabled.
 #endif
 
-
-#define CONFIG_MMC
 #define CONFIG_SDCARD
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE3
 #define CONFIG_PCIE4
-#ifdef CONFIG_PPC_P5020
+#ifdef CONFIG_ARCH_P5020
 #define CONFIG_SYS_FSL_RAID_ENGINE
 #define CONFIG_SYS_DPAA_RMAN
 #endif
@@ -35,14 +29,13 @@
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
 #define CONFIG_SYS_FSL_PBL_PBI board/varisys/cyrus/pbi.cfg
-#if defined(CONFIG_PPC_P5020)
+#if defined(CONFIG_ARCH_P5020)
 #define CONFIG_SYS_CLK_FREQ 133000000
 #define CONFIG_SYS_FSL_PBL_RCW board/varisys/cyrus/rcw_p5020_v2.cfg
-#elif defined(CONFIG_PPC_P5040)
+#elif defined(CONFIG_ARCH_P5040)
 #define CONFIG_SYS_CLK_FREQ 100000000
 #define CONFIG_SYS_FSL_PBL_RCW board/varisys/cyrus/rcw_p5040.cfg
 #endif
-
 
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
@@ -50,7 +43,6 @@
 #define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_MP			/* support multiple processors */
-
 
 #define CONFIG_SYS_MMC_MAX_DEVICE     1
 
@@ -61,13 +53,10 @@
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
 #define CONFIG_FSL_ELBC			/* Has Enhanced localbus controller */
-#define CONFIG_PCI			/* Enable PCI/PCIE */
-#define CONFIG_PCIE1			/* PCIE controler 1 */
-#define CONFIG_PCIE2			/* PCIE controler 2 */
+#define CONFIG_PCIE1			/* PCIE controller 1 */
+#define CONFIG_PCIE2			/* PCIE controller 2 */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
-
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 
 #define CONFIG_ENV_OVERWRITE
 
@@ -173,7 +162,6 @@
 #define CONFIG_SYS_OR0_PRELIM	0xfff00010
 #define CONFIG_SYS_OR1_PRELIM	0xfff00010
 
-
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE	/* start of monitor */
 
 #if defined(CONFIG_RAMBOOT_PBL)
@@ -226,10 +214,6 @@
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x11C600)
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
-
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -398,7 +382,6 @@
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_NET_MULTI
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
@@ -421,7 +404,6 @@
 #define CONFIG_LBA48
 #define CONFIG_CMD_SATA
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
 #endif
 
 #ifdef CONFIG_FMAN_ENET
@@ -440,13 +422,8 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #ifdef CONFIG_PCI
@@ -460,29 +437,19 @@
 #define CONFIG_HAS_FSL_MPH_USB
 
 #if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_CMD_EXT2
 #define CONFIG_EHCI_IS_TDI
-#define CONFIG_USB_KEYBOARD
-#define CONFIG_SYS_STDIO_DEREGISTER
 #define CONFIG_SYS_USB_EVENT_POLL
  /* _VIA_CONTROL_EP  */
-#define CONFIG_CONSOLE_MUX
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #endif
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #define CONFIG_SYS_FSL_ESDHC_BROKEN_TIMEOUT
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
@@ -493,7 +460,6 @@
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
@@ -525,7 +491,6 @@
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-#define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
 
 #define CONFIG_BAUDRATE	115200
 
@@ -541,7 +506,7 @@
 "ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"			\
 "consoledev=ttyS0\0"					\
 "ramdiskaddr=2000000\0"					\
-"fdtaddr=c00000\0"					\
+"fdtaddr=1e00000\0"					\
 "bdev=sda3\0"
 
 #define CONFIG_HDBOOT					\

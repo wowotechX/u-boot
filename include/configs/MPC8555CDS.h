@@ -13,26 +13,19 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
 #define CONFIG_CPM2		1	/* has CPM2 */
-#define CONFIG_MPC8555		1	/* MPC8555 specific */
-#define CONFIG_MPC8555CDS	1	/* MPC8555CDS board specific */
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff80000
 
-#define CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 #define CONFIG_FSL_VIA
-
 
 #ifndef __ASSEMBLY__
 extern unsigned long get_clock_freq(void);
@@ -130,7 +123,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
-
 
 /*
  * SDRAM on the Local Bus
@@ -252,11 +244,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_NS16550_COM1        (CONFIG_SYS_CCSRBAR+0x4500)
 #define CONFIG_SYS_NS16550_COM2        (CONFIG_SYS_CCSRBAR+0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef  CONFIG_SYS_HUSH_PARSER
-#endif
-
 /*
  * I2C
  */
@@ -306,7 +293,6 @@ extern unsigned long get_clock_freq(void);
 
 #if defined(CONFIG_PCI)
 
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_MPC85XX_PCI2
 
 #undef CONFIG_EEPRO100
@@ -316,7 +302,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */
 
 #endif	/* CONFIG_PCI */
-
 
 #if defined(CONFIG_TSEC_ENET)
 
@@ -356,20 +341,15 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
 #endif
-
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -422,7 +402,6 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_LOADADDR  200000   /*default location for tftp and bootm*/
 
-#define CONFIG_BOOTDELAY 10       /* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS           /* the boot command will set bootargs*/
 
 #define CONFIG_BAUDRATE	115200

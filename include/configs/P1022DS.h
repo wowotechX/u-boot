@@ -11,24 +11,10 @@
 
 #include "../board/freescale/common/ics307_clk.h"
 
-#define CONFIG_DISPLAY_BOARDINFO
-
-#ifdef CONFIG_36BIT
-#define CONFIG_PHYS_64BIT
-#endif
-
 #ifdef CONFIG_SDCARD
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_MMC_MINIMAL
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 #define CONFIG_SYS_TEXT_BASE		0x11001000
 #define CONFIG_SPL_TEXT_BASE		0xf8f81000
 #define CONFIG_SPL_PAD_TO		0x20000
@@ -46,18 +32,9 @@
 #endif
 
 #ifdef CONFIG_SPIFLASH
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_FLASH_MINIMAL
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_FSL_LAW		/* Use common FSL init code */
 #define CONFIG_SYS_TEXT_BASE		0x11001000
 #define CONFIG_SPL_TEXT_BASE		0xf8f81000
 #define CONFIG_SPL_PAD_TO		0x20000
@@ -82,14 +59,7 @@
 #ifdef CONFIG_TPL_BUILD
 #define CONFIG_SPL_NAND_BOOT
 #define CONFIG_SPL_FLUSH_IMAGE
-#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_NAND_INIT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 #define CONFIG_SPL_COMMON_INIT_DDR
 #define CONFIG_SPL_MAX_SIZE		(128 << 10)
 #define CONFIG_SPL_TEXT_BASE		0xf8f81000
@@ -100,8 +70,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	((128 + 128) << 10)
 #elif defined(CONFIG_SPL_BUILD)
 #define CONFIG_SPL_INIT_MINIMAL
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TEXT_BASE		0xff800000
 #define CONFIG_SPL_MAX_SIZE		4096
@@ -120,8 +88,6 @@
 /* High Level Configuration Options */
 #define CONFIG_BOOKE			/* BOOKE */
 #define CONFIG_E500			/* BOOKE e500 family */
-#define CONFIG_P1022
-#define CONFIG_P1022DS
 #define CONFIG_MP			/* support multiple processors */
 
 #ifndef CONFIG_SYS_TEXT_BASE
@@ -133,10 +99,9 @@
 #endif
 
 #define CONFIG_FSL_ELBC			/* Has Enhanced localbus controller */
-#define CONFIG_PCI			/* Enable PCI/PCIE */
-#define CONFIG_PCIE1			/* PCIE controler 1 (slot 1) */
-#define CONFIG_PCIE2			/* PCIE controler 2 (slot 2) */
-#define CONFIG_PCIE3			/* PCIE controler 3 (ULI bridge) */
+#define CONFIG_PCIE1			/* PCIE controller 1 (slot 1) */
+#define CONFIG_PCIE2			/* PCIE controller 2 (slot 2) */
+#define CONFIG_PCIE3			/* PCIE controller 3 (ULI bridge) */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET		/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
@@ -147,8 +112,6 @@
 #define CONFIG_ADDR_MAP
 #define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
 #endif
-
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk()
 #define CONFIG_DDR_CLK_FREQ	get_board_ddr_clk()
@@ -171,7 +134,6 @@
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
 #endif
-
 
 /* DDR Setup */
 #define CONFIG_DDR_SPD
@@ -216,7 +178,6 @@
 #define	CONFIG_SYS_DDR_TIMING_5		0x02401400
 #define	CONFIG_SYS_DDR_ZQ_CONTROL	0x89080600
 #define CONFIG_SYS_DDR_WRLVL_CONTROL	0x8675f608
-
 
 /*
  * Memory map
@@ -406,18 +367,11 @@
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
 /* Video */
 
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x10000)
-#define CONFIG_VIDEO
 #define CONFIG_CMD_BMP
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VIDEO_SW_CURSOR
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
@@ -433,14 +387,10 @@
 
 #ifdef CONFIG_ATI
 #define VIDEO_IO_OFFSET		CONFIG_SYS_PCIE1_IO_VIRT
-#define CONFIG_VIDEO
 #define CONFIG_BIOSEMU
-#define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_ATI_RADEON_FB
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS VIDEO_IO_OFFSET
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #endif
 
 /* I2C */
@@ -469,7 +419,6 @@
 
 #define CONFIG_HARD_SPI
 
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		10000000
 #define CONFIG_SF_DEFAULT_MODE		0
 
@@ -537,7 +486,6 @@
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif
 
@@ -558,20 +506,15 @@
 #define CONFIG_LBA48
 #define CONFIG_CMD_SATA
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
 #endif
 
-#define CONFIG_MMC
 #ifdef CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #endif
 
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI)
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
@@ -665,9 +608,6 @@
  */
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #ifdef CONFIG_PCI
@@ -682,11 +622,8 @@
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
-#define CONFIG_USB_STORAGE
-#define CONFIG_CMD_FAT
 #endif
 #endif
 
@@ -730,7 +667,6 @@
 
 #define CONFIG_LOADADDR		1000000
 
-#define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
 
 #define CONFIG_BAUDRATE	115200
 
@@ -747,7 +683,7 @@
 	"consoledev=ttyS0\0"					\
 	"ramdiskaddr=2000000\0"					\
 	"ramdiskfile=rootfs.ext2.gz.uboot\0"			\
-	"fdtaddr=c00000\0"	  			      	\
+	"fdtaddr=1e00000\0"	  			      	\
 	"fdtfile=p1022ds.dtb\0"	  				\
 	"bdev=sda3\0"		  			      	\
 	"hwconfig=esdhc;audclk:12\0"

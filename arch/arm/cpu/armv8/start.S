@@ -21,6 +21,16 @@
 _start:
 	b	reset
 
+#ifdef CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK
+/*
+ * Various SoCs need something special and SoC-specific up front in
+ * order to boot, allow them to set that in their boot0.h file and then
+ * use it here.
+ */
+#include <asm/arch/boot0.h>
+ARM_SOC_BOOT0_HOOK
+#endif
+
 	.align 3
 
 .globl	_TEXT_BASE
@@ -43,6 +53,11 @@ _bss_end_ofs:
 	.quad	__bss_end - _start
 
 reset:
+	/* Allow the board to save important registers */
+	b	save_boot_params
+.globl	save_boot_params_ret
+save_boot_params_ret:
+
 #ifdef CONFIG_SYS_RESET_SCTRL
 	bl reset_sctrl
 #endif
@@ -84,7 +99,11 @@ reset:
 	/* Processor specific initialization */
 	bl	lowlevel_init
 
-#ifdef CONFIG_ARMV8_MULTIENTRY
+#if CONFIG_IS_ENABLED(ARMV8_SPIN_TABLE)
+	branch_if_master x0, x1, master_cpu
+	b	spin_table_secondary_jump
+	/* never return */
+#elif defined(CONFIG_ARMV8_MULTIENTRY)
 	branch_if_master x0, x1, master_cpu
 
 	/*
@@ -96,10 +115,8 @@ slave_cpu:
 	ldr	x0, [x1]
 	cbz	x0, slave_cpu
 	br	x0			/* branch to the given address */
-master_cpu:
-	/* On the master CPU */
 #endif /* CONFIG_ARMV8_MULTIENTRY */
-
+master_cpu:
 	bl	_main
 
 #ifdef CONFIG_SYS_RESET_SCTRL
@@ -214,7 +231,9 @@ WEAK(lowlevel_init)
 	ldr	x1, =GICC_BASE
 	bl	gic_init_secure_percpu
 #endif
+#endif
 
+#ifdef CONFIG_ARMV8_MULTIENTRY
 	branch_if_master x0, x1, 2f
 
 	/*
@@ -232,9 +251,17 @@ WEAK(lowlevel_init)
 	/*
 	 * All slaves will enter EL2 and optionally EL1.
 	 */
+	adr	x3, lowlevel_in_el2
+	ldr	x4, =ES_TO_AARCH64
 	bl	armv8_switch_to_el2
+
+lowlevel_in_el2:
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
+	adr	x3, lowlevel_in_el1
+	ldr	x4, =ES_TO_AARCH64
 	bl	armv8_switch_to_el1
+
+lowlevel_in_el1:
 #endif
 
 #endif /* CONFIG_ARMV8_MULTIENTRY */
@@ -246,12 +273,10 @@ ENDPROC(lowlevel_init)
 
 WEAK(smp_kick_all_cpus)
 	/* Kick secondary cpus up by SGI 0 interrupt */
-	mov	x29, lr			/* Save LR */
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
 	ldr	x0, =GICD_BASE
-	bl	gic_kick_secondary_cpus
+	b	gic_kick_secondary_cpus
 #endif
-	mov	lr, x29			/* Restore LR */
 	ret
 ENDPROC(smp_kick_all_cpus)
 
@@ -270,3 +295,7 @@ ENTRY(c_runtime_cpu_setup)
 
 	ret
 ENDPROC(c_runtime_cpu_setup)
+
+WEAK(save_boot_params)
+	b	save_boot_params_ret	/* back to my caller */
+ENDPROC(save_boot_params)

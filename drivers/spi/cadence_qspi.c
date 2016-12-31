@@ -10,7 +10,7 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <spi.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include "cadence_qspi.h"
 
 #define CQSPI_STIG_READ			0
@@ -170,14 +170,12 @@ static int cadence_spi_probe(struct udevice *bus)
 static int cadence_spi_set_mode(struct udevice *bus, uint mode)
 {
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
-	unsigned int clk_pol = (mode & SPI_CPOL) ? 1 : 0;
-	unsigned int clk_pha = (mode & SPI_CPHA) ? 1 : 0;
 
 	/* Disable QSPI */
 	cadence_qspi_apb_controller_disable(priv->regbase);
 
 	/* Set SPI mode */
-	cadence_qspi_apb_set_clk_mode(priv->regbase, clk_pol, clk_pha);
+	cadence_qspi_apb_set_clk_mode(priv->regbase, mode);
 
 	/* Enable QSPI */
 	cadence_qspi_apb_controller_enable(priv->regbase);
@@ -191,6 +189,7 @@ static int cadence_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct udevice *bus = dev->parent;
 	struct cadence_spi_platdata *plat = bus->platdata;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
+	struct dm_spi_slave_platdata *dm_plat = dev_get_parent_platdata(dev);
 	void *base = priv->regbase;
 	u8 *cmd_buf = priv->cmd_buf;
 	size_t data_bytes;
@@ -250,7 +249,7 @@ static int cadence_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		break;
 		case CQSPI_INDIRECT_READ:
 			err = cadence_qspi_apb_indirect_read_setup(plat,
-				priv->cmd_len, cmd_buf);
+				priv->cmd_len, dm_plat->mode, cmd_buf);
 			if (!err) {
 				err = cadence_qspi_apb_indirect_read_execute
 				(plat, data_bytes, din);
@@ -297,6 +296,7 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 
 	plat->regbase = (void *)data[0];
 	plat->ahbbase = (void *)data[2];
+	plat->sram_size = fdtdec_get_int(blob, node, "sram-size", 128);
 
 	/* All other paramters are embedded in the child node */
 	subnode = fdt_first_subnode(blob, node);
@@ -316,7 +316,6 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 	plat->tsd2d_ns = fdtdec_get_int(blob, subnode, "tsd2d-ns", 255);
 	plat->tchsh_ns = fdtdec_get_int(blob, subnode, "tchsh-ns", 20);
 	plat->tslch_ns = fdtdec_get_int(blob, subnode, "tslch-ns", 20);
-	plat->sram_size = fdtdec_get_int(blob, node, "sram-size", 128);
 
 	debug("%s: regbase=%p ahbbase=%p max-frequency=%d page-size=%d\n",
 	      __func__, plat->regbase, plat->ahbbase, plat->max_hz,

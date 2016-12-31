@@ -19,9 +19,6 @@
 #define CONFIG_MX35
 
 #define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
-#define CONFIG_DISPLAY_CPUINFO
 
 /* Only in case the value is not present in mach-types.h */
 #ifndef MACH_TYPE_FLEA3
@@ -73,24 +70,16 @@
 /*
  * Command definition
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_DNS
 
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_CACHE
 
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_MII
 #define CONFIG_NET_RETRY_COUNT	100
 
-#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
-
 
 /*
  * Ethernet on SOC (FEC)
@@ -110,13 +99,11 @@
  */
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_HUSH_PARSER	/* Use the HUSH parser */
 
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE	512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS	16	/* max number of command args */
+#define CONFIG_SYS_MAXARGS	32	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
 
 #define CONFIG_SYS_MEMTEST_START	0	/* memtest works on */
@@ -239,8 +226,8 @@
 	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.bin\0"		\
 	"load=tftp ${loadaddr} ${u-boot}\0"				\
 	"uboot_addr=" __stringify(CONFIG_SYS_MONITOR_BASE) "\0"		\
-	"update=protect off ${uboot_addr} +40000;"			\
-		"erase ${uboot_addr} +40000;"				\
+	"update=protect off ${uboot_addr} +80000;"			\
+		"erase ${uboot_addr} +80000;"				\
 		"cp.b ${loadaddr} ${uboot_addr} ${filesize}\0"		\
 	"upd=if run load;then echo Updating u-boot;if run update;"	\
 		"then echo U-Boot updated;"				\

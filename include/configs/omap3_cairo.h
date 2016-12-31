@@ -40,12 +40,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-/*
- * Display CPU and Board information
- */
-#define CONFIG_DISPLAY_CPUINFO		1
-#define CONFIG_DISPLAY_BOARDINFO	1
-
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_REVISION_TAG		1
@@ -73,10 +67,6 @@
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
 							/* devices */
-/* override default CONFIG_BOOTDELAY */
-#undef CONFIG_BOOTDELAY
-#define CONFIG_BOOTDELAY	0
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"machid=ffffffff\0" \
 	"fdt_high=0x87000000\0" \
@@ -195,8 +185,6 @@
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
 
 #define CONFIG_OMAP3_SPI
-
-#define CONFIG_SYS_CACHELINE_SIZE	64
 
 /* Defines for SPL */
 #define CONFIG_SPL_OMAP3_ID_NAND

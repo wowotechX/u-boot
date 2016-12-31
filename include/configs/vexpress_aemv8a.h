@@ -19,12 +19,6 @@
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
-/* MMU Definitions */
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
-#define CONFIG_IDENT_STRING		" vexpress_aemv8a"
-#define CONFIG_BOOTP_VCI_STRING		"U-Boot.armv8.vexpress_aemv8a"
-
 /* Link Definitions */
 #if defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP) || \
 	defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP_DRAM)
@@ -131,18 +125,9 @@
 #define CONFIG_PL011_CLOCK		24000000
 #endif
 
-/* Command line configuration */
-#define CONFIG_MENU
 /*#define CONFIG_MENU_SHOW*/
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_BOOTI
 #define CONFIG_CMD_UNZIP
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PXE
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
 /* BOOTP options */
@@ -151,7 +136,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_PXE
-#define CONFIG_BOOTP_PXE_CLIENTARCH	0x100
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		(V2M_BASE + 0x10000000)
@@ -172,7 +156,6 @@
 #endif
 
 /* Enable memtest */
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
 #define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE)
 
@@ -224,7 +207,6 @@
 				"fi ; " \
 				"booti ${kernel_addr} ${initrd_param} ${fdt_addr}"
 
-#define CONFIG_BOOTDELAY		1
 
 #elif CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #define CONFIG_EXTRA_ENV_SETTINGS	\
@@ -249,7 +231,6 @@
 				"fdt chosen ${initrd_addr} ${initrd_end}; " \
 				"booti $kernel_addr - $fdt_addr"
 
-#define CONFIG_BOOTDELAY		1
 
 #elif CONFIG_TARGET_VEXPRESS64_BASE_FVP_DRAM
 #define CONFIG_EXTRA_ENV_SETTINGS	\
@@ -268,7 +249,6 @@
 
 #define CONFIG_BOOTCOMMAND	"booti $kernel_addr $initrd_addr $fdt_addr"
 
-#define CONFIG_BOOTDELAY		1
 
 #endif
 
@@ -276,7 +256,6 @@
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
@@ -299,7 +278,6 @@
 #define CONFIG_ENV_SECT_SIZE		0x00040000
 #endif
 
-#define CONFIG_CMD_ARMFLASH
 #define CONFIG_SYS_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER		1
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_32BIT
@@ -311,6 +289,5 @@
 #define FLASH_MAX_SECTOR_SIZE		0x00040000
 #define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
 #define CONFIG_ENV_IS_IN_FLASH		1
-
 
 #endif /* __VEXPRESS_AEMV8A_H */

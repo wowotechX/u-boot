@@ -26,11 +26,6 @@
 #endif
 
 /*
- * Version number information
- */
-#define CONFIG_IDENT_STRING	"\nMarvell-DreamPlug"
-
-/*
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
@@ -39,8 +34,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 
 /*
  * mv-plug-common.h should be defined after CMD configs since it used them

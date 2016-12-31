@@ -15,9 +15,6 @@
 
 #define CONFIG_MX51	/* in a mx51 */
 
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_SYS_FSL_CLK
 #define CONFIG_SYS_TEXT_BASE	0x97800000
 
@@ -49,7 +46,6 @@
 /*
  * SPI Configs
  * */
-#define CONFIG_CMD_SPI
 
 #define CONFIG_MXC_SPI
 
@@ -71,11 +67,7 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	MMC_SDHC1_BASE_ADDR
 #define CONFIG_SYS_FSL_ESDHC_NUM	2
 
-#define CONFIG_MMC
-
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
 /*
@@ -87,16 +79,9 @@
 #define IMX_FEC_BASE	FEC_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR	0x1F
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
-
 /* USB Configs */
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_FAT
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX5
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_SMSC95XX
@@ -106,12 +91,7 @@
 
 /* Framebuffer and LCD */
 #define CONFIG_PREBOOT
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_BMP_16BPP
@@ -126,11 +106,9 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-#define CONFIG_CMD_BOOTZ
 
 #define CONFIG_CMD_DATE
 
-#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_ETHPRIME		"FEC0"
 
@@ -213,7 +191,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */

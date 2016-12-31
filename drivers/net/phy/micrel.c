@@ -181,7 +181,12 @@ static struct phy_driver KS8721_driver = {
 static int ksz90xx_startup(struct phy_device *phydev)
 {
 	unsigned phy_ctl;
-	genphy_update_link(phydev);
+	int ret;
+
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
+
 	phy_ctl = phy_read(phydev, MDIO_DEVAD_NONE, MII_KSZ90xx_PHY_CTL);
 
 	if (phy_ctl & MIIM_KSZ90xx_PHYCTL_DUPLEX)
@@ -295,10 +300,11 @@ static int ksz9021_of_config(struct phy_device *phydev)
 	};
 	int i, ret = 0;
 
-	for (i = 0; i < ARRAY_SIZE(ofcfg); i++)
+	for (i = 0; i < ARRAY_SIZE(ofcfg); i++) {
 		ret = ksz90x1_of_config_group(phydev, &(ofcfg[i]));
 		if (ret)
 			return ret;
+	}
 
 	return 0;
 }
@@ -403,15 +409,36 @@ static int ksz9031_of_config(struct phy_device *phydev)
 	};
 	int i, ret = 0;
 
-	for (i = 0; i < ARRAY_SIZE(ofcfg); i++)
+	for (i = 0; i < ARRAY_SIZE(ofcfg); i++) {
 		ret = ksz90x1_of_config_group(phydev, &(ofcfg[i]));
 		if (ret)
 			return ret;
+	}
 
 	return 0;
 }
+
+static int ksz9031_center_flp_timing(struct phy_device *phydev)
+{
+	struct phy_driver *drv = phydev->drv;
+	int ret = 0;
+
+	if (!drv || !drv->writeext)
+		return -EOPNOTSUPP;
+
+	ret = drv->writeext(phydev, 0, 0, MII_KSZ9031_FLP_BURST_TX_LO, 0x1A80);
+	if (ret)
+		return ret;
+
+	ret = drv->writeext(phydev, 0, 0, MII_KSZ9031_FLP_BURST_TX_HI, 0x6);
+	return ret;
+}
 #else
 static int ksz9031_of_config(struct phy_device *phydev)
+{
+	return 0;
+}
+static int ksz9031_center_flp_timing(struct phy_device *phydev)
 {
 	return 0;
 }
@@ -467,6 +494,9 @@ static int ksz9031_config(struct phy_device *phydev)
 	ret = ksz9031_of_config(phydev);
 	if (ret)
 		return ret;
+	ret = ksz9031_center_flp_timing(phydev);
+	if (ret)
+		return ret;
 	return genphy_config(phydev);
 }
 
@@ -482,6 +512,31 @@ static struct phy_driver ksz9031_driver = {
 	.readext = &ksz9031_phy_extread,
 };
 
+int ksz886x_config(struct phy_device *phydev)
+{
+	/* we are connected directly to the switch without
+	 * dedicated PHY. */
+	phydev->link = 1;
+	phydev->duplex = DUPLEX_FULL;
+	phydev->speed = SPEED_100;
+	return 0;
+}
+
+static int ksz886x_startup(struct phy_device *phydev)
+{
+	return 0;
+}
+
+static struct phy_driver ksz886x_driver = {
+	.name = "Micrel KSZ886x Switch",
+	.uid  = 0x00221430,
+	.mask = 0xfffff0,
+	.features = PHY_BASIC_FEATURES,
+	.config = &ksz886x_config,
+	.startup = &ksz886x_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_micrel_init(void)
 {
 	phy_register(&KSZ804_driver);
@@ -495,5 +550,6 @@ int phy_micrel_init(void)
 #endif
 	phy_register(&ksz9031_driver);
 	phy_register(&ksz8895_driver);
+	phy_register(&ksz886x_driver);
 	return 0;
 }

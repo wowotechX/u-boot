@@ -1,6 +1,13 @@
+/*
+ * Copyright (C) 2014 Samsung Electronics
+ * Przemyslaw Marczak <p.marczak@samsung.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
 #ifndef _ERRNO_H
+#define _ERRNO_H
 
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 
 extern int errno;
 
@@ -8,5 +15,10 @@ extern int errno;
 
 #ifdef CONFIG_ERRNO_STR
 const char *errno_str(int errno);
+#else
+static inline const char *errno_str(int errno)
+{
+	return 0;
+}
 #endif
 #endif /* _ERRNO_H */

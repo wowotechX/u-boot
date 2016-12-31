@@ -33,22 +33,18 @@
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_SUBNETMASK
-#define CONFIG_NET_RETRY_COUNT		2
+#define CONFIG_NET_RETRY_COUNT		10
 
 /* Network console */
 #define CONFIG_NETCONSOLE		1
 #define CONFIG_BOOTP_MAY_FAIL		/* if we don't have DHCP environment */
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 
 /* As stated above, the following choices are optional. */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_VERSION_VARIABLE
 
 /* We set the max number of command args high to avoid HUSH bugs. */
 #define CONFIG_SYS_MAXARGS		64

@@ -21,11 +21,13 @@
 #include <net.h>
 #include <netdev.h>
 #include <cpsw.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <phy.h>
 #include <asm/arch/cpu.h>
 #include <dm.h>
+#include <fdt_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -222,6 +224,18 @@ struct cpdma_chan {
 	struct cpdma_desc	*head, *tail;
 	void			*hdp, *cp, *rxfree;
 };
+
+/* AM33xx SoC specific definitions for the CONTROL port */
+#define AM33XX_GMII_SEL_MODE_MII	0
+#define AM33XX_GMII_SEL_MODE_RMII	1
+#define AM33XX_GMII_SEL_MODE_RGMII	2
+
+#define AM33XX_GMII_SEL_RGMII1_IDMODE	BIT(4)
+#define AM33XX_GMII_SEL_RGMII2_IDMODE	BIT(5)
+#define AM33XX_GMII_SEL_RMII1_IO_CLK_EN	BIT(6)
+#define AM33XX_GMII_SEL_RMII2_IO_CLK_EN	BIT(7)
+
+#define GMII_SEL_MODE_MASK		0x3
 
 #define desc_write(desc, fld, val)	__raw_writel((u32)(val), &(desc)->fld)
 #define desc_read(desc, fld)		__raw_readl(&(desc)->fld)
@@ -906,7 +920,7 @@ static int _cpsw_send(struct cpsw_priv *priv, void *packet, int length)
 	int timeout = CPDMA_TIMEOUT;
 
 	flush_dcache_range((unsigned long)packet,
-			   (unsigned long)packet + length);
+			   (unsigned long)packet + ALIGN(length, PKTALIGN));
 
 	/* first reap completed packets */
 	while (timeout-- &&
@@ -964,6 +978,11 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
+
+#ifdef CONFIG_DM_ETH
+	if (slave->data->phy_of_handle)
+		phydev->dev->of_offset = slave->data->phy_of_handle;
+#endif
 
 	priv->phydev = phydev;
 	phy_config(phydev);
@@ -1137,18 +1156,142 @@ static const struct eth_ops cpsw_eth_ops = {
 	.stop		= cpsw_eth_stop,
 };
 
+static inline fdt_addr_t cpsw_get_addr_by_node(const void *fdt, int node)
+{
+	return fdtdec_get_addr_size_auto_noparent(fdt, node, "reg", 0, NULL,
+						  false);
+}
+
+static void cpsw_gmii_sel_am3352(struct cpsw_priv *priv,
+				 phy_interface_t phy_mode)
+{
+	u32 reg;
+	u32 mask;
+	u32 mode = 0;
+	bool rgmii_id = false;
+	int slave = priv->data.active_slave;
+
+	reg = readl(priv->data.gmii_sel);
+
+	switch (phy_mode) {
+	case PHY_INTERFACE_MODE_RMII:
+		mode = AM33XX_GMII_SEL_MODE_RMII;
+		break;
+
+	case PHY_INTERFACE_MODE_RGMII:
+		mode = AM33XX_GMII_SEL_MODE_RGMII;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		mode = AM33XX_GMII_SEL_MODE_RGMII;
+		rgmii_id = true;
+		break;
+
+	case PHY_INTERFACE_MODE_MII:
+	default:
+		mode = AM33XX_GMII_SEL_MODE_MII;
+		break;
+	};
+
+	mask = GMII_SEL_MODE_MASK << (slave * 2) | BIT(slave + 6);
+	mode <<= slave * 2;
+
+	if (priv->data.rmii_clock_external) {
+		if (slave == 0)
+			mode |= AM33XX_GMII_SEL_RMII1_IO_CLK_EN;
+		else
+			mode |= AM33XX_GMII_SEL_RMII2_IO_CLK_EN;
+	}
+
+	if (rgmii_id) {
+		if (slave == 0)
+			mode |= AM33XX_GMII_SEL_RGMII1_IDMODE;
+		else
+			mode |= AM33XX_GMII_SEL_RGMII2_IDMODE;
+	}
+
+	reg &= ~mask;
+	reg |= mode;
+
+	writel(reg, priv->data.gmii_sel);
+}
+
+static void cpsw_gmii_sel_dra7xx(struct cpsw_priv *priv,
+				 phy_interface_t phy_mode)
+{
+	u32 reg;
+	u32 mask;
+	u32 mode = 0;
+	int slave = priv->data.active_slave;
+
+	reg = readl(priv->data.gmii_sel);
+
+	switch (phy_mode) {
+	case PHY_INTERFACE_MODE_RMII:
+		mode = AM33XX_GMII_SEL_MODE_RMII;
+		break;
+
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		mode = AM33XX_GMII_SEL_MODE_RGMII;
+		break;
+
+	case PHY_INTERFACE_MODE_MII:
+	default:
+		mode = AM33XX_GMII_SEL_MODE_MII;
+		break;
+	};
+
+	switch (slave) {
+	case 0:
+		mask = GMII_SEL_MODE_MASK;
+		break;
+	case 1:
+		mask = GMII_SEL_MODE_MASK << 4;
+		mode <<= 4;
+		break;
+	default:
+		dev_err(priv->dev, "invalid slave number...\n");
+		return;
+	}
+
+	if (priv->data.rmii_clock_external)
+		dev_err(priv->dev, "RMII External clock is not supported\n");
+
+	reg &= ~mask;
+	reg |= mode;
+
+	writel(reg, priv->data.gmii_sel);
+}
+
+static void cpsw_phy_sel(struct cpsw_priv *priv, const char *compat,
+			 phy_interface_t phy_mode)
+{
+	if (!strcmp(compat, "ti,am3352-cpsw-phy-sel"))
+		cpsw_gmii_sel_am3352(priv, phy_mode);
+	if (!strcmp(compat, "ti,am43xx-cpsw-phy-sel"))
+		cpsw_gmii_sel_am3352(priv, phy_mode);
+	else if (!strcmp(compat, "ti,dra7xx-cpsw-phy-sel"))
+		cpsw_gmii_sel_dra7xx(priv, phy_mode);
+}
+
 static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct cpsw_priv *priv = dev_get_priv(dev);
+	struct gpio_desc *mode_gpios;
 	const char *phy_mode;
+	const char *phy_sel_compat = NULL;
 	const void *fdt = gd->fdt_blob;
 	int node = dev->of_offset;
 	int subnode;
 	int slave_index = 0;
-	uint32_t mac_hi, mac_lo;
-	fdt32_t gmii = 0;
 	int active_slave;
+	int num_mode_gpios;
+	int ret;
 
 	pdata->iobase = dev_get_addr(dev);
 	priv->data.version = CPSW_CTRL_VERSION_2;
@@ -1193,38 +1336,81 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		return -ENOENT;
 	}
 
+	num_mode_gpios = gpio_get_list_count(dev, "mode-gpios");
+	if (num_mode_gpios > 0) {
+		mode_gpios = malloc(sizeof(struct gpio_desc) *
+				    num_mode_gpios);
+		gpio_request_list_by_name(dev, "mode-gpios", mode_gpios,
+					  num_mode_gpios, GPIOD_IS_OUT);
+		free(mode_gpios);
+	}
+
 	active_slave = fdtdec_get_int(fdt, node, "active_slave", 0);
 	priv->data.active_slave = active_slave;
 
-	fdt_for_each_subnode(fdt, subnode, node) {
+	fdt_for_each_subnode(subnode, fdt, node) {
 		int len;
 		const char *name;
 
 		name = fdt_get_name(fdt, subnode, &len);
 		if (!strncmp(name, "mdio", 4)) {
-			priv->data.mdio_base = fdtdec_get_addr(fdt, subnode,
-							       "reg");
+			u32 mdio_base;
+
+			mdio_base = cpsw_get_addr_by_node(fdt, subnode);
+			if (mdio_base == FDT_ADDR_T_NONE) {
+				error("Not able to get MDIO address space\n");
+				return -ENOENT;
+			}
+			priv->data.mdio_base = mdio_base;
 		}
 
 		if (!strncmp(name, "slave", 5)) {
 			u32 phy_id[2];
 
-			if (slave_index >= priv->data.slaves) {
-				printf("error: num slaves and slave nodes did not match\n");
-				return -EINVAL;
-			}
+			if (slave_index >= priv->data.slaves)
+				continue;
 			phy_mode = fdt_getprop(fdt, subnode, "phy-mode", NULL);
 			if (phy_mode)
 				priv->data.slave_data[slave_index].phy_if =
 					phy_get_interface_by_name(phy_mode);
-			fdtdec_get_int_array(fdt, subnode, "phy_id", phy_id, 2);
-			priv->data.slave_data[slave_index].phy_addr = phy_id[1];
+
+			priv->data.slave_data[slave_index].phy_of_handle =
+				fdtdec_lookup_phandle(fdt, subnode,
+						      "phy-handle");
+
+			if (priv->data.slave_data[slave_index].phy_of_handle >= 0) {
+				priv->data.slave_data[slave_index].phy_addr =
+						fdtdec_get_int(gd->fdt_blob,
+							       priv->data.slave_data[slave_index].phy_of_handle,
+							       "reg", -1);
+			} else {
+				fdtdec_get_int_array(fdt, subnode, "phy_id",
+						     phy_id, 2);
+				priv->data.slave_data[slave_index].phy_addr =
+						phy_id[1];
+			}
 			slave_index++;
 		}
 
 		if (!strncmp(name, "cpsw-phy-sel", 12)) {
-			priv->data.gmii_sel = fdtdec_get_addr(fdt, subnode,
-							      "reg");
+			priv->data.gmii_sel = cpsw_get_addr_by_node(fdt,
+								    subnode);
+
+			if (priv->data.gmii_sel == FDT_ADDR_T_NONE) {
+				error("Not able to get gmii_sel reg address\n");
+				return -ENOENT;
+			}
+
+			if (fdt_get_property(fdt, subnode, "rmii-clock-ext",
+					     NULL))
+				priv->data.rmii_clock_external = true;
+
+			phy_sel_compat = fdt_getprop(fdt, subnode, "compatible",
+						     NULL);
+			if (!phy_sel_compat) {
+				error("Not able to get gmii_sel compatible\n");
+				return -ENOENT;
+			}
 		}
 	}
 
@@ -1236,40 +1422,21 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		priv->data.slave_data[1].sliver_reg_ofs = CPSW_SLIVER1_OFFSET;
 	}
 
-	subnode = fdtdec_lookup_phandle(fdt, node, "syscon");
-	priv->data.mac_id = fdt_translate_address((void *)fdt, subnode, &gmii);
-	priv->data.mac_id += AM335X_GMII_SEL_OFFSET;
-	priv->data.mac_id += active_slave * 8;
-
-	/* try reading mac address from efuse */
-	mac_lo = readl(priv->data.mac_id);
-	mac_hi = readl(priv->data.mac_id + 4);
-	pdata->enetaddr[0] = mac_hi & 0xFF;
-	pdata->enetaddr[1] = (mac_hi & 0xFF00) >> 8;
-	pdata->enetaddr[2] = (mac_hi & 0xFF0000) >> 16;
-	pdata->enetaddr[3] = (mac_hi & 0xFF000000) >> 24;
-	pdata->enetaddr[4] = mac_lo & 0xFF;
-	pdata->enetaddr[5] = (mac_lo & 0xFF00) >> 8;
+	ret = ti_cm_get_macid(dev, active_slave, pdata->enetaddr);
+	if (ret < 0) {
+		error("cpsw read efuse mac failed\n");
+		return ret;
+	}
 
 	pdata->phy_interface = priv->data.slave_data[active_slave].phy_if;
 	if (pdata->phy_interface == -1) {
 		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
 		return -EINVAL;
 	}
-	switch (pdata->phy_interface) {
-	case PHY_INTERFACE_MODE_MII:
-		writel(MII_MODE_ENABLE, priv->data.gmii_sel);
-		break;
-	case PHY_INTERFACE_MODE_RMII:
-		writel(RMII_MODE_ENABLE, priv->data.gmii_sel);
-		break;
-	case PHY_INTERFACE_MODE_RGMII:
-	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
-		writel(RGMII_MODE_ENABLE, priv->data.gmii_sel);
-		break;
-	}
+
+	/* Select phy interface in control module */
+	cpsw_phy_sel(priv, phy_sel_compat, pdata->phy_interface);
+
 	return 0;
 }
 

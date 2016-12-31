@@ -18,7 +18,6 @@
 
 #define CONFIG_MPC5200		1	/* This is an MPC5200 CPU	*/
 #define CONFIG_INKA4X0		1	/* INKA4x0 board		*/
-#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * Valid values for CONFIG_SYS_TEXT_BASE are:
@@ -48,8 +47,6 @@
  * 0x40000000 - 0x4fffffff - PCI Memory
  * 0x50000000 - 0x50ffffff - PCI IO Space
  */
-#define CONFIG_PCI		1
-#define CONFIG_PCI_PNP		1
 #define CONFIG_PCI_SCAN_SHOW	1
 #define CONFIG_PCIAUTO_SKIP_HOST_BRIDGE	1
 
@@ -68,7 +65,6 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
-
 /*
  * BOOTP options
  */
@@ -77,19 +73,12 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SNTP
-#define CONFIG_CMD_USB
 
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
 
@@ -100,7 +89,6 @@
 /*
  * Autobooting
  */
-#define CONFIG_BOOTDELAY	1	/* autoboot after 1 second */
 
 #define CONFIG_PREBOOT	"echo;" \
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
@@ -342,11 +330,6 @@ static inline void tws_data_config_output(unsigned output)
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
 
 /*
- * Enable loopw command.
- */
-#define CONFIG_LOOPW
-
-/*
  * Various low-level settings
  */
 #define CONFIG_SYS_HID0_INIT		HID0_ICE | HID0_ICFI
@@ -383,7 +366,6 @@ static inline void tws_data_config_output(unsigned output)
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_CLOCK	0x00015555
 #define CONFIG_USB_CONFIG	0x00001000
-#define CONFIG_USB_STORAGE
 
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff Supports IDE harddisk

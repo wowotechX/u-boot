@@ -16,6 +16,7 @@ typedef volatile unsigned short vu_short;
 typedef volatile unsigned char	vu_char;
 
 #include <config.h>
+#include <errno.h>
 #include <asm-offsets.h>
 #include <linux/bitops.h>
 #include <linux/types.h>
@@ -100,6 +101,13 @@ typedef volatile unsigned char	vu_char;
 #define _DEBUG	0
 #endif
 
+#ifdef CONFIG_SPL_BUILD
+#define _SPL_BUILD	1
+#else
+#define _SPL_BUILD	0
+#endif
+
+/* Define this at the top of a file to add a prefix to debug messages */
 #ifndef pr_fmt
 #define pr_fmt(fmt) fmt
 #endif
@@ -115,8 +123,13 @@ typedef volatile unsigned char	vu_char;
 			printf(pr_fmt(fmt), ##args);	\
 	} while (0)
 
+/* Show a message if DEBUG is defined in a file */
 #define debug(fmt, args...)			\
 	debug_cond(_DEBUG, fmt, ##args)
+
+/* Show a message if not in SPL */
+#define warn_non_spl(fmt, args...)			\
+	debug_cond(!_SPL_BUILD, fmt, ##args)
 
 /*
  * An assertion is run-time check done in debug mode only. If DEBUG is not
@@ -853,17 +866,20 @@ int	getc(void);
 int	tstc(void);
 
 /* stdout */
-#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_SERIAL_SUPPORT)
-#define	putc(...) do { } while (0)
-#define puts(...) do { } while (0)
-#define printf(...) do { } while (0)
-#define vprintf(...) do { } while (0)
-#else
+#if !defined(CONFIG_SPL_BUILD) || \
+	(defined(CONFIG_TPL_BUILD) && defined(CONFIG_TPL_SERIAL_SUPPORT)) || \
+	(defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD) && \
+		defined(CONFIG_SPL_SERIAL_SUPPORT))
 void	putc(const char c);
 void	puts(const char *s);
 int	printf(const char *fmt, ...)
 		__attribute__ ((format (__printf__, 1, 2)));
 int	vprintf(const char *fmt, va_list args);
+#else
+#define	putc(...) do { } while (0)
+#define puts(...) do { } while (0)
+#define printf(...) do { } while (0)
+#define vprintf(...) do { } while (0)
 #endif
 
 /* stderr */

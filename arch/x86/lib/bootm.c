@@ -26,11 +26,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define COMMAND_LINE_OFFSET 0x9000
 
-/*
- * Implement a weak default function for boards that optionally
- * need to clean up the system before jumping to the kernel.
- */
-__weak void board_final_cleanup(void)
+int arch_fixup_fdt(void *blob)
+{
+	return 0;
+}
+
+__weak void board_quiesce_devices(void)
 {
 }
 
@@ -45,7 +46,6 @@ void bootm_announce_and_cleanup(void)
 #ifdef CONFIG_BOOTSTAGE_REPORT
 	bootstage_report();
 #endif
-	board_final_cleanup();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && !defined(CONFIG_OF_NO_KERNEL)

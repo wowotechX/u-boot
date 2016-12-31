@@ -11,13 +11,13 @@
 #ifndef __RSK7264_H
 #define __RSK7264_H
 
-#undef DEBUG
 #define CONFIG_CPU_SH7264	1
 #define CONFIG_RSK7264		1
 
+#define CONFIG_DISPLAY_BOARDINFO
+
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC3,115200"
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_SYS_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
 
 #define CONFIG_SYS_LONGHELP	1	/* undef to save memory	*/

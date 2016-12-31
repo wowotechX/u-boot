@@ -293,8 +293,8 @@ int checkcpu (void)
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 /* Everything after the first generation of PQ3 parts has RSTCR */
-#if defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
-    defined(CONFIG_MPC8555) || defined(CONFIG_MPC8560)
+#if defined(CONFIG_ARCH_MPC8540) || defined(CONFIG_ARCH_MPC8541) || \
+	defined(CONFIG_ARCH_MPC8555) || defined(CONFIG_ARCH_MPC8560)
 	unsigned long val, msr;
 
 	/*
@@ -404,7 +404,7 @@ void mpc85xx_reginfo(void)
 phys_size_t initdram(int board_type)
 {
 #if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD) || \
-	defined(CONFIG_QEMU_E500)
+	defined(CONFIG_ARCH_QEMU_E500)
 	return fsl_ddr_sdram_size();
 #else
 	return (phys_size_t)CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
@@ -489,7 +489,7 @@ static void dump_spd_ddr_reg(void)
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
 		fsl_ddr_get_spd(spd[i], i, CONFIG_DIMM_SLOTS_PER_CTLR);
 
-	puts("SPD data of all dimms (zero vaule is omitted)...\n");
+	puts("SPD data of all dimms (zero value is omitted)...\n");
 	puts("Byte (hex)  ");
 	k = 1;
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
@@ -543,7 +543,7 @@ static void dump_spd_ddr_reg(void)
 		}
 	}
 	printf("DDR registers dump for all controllers "
-		"(zero vaule is omitted)...\n");
+		"(zero value is omitted)...\n");
 	puts("Offset (hex)   ");
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
 		printf("     Base + 0x%04x", (u32)ddr[i] & 0xFFFF);

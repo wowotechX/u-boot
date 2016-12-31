@@ -11,7 +11,7 @@
 #include <linux/compiler.h>
 #include <asm/mmu.h>
 #include <asm/processor.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/cache.h>
 #include <asm/immap_85xx.h>
 #include <asm/fsl_law.h>
@@ -437,7 +437,7 @@ int configure_vsc3316_3308(void)
 		}
 		break;
 
-#ifdef CONFIG_PPC_B4420
+#ifdef CONFIG_ARCH_B4420
 	case 0x17:
 	case 0x18:
 			/*
@@ -496,7 +496,7 @@ int configure_vsc3316_3308(void)
 	/* Configure VSC3308 crossbar switch */
 	ret = select_i2c_ch_pca(I2C_CH_VSC3308);
 	switch (serdes2_prtcl) {
-#ifdef CONFIG_PPC_B4420
+#ifdef CONFIG_ARCH_B4420
 	case 0x9d:
 #endif
 	case 0x9E:
@@ -929,7 +929,7 @@ int config_serdes2_refclks(void)
 	 * For this SerDes2's Refclk1 need to be set to 100MHz
 	 */
 	switch (serdes2_prtcl) {
-#ifdef CONFIG_PPC_B4420
+#ifdef CONFIG_ARCH_B4420
 	case 0x9d:
 #endif
 	case 0x9E:
@@ -1209,7 +1209,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_liodn(blob);
 
 #ifdef CONFIG_HAS_FSL_DR_USB
-	fdt_fixup_dr_usb(blob, bd);
+	fsl_fdt_fixup_dr_usb(blob, bd);
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN

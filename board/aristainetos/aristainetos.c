@@ -14,7 +14,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/boot_mode.h>
@@ -102,7 +102,7 @@ iomux_v3_cfg_t const usdhc1_pads[] = {
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
+	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }

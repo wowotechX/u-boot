@@ -26,9 +26,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_IMMAP
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_CMD_KGDB)
@@ -43,7 +41,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
-#define CONFIG_BOOTDELAY	5   /* autoboot after 5 seconds */
 #undef	CONFIG_BOOTARGS
 
 #define CONFIG_PREBOOT	"echo;"	\
@@ -171,7 +168,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */
 
-#define CONFIG_DISPLAY_BOARDINFO 1
 #define CONFIG_CMDLINE_EDITING  1
 
 /*

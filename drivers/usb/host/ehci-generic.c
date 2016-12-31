@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <reset.h>
 #include <asm/io.h>
 #include <dm.h>
 #include "ehci.h"
@@ -26,15 +27,27 @@ static int ehci_usb_probe(struct udevice *dev)
 	int i;
 
 	for (i = 0; ; i++) {
-		struct udevice *clk_dev;
-		int clk_id;
+		struct clk clk;
+		int ret;
 
-		clk_id = clk_get_by_index(dev, i, &clk_dev);
-		if (clk_id < 0)
+		ret = clk_get_by_index(dev, i, &clk);
+		if (ret < 0)
 			break;
-		if (clk_enable(clk_dev, clk_id))
-			printf("failed to enable clock (dev=%s, id=%d)\n",
-			       clk_dev->name, clk_id);
+		if (clk_enable(&clk))
+			printf("failed to enable clock %d\n", i);
+		clk_free(&clk);
+	}
+
+	for (i = 0; ; i++) {
+		struct reset_ctl reset;
+		int ret;
+
+		ret = reset_get_by_index(dev, i, &reset);
+		if (ret < 0)
+			break;
+		if (reset_deassert(&reset))
+			printf("failed to deassert reset %d\n", i);
+		reset_free(&reset);
 	}
 
 	hccr = map_physmem(dev_get_addr(dev), 0x100, MAP_NOCACHE);
@@ -42,11 +55,6 @@ static int ehci_usb_probe(struct udevice *dev)
 				    HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
 	return ehci_register(dev, hccr, hcor, NULL, 0, USB_INIT_HOST);
-}
-
-static int ehci_usb_remove(struct udevice *dev)
-{
-	return ehci_deregister(dev);
 }
 
 static const struct udevice_id ehci_usb_ids[] = {
@@ -59,7 +67,7 @@ U_BOOT_DRIVER(ehci_generic) = {
 	.id	= UCLASS_USB,
 	.of_match = ehci_usb_ids,
 	.probe = ehci_usb_probe,
-	.remove = ehci_usb_remove,
+	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
 	.priv_auto_alloc_size = sizeof(struct generic_ehci),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,

@@ -29,10 +29,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define RK_I2C_FIFO_SIZE	32
 
 struct rk_i2c {
-	struct udevice *clk;
+	struct clk clk;
 	struct i2c_regs *regs;
 	unsigned int speed;
-	int clk_id;
 };
 
 static inline void rk_i2c_get_div(int div, int *divh, int *divl)
@@ -55,7 +54,7 @@ static void rk_i2c_set_clk(struct rk_i2c *i2c, uint32_t scl_rate)
 	int div, divl, divh;
 
 	/* First get i2c rate from pclk */
-	i2c_rate = clk_get_periph_rate(i2c->clk, i2c->clk_id);
+	i2c_rate = clk_get_rate(&i2c->clk);
 
 	div = DIV_ROUND_UP(i2c_rate, scl_rate * 8) - 2;
 	divh = 0;
@@ -259,7 +258,7 @@ static int rk_i2c_write(struct rk_i2c *i2c, uchar chip, uint reg, uint r_len,
 
 	while (bytes_remain_len) {
 		if (bytes_remain_len > RK_I2C_FIFO_SIZE)
-			bytes_xferred = 32;
+			bytes_xferred = RK_I2C_FIFO_SIZE;
 		else
 			bytes_xferred = bytes_remain_len;
 		words_xferred = DIV_ROUND_UP(bytes_xferred, 4);
@@ -270,17 +269,17 @@ static int rk_i2c_write(struct rk_i2c *i2c, uchar chip, uint reg, uint r_len,
 				if ((i * 4 + j) == bytes_xferred)
 					break;
 
-				if (i == 0 && j == 0) {
+				if (i == 0 && j == 0 && pbuf == buf) {
 					txdata |= (chip << 1);
-				} else if (i == 0 && j <= r_len) {
+				} else if (i == 0 && j <= r_len && pbuf == buf) {
 					txdata |= (reg &
 						(0xff << ((j - 1) * 8))) << 8;
 				} else {
 					txdata |= (*pbuf++)<<(j * 8);
 				}
-				writel(txdata, &regs->txdata[i]);
 			}
-			debug("I2c Write TXDATA[%d] = 0x%x\n", i, txdata);
+			writel(txdata, &regs->txdata[i]);
+			debug("I2c Write TXDATA[%d] = 0x%08x\n", i, txdata);
 		}
 
 		writel(I2C_CON_EN | I2C_CON_MOD(I2C_MODE_TX), &regs->con);
@@ -362,7 +361,6 @@ static int rockchip_i2c_ofdata_to_platdata(struct udevice *bus)
 		      bus->name, ret);
 		return ret;
 	}
-	priv->clk_id = ret;
 
 	return 0;
 }

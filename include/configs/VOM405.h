@@ -19,7 +19,6 @@
 #define CONFIG_VOM405		1	/* ...on a VOM405 board		*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC8000
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
@@ -27,7 +26,6 @@
 #define CONFIG_SYS_CLK_FREQ	33330000 /* external frequency to pll	*/
 
 #define CONFIG_BAUDRATE		9600
-#define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
 #undef	CONFIG_BOOTARGS
 #undef  CONFIG_BOOTCOMMAND
@@ -58,12 +56,8 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_EEPROM
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
@@ -77,8 +71,6 @@
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
 
-#undef	CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser	*/
-
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
@@ -89,8 +81,6 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
-
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
 #define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
@@ -112,9 +102,6 @@
 #define CONFIG_SYS_EXTBDINFO	1		/* To use extended board_into (bd_t) */
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
-
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 #define CONFIG_SYS_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
 

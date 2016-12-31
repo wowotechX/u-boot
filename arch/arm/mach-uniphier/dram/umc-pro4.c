@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2011-2014 Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -11,7 +13,7 @@
 #include <asm/processor.h>
 
 #include "../init.h"
-#include "ddrphy-regs.h"
+#include "ddrphy-init.h"
 #include "umc-regs.h"
 
 #define DRAM_CH_NR	2
@@ -135,7 +137,7 @@ static int umc_ch_init(void __iomem *dc_base, void __iomem *ca_base,
 	int phy, ret;
 
 	writel(UMC_INITSET_INIT1EN, dc_base + UMC_INITSET);
-	while (readl(dc_base + UMC_INITSET) & UMC_INITSTAT_INIT1ST)
+	while (readl(dc_base + UMC_INITSTAT) & UMC_INITSTAT_INIT1ST)
 		cpu_relax();
 
 	for (phy = 0; phy < nr_phy; phy++) {
@@ -170,7 +172,7 @@ int uniphier_pro4_umc_init(const struct uniphier_board_data *bd)
 		ret = umc_ch_init(dc_base, ca_base, bd->dram_freq,
 				  bd->dram_ch[ch].size,
 				  bd->dram_ch[ch].width,
-				  bd->dram_ddr3plus);
+				  !!(bd->flags & UNIPHIER_BD_DDR3PLUS));
 		if (ret) {
 			pr_err("failed to initialize UMC ch%d\n", ch);
 			return ret;

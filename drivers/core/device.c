@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <malloc.h>
@@ -26,9 +27,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int device_bind(struct udevice *parent, const struct driver *drv,
-		const char *name, void *platdata, int of_offset,
-		struct udevice **devp)
+static int device_bind_common(struct udevice *parent, const struct driver *drv,
+			      const char *name, void *platdata,
+			      ulong driver_data, int of_offset,
+			      uint of_platdata_size, struct udevice **devp)
 {
 	struct udevice *dev;
 	struct uclass *uc;
@@ -56,6 +58,7 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 	INIT_LIST_HEAD(&dev->devres_head);
 #endif
 	dev->platdata = platdata;
+	dev->driver_data = driver_data;
 	dev->name = name;
 	dev->of_offset = of_offset;
 	dev->parent = parent;
@@ -81,12 +84,29 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 		}
 	}
 
-	if (!dev->platdata && drv->platdata_auto_alloc_size) {
-		dev->flags |= DM_FLAG_ALLOC_PDATA;
-		dev->platdata = calloc(1, drv->platdata_auto_alloc_size);
-		if (!dev->platdata) {
-			ret = -ENOMEM;
-			goto fail_alloc1;
+	if (drv->platdata_auto_alloc_size) {
+		bool alloc = !platdata;
+
+		if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
+			if (of_platdata_size) {
+				dev->flags |= DM_FLAG_OF_PLATDATA;
+				if (of_platdata_size <
+						drv->platdata_auto_alloc_size)
+					alloc = true;
+			}
+		}
+		if (alloc) {
+			dev->flags |= DM_FLAG_ALLOC_PDATA;
+			dev->platdata = calloc(1,
+					       drv->platdata_auto_alloc_size);
+			if (!dev->platdata) {
+				ret = -ENOMEM;
+				goto fail_alloc1;
+			}
+			if (CONFIG_IS_ENABLED(OF_PLATDATA) && platdata) {
+				memcpy(dev->platdata, platdata,
+				       of_platdata_size);
+			}
 		}
 	}
 
@@ -193,10 +213,28 @@ fail_alloc1:
 	return ret;
 }
 
+int device_bind_with_driver_data(struct udevice *parent,
+				 const struct driver *drv, const char *name,
+				 ulong driver_data, int of_offset,
+				 struct udevice **devp)
+{
+	return device_bind_common(parent, drv, name, NULL, driver_data,
+				  of_offset, 0, devp);
+}
+
+int device_bind(struct udevice *parent, const struct driver *drv,
+		const char *name, void *platdata, int of_offset,
+		struct udevice **devp)
+{
+	return device_bind_common(parent, drv, name, platdata, 0, of_offset, 0,
+				  devp);
+}
+
 int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 			const struct driver_info *info, struct udevice **devp)
 {
 	struct driver *drv;
+	uint platdata_size = 0;
 
 	drv = lists_driver_lookup_name(info->name);
 	if (!drv)
@@ -204,8 +242,11 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 	if (pre_reloc_only && !(drv->flags & DM_FLAG_PRE_RELOC))
 		return -EPERM;
 
-	return device_bind(parent, drv, info->name, (void *)info->platdata,
-			   -1, devp);
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	platdata_size = info->platdata_size;
+#endif
+	return device_bind_common(parent, drv, info->name,
+			(void *)info->platdata, 0, -1, platdata_size, devp);
 }
 
 static void *alloc_priv(int size, uint flags)
@@ -588,7 +629,7 @@ const char *dev_get_uclass_name(struct udevice *dev)
 
 fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 {
-#if CONFIG_IS_ENABLED(OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	fdt_addr_t addr;
 
 	if (CONFIG_IS_ENABLED(OF_TRANSLATE)) {
@@ -630,7 +671,7 @@ fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 		addr = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
 							dev->parent->of_offset,
 							dev->of_offset, "reg",
-							index, NULL);
+							index, NULL, false);
 		if (CONFIG_IS_ENABLED(SIMPLE_BUS) && addr != FDT_ADDR_T_NONE) {
 			if (device_get_uclass_id(dev->parent) ==
 			    UCLASS_SIMPLE_BUS)
@@ -652,13 +693,35 @@ fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 #endif
 }
 
+fdt_addr_t dev_get_addr_size_index(struct udevice *dev, int index,
+				   fdt_size_t *size)
+{
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	/*
+	 * Only get the size in this first call. We'll get the addr in the
+	 * next call to the exisiting dev_get_xxx function which handles
+	 * all config options.
+	 */
+	fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, dev->of_offset,
+					   "reg", index, size, false);
+
+	/*
+	 * Get the base address via the existing function which handles
+	 * all Kconfig cases
+	 */
+	return dev_get_addr_index(dev, index);
+#else
+	return FDT_ADDR_T_NONE;
+#endif
+}
+
 fdt_addr_t dev_get_addr_name(struct udevice *dev, const char *name)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	int index;
 
-	index = fdt_find_string(gd->fdt_blob, dev->parent->of_offset,
-				"reg-names", name);
+	index = fdt_stringlist_search(gd->fdt_blob, dev->of_offset,
+				      "reg-names", name);
 	if (index < 0)
 		return index;
 
@@ -671,6 +734,21 @@ fdt_addr_t dev_get_addr_name(struct udevice *dev, const char *name)
 fdt_addr_t dev_get_addr(struct udevice *dev)
 {
 	return dev_get_addr_index(dev, 0);
+}
+
+void *dev_get_addr_ptr(struct udevice *dev)
+{
+	return (void *)(uintptr_t)dev_get_addr_index(dev, 0);
+}
+
+void *dev_map_physmem(struct udevice *dev, unsigned long size)
+{
+	fdt_addr_t addr = dev_get_addr(dev);
+
+	if (addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	return map_physmem(addr, size, MAP_NOCACHE);
 }
 
 bool device_has_children(struct udevice *dev)
@@ -701,12 +779,32 @@ bool device_is_last_sibling(struct udevice *dev)
 	return list_is_last(&dev->sibling_node, &parent->child_head);
 }
 
+void device_set_name_alloced(struct udevice *dev)
+{
+	dev->flags |= DM_FLAG_NAME_ALLOCED;
+}
+
 int device_set_name(struct udevice *dev, const char *name)
 {
 	name = strdup(name);
 	if (!name)
 		return -ENOMEM;
 	dev->name = name;
+	device_set_name_alloced(dev);
 
 	return 0;
+}
+
+bool of_device_is_compatible(struct udevice *dev, const char *compat)
+{
+	const void *fdt = gd->fdt_blob;
+
+	return !fdt_node_check_compatible(fdt, dev->of_offset, compat);
+}
+
+bool of_machine_is_compatible(const char *compat)
+{
+	const void *fdt = gd->fdt_blob;
+
+	return !fdt_node_check_compatible(fdt, 0, compat);
 }

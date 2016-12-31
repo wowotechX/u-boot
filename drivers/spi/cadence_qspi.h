@@ -53,7 +53,7 @@ int cadence_qspi_apb_command_write(void *reg_base_addr,
 	unsigned int txlen,  const u8 *txbuf);
 
 int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
-	unsigned int cmdlen, const u8 *cmdbuf);
+	unsigned int cmdlen, unsigned int rx_width, const u8 *cmdbuf);
 int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 	unsigned int rxlen, u8 *rxbuf);
 int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
@@ -63,8 +63,7 @@ int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
 
 void cadence_qspi_apb_chipselect(void *reg_base,
 	unsigned int chip_select, unsigned int decoder_enable);
-void cadence_qspi_apb_set_clk_mode(void *reg_base_addr,
-	unsigned int clk_pol, unsigned int clk_pha);
+void cadence_qspi_apb_set_clk_mode(void *reg_base, uint mode);
 void cadence_qspi_apb_config_baudrate_div(void *reg_base,
 	unsigned int ref_clk_hz, unsigned int sclk_hz);
 void cadence_qspi_apb_delay(void *reg_base,

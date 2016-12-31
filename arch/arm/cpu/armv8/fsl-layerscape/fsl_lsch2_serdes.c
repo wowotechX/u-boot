@@ -6,12 +6,15 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
 
 #ifdef CONFIG_SYS_FSL_SRDS_1
 static u8 serdes1_prtcl_map[SERDES_PRCTL_COUNT];
+#endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
+static u8 serdes2_prtcl_map[SERDES_PRCTL_COUNT];
 #endif
 
 int is_serdes_configured(enum srds_prtcl device)
@@ -19,7 +22,16 @@ int is_serdes_configured(enum srds_prtcl device)
 	int ret = 0;
 
 #ifdef CONFIG_SYS_FSL_SRDS_1
+	if (!serdes1_prtcl_map[NONE])
+		fsl_serdes_init();
+
 	ret |= serdes1_prtcl_map[device];
+#endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
+	if (!serdes2_prtcl_map[NONE])
+		fsl_serdes_init();
+
+	ret |= serdes2_prtcl_map[device];
 #endif
 
 	return !!ret;
@@ -36,6 +48,12 @@ int serdes_get_first_lane(u32 sd, enum srds_prtcl device)
 	case FSL_SRDS_1:
 		cfg &= FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_MASK;
 		cfg >>= FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_SHIFT;
+		break;
+#endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
+	case FSL_SRDS_2:
+		cfg &= FSL_CHASSIS2_RCWSR4_SRDS2_PRTCL_MASK;
+		cfg >>= FSL_CHASSIS2_RCWSR4_SRDS2_PRTCL_SHIFT;
 		break;
 #endif
 	default:
@@ -86,6 +104,9 @@ void serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift,
 	u32 cfg;
 	int lane;
 
+	if (serdes_prtcl_map[NONE])
+		return;
+
 	memset(serdes_prtcl_map, 0, sizeof(u8) * SERDES_PRCTL_COUNT);
 
 	cfg = gur_in32(&gur->rcwsr[4]) & sd_prctl_mask;
@@ -103,6 +124,9 @@ void serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift,
 		else
 			serdes_prtcl_map[lane_prtcl] = 1;
 	}
+
+	/* Set the first element to indicate serdes has been initialized */
+	serdes_prtcl_map[NONE] = 1;
 }
 
 void fsl_serdes_init(void)
@@ -113,5 +137,12 @@ void fsl_serdes_init(void)
 		    FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_MASK,
 		    FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_SHIFT,
 		    serdes1_prtcl_map);
+#endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
+	serdes_init(FSL_SRDS_2,
+		    CONFIG_SYS_FSL_SERDES_ADDR,
+		    FSL_CHASSIS2_RCWSR4_SRDS2_PRTCL_MASK,
+		    FSL_CHASSIS2_RCWSR4_SRDS2_PRTCL_SHIFT,
+		    serdes2_prtcl_map);
 #endif
 }

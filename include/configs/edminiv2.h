@@ -17,10 +17,6 @@
  */
 
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_NOR_SUPPORT
 #define CONFIG_SPL_TEXT_BASE		0xffff0000
 #define CONFIG_SPL_MAX_SIZE		0x0000fff0
 #define CONFIG_SPL_STACK		0x00020000
@@ -33,12 +29,6 @@
 #define CONFIG_SYS_UBOOT_BASE		0xfff90000
 #define CONFIG_SYS_UBOOT_START		0x00800000
 #define CONFIG_SYS_TEXT_BASE 		0x00800000
-
-/*
- * Version number information
- */
-
-#define CONFIG_IDENT_STRING	" EDMiniV2"
 
 /*
  * High Level Configuration Options (easy to change)
@@ -115,7 +105,6 @@
 #define CONFIG_SYS_FLASH_BASE		0xfff80000
 
 /* auto boot */
-#define CONFIG_BOOTDELAY	3	/* default enable autoboot */
 
 /*
  * For booting Linux, the board info and command line data
@@ -133,8 +122,6 @@
  * Commands configuration
  */
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_USB
 
 /*
  * Network
@@ -159,7 +146,6 @@
 #define __io
 #define CONFIG_IDE_PREINIT
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
 /* ED Mini V has an IDE-compatible SATA connector for port 1 */
 #define CONFIG_MVSATA_IDE
 #define CONFIG_MVSATA_IDE_USE_PORT1
@@ -190,7 +176,6 @@
 #define CONFIG_USB_EHCI		/* Enable EHCI USB support */
 #define CONFIG_USB_EHCI_MARVELL
 #define ORION5X_USB20_HOST_PORT_BASE ORION5X_USB20_PORT0_BASE
-#define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 #define CONFIG_SUPPORT_VFAT
@@ -223,10 +208,8 @@
 /*
  * Other required minimal configurations
  */
-#define CONFIG_CONSOLE_INFO_QUIET	/* some code reduction */
 #define CONFIG_ARCH_CPU_INIT		/* call arch_cpu_init() */
 #define CONFIG_ARCH_MISC_INIT		/* call arch_misc_init() */
-#define CONFIG_DISPLAY_CPUINFO		/* Display cpu info */
 #define CONFIG_NR_DRAM_BANKS		1
 
 #define CONFIG_SYS_LOAD_ADDR		0x00800000
@@ -234,9 +217,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x007fffff
 #define CONFIG_SYS_RESET_ADDRESS	0xffff0000
 #define CONFIG_SYS_MAXARGS		16
-
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
 
 /* Enable command line editing */
 #define CONFIG_CMDLINE_EDITING

@@ -420,13 +420,14 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 		goto err_dpmac_setup;
 
 #ifdef CONFIG_PHYLIB
-	if (priv->phydev)
+	if (priv->phydev) {
 		err = phy_startup(priv->phydev);
 		if (err) {
 			printf("%s: Could not initialize\n",
 			       priv->phydev->dev->name);
 			goto err_dpamc_bind;
 		}
+	}
 #else
 	priv->phydev = (struct phy_device *)malloc(sizeof(struct phy_device));
 	memset(priv->phydev, 0, sizeof(struct phy_device));
@@ -920,6 +921,7 @@ static int ldpaa_dpni_bind(struct ldpaa_eth_priv *priv)
 	struct dpni_tx_conf_cfg tx_conf_cfg;
 	int err = 0;
 
+	memset(&pools_params, 0, sizeof(pools_params));
 	pools_params.num_dpbp = 1;
 	pools_params.pools[0].dpbp_id = (uint16_t)dflt_dpbp->dpbp_attr.id;
 	pools_params.pools[0].buffer_size = LDPAA_ETH_RX_BUFFER_SIZE;

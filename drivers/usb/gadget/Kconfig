@@ -43,6 +43,11 @@ config USB_GADGET_ATMEL_USBA
 	  USBA is the integrated high-speed USB Device controller on
 	  the AT32AP700x, some AT91SAM9 and AT91CAP9 processors from Atmel.
 
+config USB_GADGET_BCM_UDC_OTG_PHY
+	bool "Broadcom UDC OTG PHY"
+	help
+	  Enable the Broadcom UDC OTG physical device interface.
+
 config USB_GADGET_DWC2_OTG
 	bool "DesignWare USB2.0 HS OTG controller (gadget mode)"
 	select USB_GADGET_DUALSPEED
@@ -51,6 +56,16 @@ config USB_GADGET_DWC2_OTG
 	  integrated into many SoCs. Select this option if you want the
 	  driver to operate in Peripheral mode. This option requires
 	  USB_GADGET to be enabled.
+
+if USB_GADGET_DWC2_OTG
+
+config USB_GADGET_DWC2_OTG_PHY_BUS_WIDTH_8
+	bool "DesignWare USB2.0 HS OTG controller 8-bit PHY bus width"
+	help
+	  Set the Designware USB2.0 high-speed OTG controller
+	  PHY interface width to 8 bits, rather than the default (16 bits).
+
+endif # USB_GADGET_DWC2_OTG
 
 config CI_UDC
 	bool "ChipIdea device controller"

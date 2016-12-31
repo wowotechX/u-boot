@@ -15,7 +15,6 @@
 #define __CONFIG_H
 
 #define CONFIG_MECP5123 1
-#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * Memory map for the MECP5123 board:
@@ -242,12 +241,7 @@
 #define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_MEM_EN |	\
 			 CLOCK_SCCR2_I2C_EN)
 
-
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef  CONFIG_SYS_HUSH_PARSER
-#endif
 
 /* I2C */
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
@@ -295,18 +289,11 @@
 #define CONFIG_LOADS_ECHO		/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change	*/
 
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_DATE
 #undef CONFIG_CMD_FUSE
 #undef CONFIG_CMD_IDE
-#undef CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
 #define CONFIG_DOS_PARTITION
 
@@ -374,7 +361,6 @@
 
 #define CONFIG_LOADADDR		400000	/* def. location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY	5	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS			/* the boot command will set bootargs*/
 
 #define CONFIG_PREBOOT	"echo;"	\

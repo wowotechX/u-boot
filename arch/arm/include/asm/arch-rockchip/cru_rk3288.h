@@ -25,6 +25,13 @@
 #define PERI_HCLK_HZ	148500000
 #define PERI_PCLK_HZ	74250000
 
+/* Private data for the clock driver - used by rockchip_get_cru() */
+struct rk3288_clk_priv {
+	struct rk3288_grf *grf;
+	struct rk3288_cru *cru;
+	ulong rate;
+};
+
 struct rk3288_cru {
 	struct rk3288_pll {
 		u32 con0;
@@ -88,6 +95,23 @@ enum {
 
 	SDIO0_DIV_SHIFT		= 0,
 	SDIO0_DIV_MASK		= 0x3f,
+};
+
+/* CRU_CLKSEL21_CON */
+enum {
+	MAC_DIV_CON_SHIFT = 0xf,
+	MAC_DIV_CON_MASK = 0x1f,
+
+	RMII_EXTCLK_SHIFT = 4,
+	RMII_EXTCLK_MASK = 1,
+	RMII_EXTCLK_SELECT_INT_DIV_CLK = 0,
+	RMII_EXTCLK_SELECT_EXT_CLK = 1,
+
+	EMAC_PLL_SHIFT = 0,
+	EMAC_PLL_MASK = 0x3,
+	EMAC_PLL_SELECT_NEW = 0x0,
+	EMAC_PLL_SELECT_CODEC = 0x1,
+	EMAC_PLL_SELECT_GENERAL = 0x2,
 };
 
 /* CRU_CLKSEL25_CON */

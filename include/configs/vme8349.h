@@ -18,8 +18,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * Top level Makefile configuration choices
  */
@@ -39,7 +37,6 @@
 
 #define CONFIG_MISC_INIT_R
 
-#define CONFIG_PCI
 /* Don't enable PCI2 on vme834x - it doesn't exist physically. */
 #undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
 
@@ -212,8 +209,6 @@
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -271,7 +266,6 @@
 
 #ifndef VME_CADDY2
 #endif
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
@@ -349,9 +343,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_DATE
 #define CONFIG_SYS_RTC_BUS_NUM  0x01
 #define CONFIG_SYS_I2C_RTC_ADDR	0x32
@@ -547,7 +538,6 @@
 
 #define CONFIG_LOADADDR		800000	/* def location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS			/* boot command will set bootargs */
 
 #define CONFIG_BAUDRATE	 9600

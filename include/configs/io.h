@@ -17,7 +17,6 @@
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		io
-#define CONFIG_IDENT_STRING	" io 0.06"
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -32,8 +31,6 @@
  */
 #define PLLMR0_DEFAULT PLLMR0_266_133_66
 #define PLLMR1_DEFAULT PLLMR1_266_133_66
-
-#undef CONFIG_ZERO_BOOTDELAY_CHECK	/* ignore keypress on bootdelay==0 */
 
 /* new uImage format support */
 #define CONFIG_FIT_DISABLE_SHA256
@@ -62,10 +59,8 @@
  * Commands additional to the ones defined in amcc-common.h
  */
 #define CONFIG_CMD_DTT
-#undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_DIAG
 #undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_IRQ
 
 /*

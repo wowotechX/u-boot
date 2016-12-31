@@ -16,27 +16,21 @@
  */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_MPC8572		1
-#define CONFIG_XPEDITE5370	1
 #define CONFIG_SYS_BOARD_NAME	"XPedite5370"
 #define CONFIG_SYS_FORM_3U_VPX	1
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
-#define CONFIG_DISPLAY_BOARDINFO
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xfff80000
 #endif
 
-#define CONFIG_PCI		1	/* Enable PCI/PCIE */
-#define CONFIG_PCI_PNP		1	/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup */
-#define CONFIG_PCIE1		1	/* PCIE controler 1 */
-#define CONFIG_PCIE2		1	/* PCIE controler 2 */
+#define CONFIG_PCIE1		1	/* PCIE controller 1 */
+#define CONFIG_PCIE2		1	/* PCIE controller 2 */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 #define CONFIG_FSL_ELBC		1
 
 /*
@@ -225,11 +219,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /*
- * Use the HUSH parser
- */
-#define CONFIG_SYS_HUSH_PARSER
-
-/*
  * I2C
  */
 #define CONFIG_SYS_I2C
@@ -371,23 +360,17 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * Command configuration.
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DS4510
 #define CONFIG_CMD_DS4510_INFO
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCA953X
 #define CONFIG_CMD_PCA953X_INFO
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PCI_ENUM
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SNTP
 #define CONFIG_CMD_REGINFO
 
 /*
@@ -402,7 +385,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_CMDLINE_EDITING	1		/* add command line history	*/
 #define CONFIG_AUTO_COMPLETE	1		/* add autocompletion support */
 #define CONFIG_LOADADDR		0x1000000	/* default location for tftp and bootm */
-#define CONFIG_BOOTDELAY	3		/* -1 disables auto-boot */
 #define CONFIG_PANIC_HANG			/* do not reset board on panic */
 #define CONFIG_PREBOOT				/* enable preboot variable */
 #define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */
@@ -566,7 +548,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 	"osfile=/home/user/board.uImage\0"				\
 	"fdtfile=/home/user/board.dtb\0"				\
 	"ubootfile=/home/user/u-boot.bin\0"				\
-	"fdtaddr=c00000\0"						\
+	"fdtaddr=0x1e00000\0"						\
 	"osaddr=0x1000000\0"						\
 	"loadaddr=0x1000000\0"						\
 	"prog_uboot1="CONFIG_PROG_UBOOT1"\0"				\

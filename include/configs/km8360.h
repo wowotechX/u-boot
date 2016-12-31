@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* KMBEC FPGA (PRIO) */
 #define CONFIG_SYS_KMBEC_FPGA_BASE	0xE8000000
 #define CONFIG_SYS_KMBEC_FPGA_SIZE	64
@@ -232,7 +230,6 @@
 	BATL_GUARDEDSTORAGE)
 
 #define CONFIG_SYS_DBAT5U	CONFIG_SYS_IBAT5U
-
 
 #ifdef CONFIG_KMCOGE5NE
 /* BFTIC3:  icache cacheable, but dcache-inhibit and guarded */

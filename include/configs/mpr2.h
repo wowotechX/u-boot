@@ -11,18 +11,18 @@
 #define __MPR2_H
 
 /* Supported commands */
-#define CONFIG_CMD_CACHE
 
 /* Default environment variables */
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC0,115200"
 #define CONFIG_BOOTFILE		"/boot/zImage"
 #define CONFIG_LOADADDR		0x8E000000
-#define CONFIG_VERSION_VARIABLE
 
 /* CPU and platform */
 #define CONFIG_CPU_SH7720	1
 #define CONFIG_MPR2		1
+
+#define CONFIG_DISPLAY_BOARDINFO
 
 /* U-Boot internals */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/

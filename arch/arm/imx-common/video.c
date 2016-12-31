@@ -3,7 +3,7 @@
  */
 
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/imx-common/video.h>
 
 int board_video_skip(void)
@@ -34,7 +34,7 @@ int board_video_skip(void)
 	}
 
 	if (i < display_count) {
-		ret = ipuv3_fb_init(&displays[i].mode, 0,
+		ret = ipuv3_fb_init(&displays[i].mode, displays[i].di ? 1 : 0,
 				    displays[i].pixfmt);
 		if (!ret) {
 			if (displays[i].enable)

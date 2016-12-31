@@ -23,15 +23,9 @@
  */
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DISPLAY
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_SNTP
 
 /*
  * 8-symbol LED display (can be accessed with 'display' command)
@@ -43,7 +37,6 @@
 /*
  * Autobooting
  */
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 
 #define CONFIG_PREBOOT	"echo;" \
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
@@ -113,6 +106,5 @@
 /*
  * Enable loopw command.
  */
-#define CONFIG_LOOPW
 
 #endif /* __MANROLAND_COMMON_H */

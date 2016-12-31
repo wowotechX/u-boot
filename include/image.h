@@ -123,62 +123,87 @@ struct lmb;
 # define IMAGE_OF_SYSTEM_SETUP	0
 #endif
 
+enum ih_category {
+	IH_ARCH,
+	IH_COMP,
+	IH_OS,
+	IH_TYPE,
+
+	IH_COUNT,
+};
+
 /*
  * Operating System Codes
+ *
+ * The following are exposed to uImage header.
+ * Do not change values for backward compatibility.
  */
-#define IH_OS_INVALID		0	/* Invalid OS	*/
-#define IH_OS_OPENBSD		1	/* OpenBSD	*/
-#define IH_OS_NETBSD		2	/* NetBSD	*/
-#define IH_OS_FREEBSD		3	/* FreeBSD	*/
-#define IH_OS_4_4BSD		4	/* 4.4BSD	*/
-#define IH_OS_LINUX		5	/* Linux	*/
-#define IH_OS_SVR4		6	/* SVR4		*/
-#define IH_OS_ESIX		7	/* Esix		*/
-#define IH_OS_SOLARIS		8	/* Solaris	*/
-#define IH_OS_IRIX		9	/* Irix		*/
-#define IH_OS_SCO		10	/* SCO		*/
-#define IH_OS_DELL		11	/* Dell		*/
-#define IH_OS_NCR		12	/* NCR		*/
-#define IH_OS_LYNXOS		13	/* LynxOS	*/
-#define IH_OS_VXWORKS		14	/* VxWorks	*/
-#define IH_OS_PSOS		15	/* pSOS		*/
-#define IH_OS_QNX		16	/* QNX		*/
-#define IH_OS_U_BOOT		17	/* Firmware	*/
-#define IH_OS_RTEMS		18	/* RTEMS	*/
-#define IH_OS_ARTOS		19	/* ARTOS	*/
-#define IH_OS_UNITY		20	/* Unity OS	*/
-#define IH_OS_INTEGRITY		21	/* INTEGRITY	*/
-#define IH_OS_OSE		22	/* OSE		*/
-#define IH_OS_PLAN9		23	/* Plan 9	*/
-#define IH_OS_OPENRTOS		24	/* OpenRTOS	*/
+enum {
+	IH_OS_INVALID		= 0,	/* Invalid OS	*/
+	IH_OS_OPENBSD,			/* OpenBSD	*/
+	IH_OS_NETBSD,			/* NetBSD	*/
+	IH_OS_FREEBSD,			/* FreeBSD	*/
+	IH_OS_4_4BSD,			/* 4.4BSD	*/
+	IH_OS_LINUX,			/* Linux	*/
+	IH_OS_SVR4,			/* SVR4		*/
+	IH_OS_ESIX,			/* Esix		*/
+	IH_OS_SOLARIS,			/* Solaris	*/
+	IH_OS_IRIX,			/* Irix		*/
+	IH_OS_SCO,			/* SCO		*/
+	IH_OS_DELL,			/* Dell		*/
+	IH_OS_NCR,			/* NCR		*/
+	IH_OS_LYNXOS,			/* LynxOS	*/
+	IH_OS_VXWORKS,			/* VxWorks	*/
+	IH_OS_PSOS,			/* pSOS		*/
+	IH_OS_QNX,			/* QNX		*/
+	IH_OS_U_BOOT,			/* Firmware	*/
+	IH_OS_RTEMS,			/* RTEMS	*/
+	IH_OS_ARTOS,			/* ARTOS	*/
+	IH_OS_UNITY,			/* Unity OS	*/
+	IH_OS_INTEGRITY,		/* INTEGRITY	*/
+	IH_OS_OSE,			/* OSE		*/
+	IH_OS_PLAN9,			/* Plan 9	*/
+	IH_OS_OPENRTOS,		/* OpenRTOS	*/
+
+	IH_OS_COUNT,
+};
 
 /*
  * CPU Architecture Codes (supported by Linux)
+ *
+ * The following are exposed to uImage header.
+ * Do not change values for backward compatibility.
  */
-#define IH_ARCH_INVALID		0	/* Invalid CPU	*/
-#define IH_ARCH_ALPHA		1	/* Alpha	*/
-#define IH_ARCH_ARM		2	/* ARM		*/
-#define IH_ARCH_I386		3	/* Intel x86	*/
-#define IH_ARCH_IA64		4	/* IA64		*/
-#define IH_ARCH_MIPS		5	/* MIPS		*/
-#define IH_ARCH_MIPS64		6	/* MIPS	 64 Bit */
-#define IH_ARCH_PPC		7	/* PowerPC	*/
-#define IH_ARCH_S390		8	/* IBM S390	*/
-#define IH_ARCH_SH		9	/* SuperH	*/
-#define IH_ARCH_SPARC		10	/* Sparc	*/
-#define IH_ARCH_SPARC64		11	/* Sparc 64 Bit */
-#define IH_ARCH_M68K		12	/* M68K		*/
-#define IH_ARCH_MICROBLAZE	14	/* MicroBlaze   */
-#define IH_ARCH_NIOS2		15	/* Nios-II	*/
-#define IH_ARCH_BLACKFIN	16	/* Blackfin	*/
-#define IH_ARCH_AVR32		17	/* AVR32	*/
-#define IH_ARCH_ST200	        18	/* STMicroelectronics ST200  */
-#define IH_ARCH_SANDBOX		19	/* Sandbox architecture (test only) */
-#define IH_ARCH_NDS32	        20	/* ANDES Technology - NDS32  */
-#define IH_ARCH_OPENRISC        21	/* OpenRISC 1000  */
-#define IH_ARCH_ARM64		22	/* ARM64	*/
-#define IH_ARCH_ARC		23	/* Synopsys DesignWare ARC */
-#define IH_ARCH_X86_64		24	/* AMD x86_64, Intel and Via */
+enum {
+	IH_ARCH_INVALID		= 0,	/* Invalid CPU	*/
+	IH_ARCH_ALPHA,			/* Alpha	*/
+	IH_ARCH_ARM,			/* ARM		*/
+	IH_ARCH_I386,			/* Intel x86	*/
+	IH_ARCH_IA64,			/* IA64		*/
+	IH_ARCH_MIPS,			/* MIPS		*/
+	IH_ARCH_MIPS64,			/* MIPS	 64 Bit */
+	IH_ARCH_PPC,			/* PowerPC	*/
+	IH_ARCH_S390,			/* IBM S390	*/
+	IH_ARCH_SH,			/* SuperH	*/
+	IH_ARCH_SPARC,			/* Sparc	*/
+	IH_ARCH_SPARC64,		/* Sparc 64 Bit */
+	IH_ARCH_M68K,			/* M68K		*/
+	IH_ARCH_NIOS,			/* Nios-32	*/
+	IH_ARCH_MICROBLAZE,		/* MicroBlaze   */
+	IH_ARCH_NIOS2,			/* Nios-II	*/
+	IH_ARCH_BLACKFIN,		/* Blackfin	*/
+	IH_ARCH_AVR32,			/* AVR32	*/
+	IH_ARCH_ST200,			/* STMicroelectronics ST200  */
+	IH_ARCH_SANDBOX,		/* Sandbox architecture (test only) */
+	IH_ARCH_NDS32,			/* ANDES Technology - NDS32  */
+	IH_ARCH_OPENRISC,		/* OpenRISC 1000  */
+	IH_ARCH_ARM64,			/* ARM64	*/
+	IH_ARCH_ARC,			/* Synopsys DesignWare ARC */
+	IH_ARCH_X86_64,			/* AMD x86_64, Intel and Via */
+	IH_ARCH_XTENSA,			/* Xtensa	*/
+
+	IH_ARCH_COUNT,
+};
 
 /*
  * Image Types
@@ -217,47 +242,64 @@ struct lmb;
  *	U-Boot's command interpreter; this feature is especially
  *	useful when you configure U-Boot to use a real shell (hush)
  *	as command interpreter (=> Shell Scripts).
+ *
+ * The following are exposed to uImage header.
+ * Do not change values for backward compatibility.
  */
 
-#define IH_TYPE_INVALID		0	/* Invalid Image		*/
-#define IH_TYPE_STANDALONE	1	/* Standalone Program		*/
-#define IH_TYPE_KERNEL		2	/* OS Kernel Image		*/
-#define IH_TYPE_RAMDISK		3	/* RAMDisk Image		*/
-#define IH_TYPE_MULTI		4	/* Multi-File Image		*/
-#define IH_TYPE_FIRMWARE	5	/* Firmware Image		*/
-#define IH_TYPE_SCRIPT		6	/* Script file			*/
-#define IH_TYPE_FILESYSTEM	7	/* Filesystem Image (any type)	*/
-#define IH_TYPE_FLATDT		8	/* Binary Flat Device Tree Blob	*/
-#define IH_TYPE_KWBIMAGE	9	/* Kirkwood Boot Image		*/
-#define IH_TYPE_IMXIMAGE	10	/* Freescale IMXBoot Image	*/
-#define IH_TYPE_UBLIMAGE	11	/* Davinci UBL Image		*/
-#define IH_TYPE_OMAPIMAGE	12	/* TI OMAP Config Header Image	*/
-#define IH_TYPE_AISIMAGE	13	/* TI Davinci AIS Image		*/
-#define IH_TYPE_KERNEL_NOLOAD	14	/* OS Kernel Image, can run from any load address */
-#define IH_TYPE_PBLIMAGE	15	/* Freescale PBL Boot Image	*/
-#define IH_TYPE_MXSIMAGE	16	/* Freescale MXSBoot Image	*/
-#define IH_TYPE_GPIMAGE		17	/* TI Keystone GPHeader Image	*/
-#define IH_TYPE_ATMELIMAGE	18	/* ATMEL ROM bootable Image	*/
-#define IH_TYPE_SOCFPGAIMAGE	19	/* Altera SOCFPGA Preloader	*/
-#define IH_TYPE_X86_SETUP	20	/* x86 setup.bin Image		*/
-#define IH_TYPE_LPC32XXIMAGE	21	/* x86 setup.bin Image		*/
-#define IH_TYPE_LOADABLE	22	/* A list of typeless images	*/
-#define IH_TYPE_RKIMAGE		23	/* Rockchip Boot Image		*/
-#define IH_TYPE_RKSD		24	/* Rockchip SD card		*/
-#define IH_TYPE_RKSPI		25	/* Rockchip SPI image		*/
-#define IH_TYPE_ZYNQIMAGE	26	/* Xilinx Zynq Boot Image */
+enum {
+	IH_TYPE_INVALID		= 0,	/* Invalid Image		*/
+	IH_TYPE_STANDALONE,		/* Standalone Program		*/
+	IH_TYPE_KERNEL,			/* OS Kernel Image		*/
+	IH_TYPE_RAMDISK,		/* RAMDisk Image		*/
+	IH_TYPE_MULTI,			/* Multi-File Image		*/
+	IH_TYPE_FIRMWARE,		/* Firmware Image		*/
+	IH_TYPE_SCRIPT,			/* Script file			*/
+	IH_TYPE_FILESYSTEM,		/* Filesystem Image (any type)	*/
+	IH_TYPE_FLATDT,			/* Binary Flat Device Tree Blob	*/
+	IH_TYPE_KWBIMAGE,		/* Kirkwood Boot Image		*/
+	IH_TYPE_IMXIMAGE,		/* Freescale IMXBoot Image	*/
+	IH_TYPE_UBLIMAGE,		/* Davinci UBL Image		*/
+	IH_TYPE_OMAPIMAGE,		/* TI OMAP Config Header Image	*/
+	IH_TYPE_AISIMAGE,		/* TI Davinci AIS Image		*/
+	/* OS Kernel Image, can run from any load address */
+	IH_TYPE_KERNEL_NOLOAD,
+	IH_TYPE_PBLIMAGE,		/* Freescale PBL Boot Image	*/
+	IH_TYPE_MXSIMAGE,		/* Freescale MXSBoot Image	*/
+	IH_TYPE_GPIMAGE,		/* TI Keystone GPHeader Image	*/
+	IH_TYPE_ATMELIMAGE,		/* ATMEL ROM bootable Image	*/
+	IH_TYPE_SOCFPGAIMAGE,		/* Altera SOCFPGA Preloader	*/
+	IH_TYPE_X86_SETUP,		/* x86 setup.bin Image		*/
+	IH_TYPE_LPC32XXIMAGE,		/* x86 setup.bin Image		*/
+	IH_TYPE_LOADABLE,		/* A list of typeless images	*/
+	IH_TYPE_RKIMAGE,		/* Rockchip Boot Image		*/
+	IH_TYPE_RKSD,			/* Rockchip SD card		*/
+	IH_TYPE_RKSPI,			/* Rockchip SPI image		*/
+	IH_TYPE_ZYNQIMAGE,		/* Xilinx Zynq Boot Image */
+	IH_TYPE_ZYNQMPIMAGE,		/* Xilinx ZynqMP Boot Image */
+	IH_TYPE_FPGA,			/* FPGA Image */
+	IH_TYPE_VYBRIDIMAGE,	/* VYBRID .vyb Image */
+	IH_TYPE_TEE,            /* Trusted Execution Environment OS Image */
 
-#define IH_TYPE_COUNT		27	/* Number of image types */
+	IH_TYPE_COUNT,			/* Number of image types */
+};
 
 /*
  * Compression Types
+ *
+ * The following are exposed to uImage header.
+ * Do not change values for backward compatibility.
  */
-#define IH_COMP_NONE		0	/*  No	 Compression Used	*/
-#define IH_COMP_GZIP		1	/* gzip	 Compression Used	*/
-#define IH_COMP_BZIP2		2	/* bzip2 Compression Used	*/
-#define IH_COMP_LZMA		3	/* lzma  Compression Used	*/
-#define IH_COMP_LZO		4	/* lzo   Compression Used	*/
-#define IH_COMP_LZ4		5	/* lz4   Compression Used	*/
+enum {
+	IH_COMP_NONE		= 0,	/*  No	 Compression Used	*/
+	IH_COMP_GZIP,			/* gzip	 Compression Used	*/
+	IH_COMP_BZIP2,			/* bzip2 Compression Used	*/
+	IH_COMP_LZMA,			/* lzma  Compression Used	*/
+	IH_COMP_LZO,			/* lzo   Compression Used	*/
+	IH_COMP_LZ4,			/* lz4   Compression Used	*/
+
+	IH_COMP_COUNT,
+};
 
 #define IH_MAGIC	0x27051956	/* Image Magic Number		*/
 #define IH_NMLEN		32	/* Image Name Length		*/
@@ -452,6 +494,40 @@ const char *genimg_get_comp_name(uint8_t comp);
  */
 const char *genimg_get_comp_short_name(uint8_t comp);
 
+/**
+ * genimg_get_cat_name() - Get the name of an item in a category
+ *
+ * @category:	Category of item
+ * @id:		Item ID
+ * @return name of item, or "Unknown ..." if unknown
+ */
+const char *genimg_get_cat_name(enum ih_category category, uint id);
+
+/**
+ * genimg_get_cat_short_name() - Get the short name of an item in a category
+ *
+ * @category:	Category of item
+ * @id:		Item ID
+ * @return short name of item, or "Unknown ..." if unknown
+ */
+const char *genimg_get_cat_short_name(enum ih_category category, uint id);
+
+/**
+ * genimg_get_cat_count() - Get the number of items in a category
+ *
+ * @category:	Category to check
+ * @return the number of items in the category (IH_xxx_COUNT)
+ */
+int genimg_get_cat_count(enum ih_category category);
+
+/**
+ * genimg_get_cat_desc() - Get the description of a category
+ *
+ * @return the description of a category, e.g. "architecture". This
+ * effectively converts the enum to a string.
+ */
+const char *genimg_get_cat_desc(enum ih_category category);
+
 int genimg_get_os_id(const char *name);
 int genimg_get_arch_id(const char *name);
 int genimg_get_type_id(const char *name);
@@ -494,6 +570,8 @@ int genimg_get_format(const void *img_addr);
 int genimg_has_config(bootm_headers_t *images);
 ulong genimg_get_image(ulong img_addr);
 
+int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
+		uint8_t arch, const ulong *ld_start, ulong * const ld_len);
 int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		uint8_t arch, ulong *rd_start, ulong *rd_end);
 
@@ -809,6 +887,7 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 #define FIT_LOADABLE_PROP	"loadables"
 #define FIT_DEFAULT_PROP	"default"
 #define FIT_SETUP_PROP		"setup"
+#define FIT_FPGA_PROP		"fpga"
 
 #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
 
@@ -971,7 +1050,9 @@ struct image_sign_info {
 	const char *keyname;		/* Name of key to use */
 	void *fit;			/* Pointer to FIT blob */
 	int node_offset;		/* Offset of signature node */
-	struct image_sig_algo *algo;	/* Algorithm information */
+	const char *name;		/* Algorithm name */
+	struct checksum_algo *checksum;	/* Checksum algorithm information */
+	struct crypto_algo *crypto;	/* Crypto algorithm information */
 	const void *fdt_blob;		/* FDT containing public keys */
 	int required_keynode;		/* Node offset of key to use: -1=any */
 	const char *require_keys;	/* Value for 'required' property */
@@ -992,18 +1073,19 @@ struct image_region {
 struct checksum_algo {
 	const char *name;
 	const int checksum_len;
-	const int pad_len;
+	const int der_len;
+	const uint8_t *der_prefix;
 #if IMAGE_ENABLE_SIGN
 	const EVP_MD *(*calculate_sign)(void);
 #endif
 	int (*calculate)(const char *name,
 			 const struct image_region region[],
 			 int region_count, uint8_t *checksum);
-	const uint8_t *rsa_padding;
 };
 
-struct image_sig_algo {
+struct crypto_algo {
 	const char *name;		/* Name of algorithm */
+	const int key_len;
 
 	/**
 	 * sign() - calculate and return signature for given input data
@@ -1052,18 +1134,23 @@ struct image_sig_algo {
 	int (*verify)(struct image_sign_info *info,
 		      const struct image_region region[], int region_count,
 		      uint8_t *sig, uint sig_len);
-
-	/* pointer to checksum algorithm */
-	struct checksum_algo *checksum;
 };
 
 /**
- * image_get_sig_algo() - Look up a signature algortihm
+ * image_get_checksum_algo() - Look up a checksum algorithm
  *
- * @param name		Name of algorithm
+ * @param full_name	Name of algorithm in the form "checksum,crypto"
  * @return pointer to algorithm information, or NULL if not found
  */
-struct image_sig_algo *image_get_sig_algo(const char *name);
+struct checksum_algo *image_get_checksum_algo(const char *full_name);
+
+/**
+ * image_get_crypto_algo() - Look up a cryptosystem algorithm
+ *
+ * @param full_name	Name of algorithm in the form "checksum,crypto"
+ * @return pointer to algorithm information, or NULL if not found
+ */
+struct crypto_algo *image_get_crypto_algo(const char *full_name);
 
 /**
  * fit_image_verify_required_sigs() - Verify signatures marked as 'required'
@@ -1151,6 +1238,7 @@ int android_image_get_ramdisk(const struct andr_img_hdr *hdr,
 			      ulong *rd_data, ulong *rd_len);
 ulong android_image_get_end(const struct andr_img_hdr *hdr);
 ulong android_image_get_kload(const struct andr_img_hdr *hdr);
+void android_print_contents(const struct andr_img_hdr *hdr);
 
 #endif /* CONFIG_ANDROID_BOOT_IMAGE */
 
@@ -1166,5 +1254,52 @@ ulong android_image_get_kload(const struct andr_img_hdr *hdr);
  * @return 0 if this device tree should be used, non-zero to try the next
  */
 int board_fit_config_name_match(const char *name);
+
+#ifdef CONFIG_SPL_FIT_IMAGE_POST_PROCESS
+/**
+ * board_fit_image_post_process() - Do any post-process on FIT binary data
+ *
+ * This is used to do any sort of image manipulation, verification, decryption
+ * etc. in a platform or board specific way. Obviously, anything done here would
+ * need to be comprehended in how the images were prepared before being injected
+ * into the FIT creation (i.e. the binary blobs would have been pre-processed
+ * before being added to the FIT image).
+ *
+ * @image: pointer to the image start pointer
+ * @size: pointer to the image size
+ * @return no return value (failure should be handled internally)
+ */
+void board_fit_image_post_process(void **p_image, size_t *p_size);
+#endif /* CONFIG_SPL_FIT_IMAGE_POST_PROCESS */
+
+/**
+ * Mapping of image types to function handlers to be invoked on the associated
+ * loaded images
+ *
+ * @type: Type of image, I.E. IH_TYPE_*
+ * @handler: Function to call on loaded image
+ */
+struct fit_loadable_tbl {
+	int type;
+	/**
+	 * handler() - Process a loaded image
+	 *
+	 * @data: Pointer to start of loaded image data
+	 * @size: Size of loaded image data
+	 */
+	void (*handler)(ulong data, size_t size);
+};
+
+/*
+ * Define a FIT loadable image type handler
+ *
+ * _type is a valid uimage_type ID as defined in the "Image Type" enum above
+ * _handler is the handler function to call after this image type is loaded
+ */
+#define U_BOOT_FIT_LOADABLE_HANDLER(_type, _handler) \
+	ll_entry_declare(struct fit_loadable_tbl, _function, fit_loadable) = { \
+		.type = _type, \
+		.handler = _handler, \
+	}
 
 #endif	/* __IMAGE_H__ */

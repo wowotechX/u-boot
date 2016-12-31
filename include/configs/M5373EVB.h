@@ -27,11 +27,7 @@
 #define CONFIG_WATCHDOG_TIMEOUT	3360	/* timeout in ms, max is 3.36 sec */
 
 /* Command line configuration */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #ifdef CONFIG_NANDFLASH_SIZE
@@ -77,7 +73,6 @@
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x58000
 #define CONFIG_SYS_IMMR		CONFIG_SYS_MBAR
 
-#define CONFIG_BOOTDELAY	1	/* autoboot after 5 seconds */
 #define CONFIG_UDP_CHECKSUM
 
 #ifdef CONFIG_MCFFEC

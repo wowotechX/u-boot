@@ -8,7 +8,6 @@
 #ifndef __MX6UL_14X14_EVK_CONFIG_H
 #define __MX6UL_14X14_EVK_CONFIG_H
 
-
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 #include "mx6_common.h"
@@ -17,14 +16,9 @@
 #define is_mx6ul_9x9_evk()	CONFIG_IS_ENABLED(TARGET_MX6UL_9X9_EVK)
 
 /* SPL options */
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
@@ -46,11 +40,9 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #endif
 
-#define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 #endif
 
 /* I2C configs */
-#define CONFIG_CMD_I2C
 #ifdef CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
@@ -154,7 +146,6 @@
 	   "else run netboot; fi"
 
 /* Miscellaneous configurable options */
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x8000000)
 
@@ -187,33 +178,24 @@
 #define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
 
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_BMODE
 
 #ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
 #endif
 
-#define CONFIG_FSL_QSPI
 #ifdef CONFIG_FSL_QSPI
-#define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_BAR
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0
 #define CONFIG_SF_DEFAULT_SPEED	40000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#define CONFIG_SPI_FLASH_STMICRO
 #define FSL_QSPI_FLASH_NUM		1
 #define FSL_QSPI_FLASH_SIZE		SZ_32M
 #endif
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_STORAGE
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS   0
@@ -243,14 +225,9 @@
 #define CONFIG_IMX_THERMAL
 
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_VIDEO
 #ifdef CONFIG_VIDEO
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_MXS
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_VIDEO_SW_CURSOR
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
 #define CONFIG_CMD_BMP

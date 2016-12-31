@@ -15,7 +15,6 @@
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
 #define CONFIG_E500			/* BOOKE e500 family */
-#define CONFIG_QEMU_E500
 
 #undef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xf01000 /* 15 MB */
@@ -24,7 +23,6 @@
 
 #define CONFIG_SYS_RAMBOOT
 
-#define CONFIG_PCI			/* Enable PCI/PCIE */
 #define CONFIG_PCI1		1	/* PCI controller 1 */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
@@ -55,8 +53,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 #define CONFIG_SYS_CCSRBAR_PHYS_HIGH 0x0
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW CONFIG_SYS_CCSRBAR
 #endif
-
-#define CONFIG_PHYS_64BIT
 
 /* Virtual address range for PCI region maps */
 #define CONFIG_SYS_PCI_MAP_START	0x80000000
@@ -113,10 +109,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-
 /*
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
@@ -124,7 +116,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION
@@ -132,7 +123,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 
 #define CONFIG_LBA48
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
 
 /*
  * Environment
@@ -146,11 +136,7 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_PING
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
@@ -188,7 +174,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 
 #define CONFIG_BAUDRATE	115200
 
-#define CONFIG_BOOTDELAY        1
 #define CONFIG_BOOTCOMMAND		\
 	"test -n \"$qemu_kernel_addr\" && bootm $qemu_kernel_addr - $fdt_addr_r\0"
 

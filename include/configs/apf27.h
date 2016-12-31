@@ -10,9 +10,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_VERSION_VARIABLE
 #define CONFIG_ENV_VERSION	10
-#define CONFIG_IDENT_STRING	" apf27 patch 3.10"
 #define CONFIG_BOARD_NAME apf27
 
 /*
@@ -27,22 +25,14 @@
 #define CONFIG_SYS_NO_FLASH
 
 /*
- * Board display option
- */
-#define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_DISPLAY_CPUINFO
-
-/*
  * SPL
  */
 #define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 #define CONFIG_SPL_MAX_SIZE	2048
 #define CONFIG_SPL_TEXT_BASE    0xA0000000
-#define CONFIG_SPL_SERIAL_SUPPORT
 
 /* NAND boot config */
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SYS_NAND_U_BOOT_START    CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x800
 #define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_SYS_TEXT_BASE
@@ -65,25 +55,14 @@
 /*
  * U-Boot Commands
  */
-#define CONFIG_CMD_ASKENV	/* ask for env variable		*/
 #define CONFIG_CMD_BSP		/* Board Specific functions	*/
-#define CONFIG_CMD_CACHE	/* icache, dcache		*/
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP		/* DHCP Support			*/
-#define CONFIG_CMD_DNS
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_IMX_FUSE	/* imx iim fuse                 */
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII		/* MII support			*/
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_MTDPARTS	/* MTD partition support	*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_PING		/* ping support			*/
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 
 /*
@@ -148,11 +127,8 @@
 						/* Boot argument buffer size */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_HUSH_PARSER			/* enable the "hush" shell */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "	/* secondary prompt string */
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_PREBOOT			"run check_flash check_env;"
-
 
 /*
  * Boot Linux
@@ -161,8 +137,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS	/* send memory definition to kernel */
 #define CONFIG_INITRD_TAG		/* send initrd params	*/
 
-#define CONFIG_BOOTDELAY	5
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 #define	CONFIG_BOOTFILE		__stringify(CONFIG_BOARD_NAME) "-linux.bin"
 #define CONFIG_BOOTARGS		"console=" __stringify(ACFG_CONSOLE_DEV) "," \
 			__stringify(CONFIG_BAUDRATE) " " MTDPARTS_DEFAULT \
@@ -334,7 +308,6 @@
  * SD/MMC
  */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MXC_MMC
 #define CONFIG_MXC_MCI_REGS_BASE	0x10014000

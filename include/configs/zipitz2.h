@@ -40,7 +40,6 @@
 #define	CONFIG_BOOTARGS							\
 	"console=tty0 console=ttyS2,115200 fbcon=rotate:3"
 #define	CONFIG_TIMESTAMP
-#define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
 #define	CONFIG_SYS_TEXT_BASE		0x0
@@ -50,7 +49,6 @@
  * Serial Console Configuration
  * STUART - the lower serial port on Colibri board
  */
-#define	CONFIG_PXA_SERIAL
 #define	CONFIG_STUART			1
 #define CONFIG_CONS_INDEX		2
 #define	CONFIG_BAUDRATE			115200
@@ -59,21 +57,14 @@
  * Bootloader Components Configuration
  */
 #define	CONFIG_CMD_ENV
-#define	CONFIG_CMD_MMC
-#define	CONFIG_CMD_SPI
-#define	CONFIG_CMD_USB
-#define	CONFIG_CMD_CACHE
 
 /*
  * MMC Card Configuration
  */
 #ifdef	CONFIG_CMD_MMC
-#define	CONFIG_MMC
 #define	CONFIG_GENERIC_MMC
 #define	CONFIG_PXA_MMC_GENERIC
 #define	CONFIG_SYS_MMC_BASE		0xF0000000
-#define	CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
 #define	CONFIG_DOS_PARTITION
 #endif
 
@@ -82,7 +73,6 @@
  */
 #ifdef	CONFIG_CMD_SPI
 #define	CONFIG_SOFT_SPI
-#define	CONFIG_LCD
 #define	CONFIG_LCD_ROTATION
 #define	CONFIG_PXA_LCD
 #define	CONFIG_LMS283GF05
@@ -97,11 +87,6 @@ void zipitz2_spi_scl(int);
 unsigned char zipitz2_spi_read(void);
 #endif
 #endif
-
-/*
- * HUSH Shell Configuration
- */
-#define	CONFIG_SYS_HUSH_PARSER		1
 
 #define	CONFIG_SYS_LONGHELP				/* undef to save memory	*/
 #define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */

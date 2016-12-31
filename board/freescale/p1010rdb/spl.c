@@ -12,6 +12,7 @@
 #include <i2c.h>
 #include <fsl_esdhc.h>
 #include <spi_flash.h>
+#include "../common/spl.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -31,7 +32,7 @@ void board_init_f(ulong bootflag)
 	/* Clock configuration to access CPLD using IFC(GPCM) */
 	setbits_be32(&ifc.gregs->ifc_gcr, 1 << IFC_GCR_TBCTL_TRN_TIME_SHIFT);
 
-#ifdef CONFIG_P1010RDB_PB
+#ifdef CONFIG_TARGET_P1010RDB_PB
 	setbits_be32(&gur->pmuxcr2, MPC85xx_PMUXCR2_GPIO01_DRVVBUS);
 #endif
 
@@ -72,6 +73,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	get_clocks();
 	mem_malloc_init(CONFIG_SPL_RELOC_MALLOC_ADDR,
 			CONFIG_SPL_RELOC_MALLOC_SIZE);
+	gd->flags |= GD_FLG_FULL_MALLOC_INIT;
 
 #ifndef CONFIG_SPL_NAND_BOOT
 	env_init();
@@ -102,7 +104,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 #ifdef CONFIG_SPL_MMC_BOOT
 	mmc_boot();
 #elif defined(CONFIG_SPL_SPI_BOOT)
-	spi_boot();
+	fsl_spi_boot();
 #elif defined(CONFIG_SPL_NAND_BOOT)
 	nand_boot();
 #endif

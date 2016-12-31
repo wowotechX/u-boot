@@ -15,23 +15,6 @@
 #define _CONFIG_OPENRD_H
 
 /*
- * Version number information
- */
-#ifdef CONFIG_BOARD_IS_OPENRD_ULTIMATE
-# define CONFIG_IDENT_STRING	"\nOpenRD-Ultimate"
-#else
-# ifdef CONFIG_BOARD_IS_OPENRD_CLIENT
-#  define CONFIG_IDENT_STRING	"\nOpenRD-Client"
-# else
-#  ifdef CONFIG_BOARD_IS_OPENRD_BASE
-#   define CONFIG_IDENT_STRING	"\nOpenRD-Base"
-#  else
-#   error Unknown OpenRD board specified
-#  endif
-# endif
-#endif
-
-/*
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
@@ -45,13 +28,8 @@
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 #define CONFIG_SYS_MVFS
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_IDE
 
 /*
@@ -129,7 +107,6 @@
 #endif /*CONFIG_MVSATA_IDE*/
 
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MVEBU_MMC
 #define CONFIG_SYS_MMC_BASE KW_SDIO_BASE

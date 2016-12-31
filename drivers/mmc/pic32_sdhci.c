@@ -10,7 +10,7 @@
 #include <dm.h>
 #include <common.h>
 #include <sdhci.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <mach/pic32.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -29,7 +29,7 @@ static int pic32_sdhci_probe(struct udevice *dev)
 		return -EINVAL;
 
 	host->ioaddr	= ioremap(addr, size);
-	host->name	= (char *)dev->name;
+	host->name	= dev->name;
 	host->quirks	= SDHCI_QUIRK_NO_HISPD_BIT | SDHCI_QUIRK_NO_CD;
 	host->bus_width	= fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 					"bus-width", 4);
@@ -41,7 +41,12 @@ static int pic32_sdhci_probe(struct udevice *dev)
 		return ret;
 	}
 
-	return add_sdhci(host, f_min_max[1], f_min_max[0]);
+	ret = add_sdhci(host, f_min_max[1], f_min_max[0]);
+	if (ret)
+		return ret;
+	host->mmc->dev = dev;
+
+	return 0;
 }
 
 static const struct udevice_id pic32_sdhci_ids[] = {

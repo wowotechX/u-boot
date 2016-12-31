@@ -17,7 +17,7 @@
 #include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/io.h>
 #include <i2c.h>
@@ -32,6 +32,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define IMX_I2C_REGSHIFT	2
 #define VF610_I2C_REGSHIFT	0
+
+#define I2C_EARLY_INIT_INDEX		0
+#ifdef CONFIG_SYS_I2C_IFDR_DIV
+#define I2C_IFDR_DIV_CONSERVATIVE	CONFIG_SYS_I2C_IFDR_DIV
+#else
+#define I2C_IFDR_DIV_CONSERVATIVE	0x7e
+#endif
+
 /* Register index */
 #define IADR	0
 #define IFDR	1
@@ -660,6 +668,25 @@ void bus_i2c_init(int index, int speed, int unused,
 }
 
 /*
+ * Early init I2C for prepare read the clk through I2C.
+ */
+void i2c_early_init_f(void)
+{
+	ulong base = mxc_i2c_buses[I2C_EARLY_INIT_INDEX].base;
+	bool quirk = mxc_i2c_buses[I2C_EARLY_INIT_INDEX].driver_data
+					& I2C_QUIRK_FLAG ? true : false;
+	int reg_shift = quirk ? VF610_I2C_REGSHIFT : IMX_I2C_REGSHIFT;
+
+	/* Set I2C divider value */
+	writeb(I2C_IFDR_DIV_CONSERVATIVE, base + (IFDR << reg_shift));
+	/* Reset module */
+	writeb(I2CR_IDIS, base + (I2CR << reg_shift));
+	writeb(0, base + (I2SR << reg_shift));
+	/* Enable I2C */
+	writeb(I2CR_IEN, base + (I2CR << reg_shift));
+}
+
+/*
  * Init I2C Bus
  */
 static void mxc_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
@@ -746,9 +773,9 @@ static int mxc_i2c_probe(struct udevice *bus)
 	 * See Documentation/devicetree/bindings/i2c/i2c-imx.txt
 	 * Use gpio to force bus idle when necessary.
 	 */
-	ret = fdt_find_string(fdt, node, "pinctrl-names", "gpio");
+	ret = fdt_stringlist_search(fdt, node, "pinctrl-names", "gpio");
 	if (ret < 0) {
-		dev_info(dev, "i2c bus %d at %lu, no gpio pinctrl state.\n", bus->seq, i2c_bus->base);
+		debug("i2c bus %d at 0x%2lx, no gpio pinctrl state.\n", bus->seq, i2c_bus->base);
 	} else {
 		ret = gpio_request_by_name_nodev(fdt, node, "scl-gpios",
 						 0, &i2c_bus->scl_gpio,

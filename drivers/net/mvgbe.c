@@ -17,7 +17,7 @@
 #include <malloc.h>
 #include <miiphy.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/types.h>
 #include <asm/system.h>
 #include <asm/byteorder.h>
@@ -48,9 +48,11 @@ DECLARE_GLOBAL_DATA_PTR;
  *
  * Returns 16bit phy register value, or 0xffff on error
  */
-static int smi_reg_read(const char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
+static int smi_reg_read(struct mii_dev *bus, int phy_adr, int devad,
+			int reg_ofs)
 {
-	struct eth_device *dev = eth_get_dev_by_name(devname);
+	u16 data = 0;
+	struct eth_device *dev = eth_get_dev_by_name(bus->name);
 	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
 	struct mvgbe_registers *regs = dmvgbe->regs;
 	u32 smi_reg;
@@ -60,8 +62,8 @@ static int smi_reg_read(const char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 	if (phy_adr == MV_PHY_ADR_REQUEST &&
 			reg_ofs == MV_PHY_ADR_REQUEST) {
 		/* */
-		*data = (u16) (MVGBE_REG_RD(regs->phyadr) & PHYADR_MASK);
-		return 0;
+		data = (u16) (MVGBE_REG_RD(regs->phyadr) & PHYADR_MASK);
+		return data;
 	}
 	/* check parameters */
 	if (phy_adr > PHYADR_MASK) {
@@ -111,12 +113,12 @@ static int smi_reg_read(const char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 	for (timeout = 0; timeout < MVGBE_PHY_SMI_TIMEOUT; timeout++)
 		;
 
-	*data = (u16) (MVGBE_REG_RD(MVGBE_SMI_REG) & MVGBE_PHY_SMI_DATA_MASK);
+	data = (u16) (MVGBE_REG_RD(MVGBE_SMI_REG) & MVGBE_PHY_SMI_DATA_MASK);
 
 	debug("%s:(adr %d, off %d) value= %04x\n", __func__, phy_adr, reg_ofs,
-	      *data);
+	      data);
 
-	return 0;
+	return data;
 }
 
 /*
@@ -125,9 +127,10 @@ static int smi_reg_read(const char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
  * Returns 0 if write succeed, -EINVAL on bad parameters
  * -ETIME on timeout
  */
-static int smi_reg_write(const char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
+static int smi_reg_write(struct mii_dev *bus, int phy_adr, int devad,
+			 int reg_ofs, u16 data)
 {
-	struct eth_device *dev = eth_get_dev_by_name(devname);
+	struct eth_device *dev = eth_get_dev_by_name(bus->name);
 	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
 	struct mvgbe_registers *regs = dmvgbe->regs;
 	u32 smi_reg;
@@ -171,25 +174,6 @@ static int smi_reg_write(const char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
 	MVGBE_REG_WR(MVGBE_SMI_REG, smi_reg);
 
 	return 0;
-}
-#endif
-
-#if defined(CONFIG_PHYLIB)
-int mvgbe_phy_read(struct mii_dev *bus, int phy_addr, int dev_addr,
-		   int reg_addr)
-{
-	u16 data;
-	int ret;
-	ret = smi_reg_read(bus->name, phy_addr, reg_addr, &data);
-	if (ret)
-		return ret;
-	return data;
-}
-
-int mvgbe_phy_write(struct mii_dev *bus, int phy_addr, int dev_addr,
-		    int reg_addr, u16 data)
-{
-	return smi_reg_write(bus->name, phy_addr, reg_addr, data);
 }
 #endif
 
@@ -673,8 +657,8 @@ int mvgbe_phylib_init(struct eth_device *dev, int phyid)
 		printf("mdio_alloc failed\n");
 		return -ENOMEM;
 	}
-	bus->read = mvgbe_phy_read;
-	bus->write = mvgbe_phy_write;
+	bus->read = smi_reg_read;
+	bus->write = smi_reg_write;
 	strcpy(bus->name, dev->name);
 
 	ret = mdio_register(bus);
@@ -685,7 +669,7 @@ int mvgbe_phylib_init(struct eth_device *dev, int phyid)
 	}
 
 	/* Set phy address of the port */
-	mvgbe_phy_write(bus, MV_PHY_ADR_REQUEST, 0, MV_PHY_ADR_REQUEST, phyid);
+	smi_reg_write(bus, MV_PHY_ADR_REQUEST, 0, MV_PHY_ADR_REQUEST, phyid);
 
 	phydev = phy_connect(bus, phyid, dev, PHY_INTERFACE_MODE_RGMII);
 	if (!phydev) {
@@ -785,7 +769,17 @@ error1:
 #if defined(CONFIG_PHYLIB)
 		mvgbe_phylib_init(dev, PHY_BASE_ADR + devnum);
 #elif defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-		miiphy_register(dev->name, smi_reg_read, smi_reg_write);
+		int retval;
+		struct mii_dev *mdiodev = mdio_alloc();
+		if (!mdiodev)
+			return -ENOMEM;
+		strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+		mdiodev->read = smi_reg_read;
+		mdiodev->write = smi_reg_write;
+
+		retval = mdio_register(mdiodev);
+		if (retval < 0)
+			return retval;
 		/* Set phy address of the port */
 		miiphy_write(dev->name, MV_PHY_ADR_REQUEST,
 				MV_PHY_ADR_REQUEST, PHY_BASE_ADR + devnum);

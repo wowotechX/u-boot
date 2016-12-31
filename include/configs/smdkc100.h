@@ -12,8 +12,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -26,9 +24,6 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
 #define CONFIG_ARCH_CPU_INIT
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 /* input clock of PLL: SMDKC100 has 12MHz input clock */
 #define CONFIG_SYS_CLK_FREQ		12000000
@@ -67,15 +62,9 @@
  ***********************************************************/
 #undef CONFIG_CMD_NAND
 
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ONENAND
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_MTDPARTS
-
-#define CONFIG_BOOTDELAY	3
-
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
@@ -152,7 +141,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser	*/
 #define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE	384	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
@@ -176,7 +164,6 @@
 #define CONFIG_SYS_NO_FLASH		1
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 KiB */
-#define CONFIG_IDENT_STRING		" for SMDKC100"
 
 #if !defined(CONFIG_NAND_SPL) && (CONFIG_SYS_TEXT_BASE >= 0xc0000000)
 #define CONFIG_ENABLE_MMU

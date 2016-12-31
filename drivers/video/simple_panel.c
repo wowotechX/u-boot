@@ -42,7 +42,7 @@ static int simple_panel_ofdata_to_platdata(struct udevice *dev)
 		ret = uclass_get_device_by_phandle(UCLASS_REGULATOR, dev,
 						   "power-supply", &priv->reg);
 		if (ret) {
-			debug("%s: Warning: cnnot get power supply: ret=%d\n",
+			debug("%s: Warning: cannot get power supply: ret=%d\n",
 			      __func__, ret);
 			if (ret != -ENOENT)
 				return ret;
@@ -88,6 +88,8 @@ static const struct panel_ops simple_panel_ops = {
 static const struct udevice_id simple_panel_ids[] = {
 	{ .compatible = "simple-panel" },
 	{ .compatible = "auo,b133xtn01" },
+	{ .compatible = "auo,b116xw03" },
+	{ .compatible = "auo,b133htn01" },
 	{ }
 };
 

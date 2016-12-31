@@ -107,8 +107,6 @@
 /*
  * Serial port
  */
-
-#define CONFIG_PXA_SERIAL
 #define CONFIG_FFUART
 #define CONFIG_CONS_INDEX		3
 
@@ -121,8 +119,6 @@
 #define CONFIG_INITRD_TAG
 
 /* Monitor Command Prompt */
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"$ "
 
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		256
@@ -133,13 +129,9 @@
 
 #define CONFIG_BOOTARGS "root=/dev/ram0 ro console=ttyS0,115200n8"
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_USB_DEV_PULLUP_GPIO	33
 /* USB VBUS GPIO 3 */
 
-#define CONFIG_CMD_PING
-
-#define CONFIG_BOOTDELAY		2
 #define CONFIG_BOOTCOMMAND		\
 	"setenv downloaded 0 ; while test $downloaded -eq 0 ; do " \
 	"if bootp ; then setenv downloaded 1 ; fi ; done ; " \

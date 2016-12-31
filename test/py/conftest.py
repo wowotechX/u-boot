@@ -179,6 +179,7 @@ def pytest_configure(config):
     ubconfig.board_type = board_type
     ubconfig.board_identity = board_identity
     ubconfig.gdbserver = gdbserver
+    ubconfig.dtb = build_dir + '/arch/sandbox/dts/test.dtb'
 
     env_vars = (
         'board_type',
@@ -192,7 +193,7 @@ def pytest_configure(config):
     for v in env_vars:
         os.environ['U_BOOT_' + v.upper()] = getattr(ubconfig, v)
 
-    if board_type == 'sandbox':
+    if board_type.startswith('sandbox'):
         import u_boot_console_sandbox
         console = u_boot_console_sandbox.ConsoleSandbox(log, ubconfig)
     else:
@@ -296,6 +297,32 @@ def pytest_generate_tests(metafunc):
             generate_ut_subtest(metafunc, fn)
             continue
         generate_config(metafunc, fn)
+
+@pytest.fixture(scope='session')
+def u_boot_log(request):
+     """Generate the value of a test's log fixture.
+
+     Args:
+         request: The pytest request.
+
+     Returns:
+         The fixture value.
+     """
+
+     return console.log
+
+@pytest.fixture(scope='session')
+def u_boot_config(request):
+     """Generate the value of a test's u_boot_config fixture.
+
+     Args:
+         request: The pytest request.
+
+     Returns:
+         The fixture value.
+     """
+
+     return console.config
 
 @pytest.fixture(scope='function')
 def u_boot_console(request):
@@ -430,6 +457,9 @@ def setup_buildconfigspec(item):
         if not ubconfig.buildconfig.get('config_' + option.lower(), None):
             pytest.skip('.config feature not enabled')
 
+def start_test_section(item):
+    anchors[item.name] = log.start_section(item.name)
+
 def pytest_runtest_setup(item):
     """pytest hook: Configure (set up) a test item.
 
@@ -443,7 +473,7 @@ def pytest_runtest_setup(item):
         Nothing.
     """
 
-    anchors[item.name] = log.start_section(item.name)
+    start_test_section(item)
     setup_boardspec(item)
     setup_buildconfigspec(item)
 
@@ -462,6 +492,14 @@ def pytest_runtest_protocol(item, nextitem):
     """
 
     reports = runtestprotocol(item, nextitem=nextitem)
+
+    # In pytest 3, runtestprotocol() may not call pytest_runtest_setup() if
+    # the test is skipped. That call is required to create the test's section
+    # in the log file. The call to log.end_section() requires that the log
+    # contain a section for this test. Create a section for the test if it
+    # doesn't already exist.
+    if not item.name in anchors:
+        start_test_section(item)
 
     failure_cleanup = False
     test_list = tests_passed

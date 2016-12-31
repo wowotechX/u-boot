@@ -10,13 +10,13 @@
 #ifndef __RSK7269_H
 #define __RSK7269_H
 
-#undef DEBUG
 #define CONFIG_CPU_SH7269	1
 #define CONFIG_RSK7269		1
 
+#define CONFIG_DISPLAY_BOARDINFO
+
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC7,115200"
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_SYS_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory	*/

@@ -15,6 +15,8 @@
 #define CONFIG_MS7750SE		1
 #define __LITTLE_ENDIAN__	1
 
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * Command line configuration.
  */
@@ -23,7 +25,6 @@
 #define CONFIG_CONS_SCIF1	1
 #define CONFIG_BOARD_LATE_INIT
 
-#define CONFIG_BOOTDELAY	-1
 #define CONFIG_BOOTARGS		"console=ttySC0,38400"
 #define CONFIG_ENV_OVERWRITE	1
 
@@ -63,7 +64,6 @@
 #undef CONFIG_SYS_FLASH_CFI_BROKEN_TABLE
 #undef  CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_SYS_FLASH_EMPTY_INFO				/* print 'E' for empty sector on flinfo */
-
 
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x20000

@@ -520,6 +520,8 @@ static struct mx6_ddr_sysinfo novena_ddr_info = {
 	.bi_on		= 1,	/* Bank interleaving enabled */
 	.sde_to_rst	= 0x10,	/* 14 cycles, 200us (JEDEC default) */
 	.rst_to_cke	= 0x23,	/* 33 cycles, 500us (JEDEC default) */
+	.refsel = 1,	/* Refresh cycles at 32KHz */
+	.refr = 7,	/* 8 refresh commands per refresh cycle */
 };
 
 static struct mx6_ddr3_cfg elpida_4gib_1600 = {
@@ -603,8 +605,8 @@ void board_init_f(ulong dummy)
 
 	/* Perform DDR DRAM calibration */
 	udelay(100);
-	mmdc_do_write_level_calibration();
-	mmdc_do_dqs_calibration();
+	mmdc_do_write_level_calibration(&novena_ddr_info);
+	mmdc_do_dqs_calibration(&novena_ddr_info);
 
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);

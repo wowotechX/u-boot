@@ -13,6 +13,11 @@
 #ifdef CONFIG_MP
 #include <asm/arch/mp.h>
 #endif
+#ifdef CONFIG_FSL_LSCH3
+#include <asm/arch-fsl-layerscape/immap_lsch3.h>
+#include <asm/arch-fsl-layerscape/soc.h>
+#endif
+#include <asm/u-boot.h>
 
 ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
@@ -94,11 +99,13 @@ ENTRY(lowlevel_init)
 	bl	ccn504_set_qos
 #endif
 
+#ifdef SMMU_BASE
 	/* Set the SMMU page size in the sACR register */
 	ldr	x1, =SMMU_BASE
 	ldr	w0, [x1, #0x10]
 	orr	w0, w0, #1 << 16  /* set sACR.pagesize to indicate 64K page */
 	str	w0, [x1, #0x10]
+#endif
 
 	/* Initialize GIC Secure Bank Status */
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
@@ -135,6 +142,16 @@ ENTRY(lowlevel_init)
 #endif
 
 #ifdef CONFIG_FSL_TZASC_400
+	/*
+	 * LS2080 and its personalities does not support TZASC
+	 * So skip TZASC related operations
+	 */
+	bl	get_svr
+	lsr	w0, w0, #16
+	ldr	w1, =SVR_DEV_LS2080A
+	cmp	w0, w1
+	b.eq	1f
+
 	/* Set TZASC so that:
 	 * a. We use only Region0 whose global secure write/read is EN
 	 * b. We use only Region0 whose NSAID write/read is EN
@@ -143,26 +160,26 @@ ENTRY(lowlevel_init)
 	 * 	 placeholders.
 	 */
 	ldr	x1, =TZASC_GATE_KEEPER(0)
-	ldr	x0, [x1]		/* Filter 0 Gate Keeper Register */
-	orr	x0, x0, #1 << 0		/* Set open_request for Filter 0 */
-	str	x0, [x1]
+	ldr	w0, [x1]		/* Filter 0 Gate Keeper Register */
+	orr	w0, w0, #1 << 0		/* Set open_request for Filter 0 */
+	str	w0, [x1]
 
 	ldr	x1, =TZASC_GATE_KEEPER(1)
-	ldr	x0, [x1]		/* Filter 0 Gate Keeper Register */
-	orr	x0, x0, #1 << 0		/* Set open_request for Filter 0 */
-	str	x0, [x1]
+	ldr	w0, [x1]		/* Filter 0 Gate Keeper Register */
+	orr	w0, w0, #1 << 0		/* Set open_request for Filter 0 */
+	str	w0, [x1]
 
 	ldr	x1, =TZASC_REGION_ATTRIBUTES_0(0)
-	ldr	x0, [x1]		/* Region-0 Attributes Register */
-	orr	x0, x0, #1 << 31	/* Set Sec global write en, Bit[31] */
-	orr	x0, x0, #1 << 30	/* Set Sec global read en, Bit[30] */
-	str	x0, [x1]
+	ldr	w0, [x1]		/* Region-0 Attributes Register */
+	orr	w0, w0, #1 << 31	/* Set Sec global write en, Bit[31] */
+	orr	w0, w0, #1 << 30	/* Set Sec global read en, Bit[30] */
+	str	w0, [x1]
 
 	ldr	x1, =TZASC_REGION_ATTRIBUTES_0(1)
-	ldr	x0, [x1]		/* Region-1 Attributes Register */
-	orr	x0, x0, #1 << 31	/* Set Sec global write en, Bit[31] */
-	orr	x0, x0, #1 << 30	/* Set Sec global read en, Bit[30] */
-	str	x0, [x1]
+	ldr	w0, [x1]		/* Region-1 Attributes Register */
+	orr	w0, w0, #1 << 31	/* Set Sec global write en, Bit[31] */
+	orr	w0, w0, #1 << 30	/* Set Sec global read en, Bit[30] */
+	str	w0, [x1]
 
 	ldr	x1, =TZASC_REGION_ID_ACCESS_0(0)
 	ldr	w0, [x1]		/* Region-0 Access Register */
@@ -177,9 +194,31 @@ ENTRY(lowlevel_init)
 	isb
 	dsb	sy
 #endif
+1:
+#ifdef CONFIG_ARCH_LS1046A
+	/* Initialize the L2 RAM latency */
+	mrs   x1, S3_1_c11_c0_2
+	mov   x0, #0x1C7
+	/* Clear L2 Tag RAM latency and L2 Data RAM latency */
+	bic   x1, x1, x0
+	/* Set L2 data ram latency bits [2:0] */
+	orr   x1, x1, #0x2
+	/* set L2 tag ram latency bits [8:6] */
+	orr   x1,  x1, #0x80
+	msr   S3_1_c11_c0_2, x1
+	isb
+#endif
+
 	mov	lr, x29			/* Restore LR */
 	ret
 ENDPROC(lowlevel_init)
+
+#ifdef CONFIG_FSL_LSCH3
+	.globl get_svr
+get_svr:
+	ldr	x1, =FSL_LSCH3_SVR
+	ldr	w0, [x1]
+	ret
 
 hnf_pstate_poll:
 	/* x0 has the desired status, return 0 for success, 1 for timeout
@@ -227,7 +266,7 @@ hnf_set_pstate:
 
 	ret
 
-ENTRY(__asm_flush_l3_cache)
+ENTRY(__asm_flush_l3_dcache)
 	/*
 	 * Return status in x0
 	 *    success 0
@@ -257,7 +296,8 @@ ENTRY(__asm_flush_l3_cache)
 	mov	x0, x8
 	mov	lr, x29
 	ret
-ENDPROC(__asm_flush_l3_cache)
+ENDPROC(__asm_flush_l3_dcache)
+#endif
 
 #ifdef CONFIG_MP
 	/* Keep literals not used by the secondary boot code outside it */
@@ -320,11 +360,6 @@ ENTRY(secondary_boot_func)
         gic_wait_for_interrupt_m x0, w1
 #endif
 
-	bl secondary_switch_to_el2
-#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
-	bl secondary_switch_to_el1
-#endif
-
 slave_cpu:
 	wfe
 	ldr	x0, [x11]
@@ -337,19 +372,64 @@ slave_cpu:
 	tbz     x1, #25, cpu_is_le
 	rev     x0, x0                  /* BE to LE conversion */
 cpu_is_le:
-	br	x0			/* branch to the given address */
+	ldr	x5, [x11, #24]
+	ldr	x6, =IH_ARCH_DEFAULT
+	cmp	x6, x5
+	b.eq	1f
+
+#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
+	adr	x3, secondary_switch_to_el1
+	ldr	x4, =ES_TO_AARCH64
+#else
+	ldr	x3, [x11]
+	ldr	x4, =ES_TO_AARCH32
+#endif
+	bl	secondary_switch_to_el2
+
+1:
+#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
+	adr	x3, secondary_switch_to_el1
+#else
+	ldr	x3, [x11]
+#endif
+	ldr	x4, =ES_TO_AARCH64
+	bl	secondary_switch_to_el2
+
 ENDPROC(secondary_boot_func)
 
 ENTRY(secondary_switch_to_el2)
-	switch_el x0, 1f, 0f, 0f
+	switch_el x5, 1f, 0f, 0f
 0:	ret
-1:	armv8_switch_to_el2_m x0
+1:	armv8_switch_to_el2_m x3, x4, x5
 ENDPROC(secondary_switch_to_el2)
 
 ENTRY(secondary_switch_to_el1)
-	switch_el x0, 0f, 1f, 0f
+	mrs	x0, mpidr_el1
+	ubfm	x1, x0, #8, #15
+	ubfm	x2, x0, #0, #1
+	orr	x10, x2, x1, lsl #2	/* x10 has LPID */
+
+	lsl	x1, x10, #6
+	ldr	x0, =__spin_table
+	/* physical address of this cpus spin table element */
+	add	x11, x1, x0
+
+	ldr	x3, [x11]
+
+	ldr	x5, [x11, #24]
+	ldr	x6, =IH_ARCH_DEFAULT
+	cmp	x6, x5
+	b.eq	2f
+
+	ldr	x4, =ES_TO_AARCH32
+	bl	switch_to_el1
+
+2:	ldr	x4, =ES_TO_AARCH64
+
+switch_to_el1:
+	switch_el x5, 0f, 1f, 0f
 0:	ret
-1:	armv8_switch_to_el1_m x0, x1
+1:	armv8_switch_to_el1_m x3, x4, x5
 ENDPROC(secondary_switch_to_el1)
 
 	/* Ensure that the literals used by the secondary boot code are

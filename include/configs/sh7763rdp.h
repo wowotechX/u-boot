@@ -18,15 +18,12 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_JFFS2
 
-#define CONFIG_BOOTDELAY        -1
 #define CONFIG_BOOTARGS         "console=ttySC2,115200 root=1f01"
 #define CONFIG_ENV_OVERWRITE    1
 
-#define CONFIG_VERSION_VARIABLE
+#define CONFIG_DISPLAY_BOARDINFO
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
 /* SCIF */

@@ -6,7 +6,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <ppc_asm.tmpl>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 	.globl	strcpy
 strcpy:
@@ -91,13 +91,6 @@ memset:
 8:	stbu	r4,1(r6)
 	bdnz	8b
 	blr
-
-	.globl	bcopy
-bcopy:
-	mr	r6,r3
-	mr	r3,r4
-	mr	r4,r6
-	b	memcpy
 
 	.globl	memmove
 memmove:

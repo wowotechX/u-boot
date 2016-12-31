@@ -66,7 +66,7 @@ static struct pll_init_data tetris_pll_config[NUM_SPDS] = {
 
 static struct pll_init_data uart_pll_config = {UART_PLL, 64, 1, 4};
 static struct pll_init_data nss_pll_config = {NSS_PLL, 250, 3, 2};
-static struct pll_init_data ddr3_pll_config = {DDR3A_PLL, 250, 3, 10};
+static struct pll_init_data ddr3_pll_config = {DDR3A_PLL, 133, 1, 16};
 
 struct pll_init_data *get_pll_init_data(int pll)
 {
@@ -117,11 +117,27 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
+
+static void k2g_reset_mux_config(void)
+{
+	/* Unlock the reset mux register */
+	clrbits_le32(KS2_RSTMUX8, RSTMUX_LOCK8_MASK);
+
+	/* Configure BOOTCFG_RSTMUX8 for WDT event to cause a device reset */
+	clrsetbits_le32(KS2_RSTMUX8, RSTMUX_OMODE8_MASK,
+			RSTMUX_OMODE8_DEV_RESET << RSTMUX_OMODE8_SHIFT);
+
+	/* lock the reset mux register to prevent any spurious writes. */
+	setbits_le32(KS2_RSTMUX8, RSTMUX_LOCK8_MASK);
+}
+
 int board_early_init_f(void)
 {
 	init_plls();
 
 	k2g_mux_config();
+
+	k2g_reset_mux_config();
 
 	/* deassert FLASH_HOLD */
 	clrbits_le32(K2G_GPIO1_BANK2_BASE + K2G_GPIO_DIR_OFFSET,

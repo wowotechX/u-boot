@@ -11,15 +11,12 @@
 
 #define CONFIG_MACH_TYPE	3529
 #define CONFIG_MXC_UART_BASE	UART4_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc3"
+#define CONSOLE_DEV		"ttymxc3"
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"
-#define PHYS_SDRAM_SIZE		(2u * 1024 * 1024 * 1024)
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
@@ -48,7 +45,6 @@
 #endif
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */

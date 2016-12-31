@@ -14,6 +14,10 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <i2c.h>
+#include <nand.h>
+#include "../common/tdx-common.h"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define PMU_I2C_ADDRESS		0x34
 #define MAX_I2C_RETRY		3
@@ -61,6 +65,23 @@ int arch_misc_init(void)
 	return 0;
 }
 
+int checkboard(void)
+{
+	printf("Model: Toradex Colibri T20 %dMB V%s\n",
+	       (gd->ram_size == 0x10000000) ? 256 : 512,
+	       (nand_info[0]->erasesize >> 10 == 512) ?
+	       ((gd->ram_size == 0x10000000) ? "1.1B" : "1.1C") : "1.2A");
+
+	return 0;
+}
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	return ft_common_board_setup(blob, bd);
+}
+#endif
+
 #ifdef CONFIG_TEGRA_MMC
 /*
  * Routine: pin_mux_mmc
@@ -103,11 +124,11 @@ void pin_mux_usb(void)
 	pinmux_tristate_disable(PMUX_PINGRP_DTE);
 
 	/* Reset ASIX using LAN_RESET */
-	gpio_request(GPIO_PV4, "LAN_RESET");
-	gpio_direction_output(GPIO_PV4, 0);
+	gpio_request(TEGRA_GPIO(V, 4), "LAN_RESET");
+	gpio_direction_output(TEGRA_GPIO(V, 4), 0);
 	pinmux_tristate_disable(PMUX_PINGRP_GPV);
 	udelay(5);
-	gpio_set_value(GPIO_PV4, 1);
+	gpio_set_value(TEGRA_GPIO(V, 4), 1);
 
 	/* USBH_PEN: USB 1 aka Tegra USB port 3 VBus */
 	pinmux_tristate_disable(PMUX_PINGRP_SPIG);

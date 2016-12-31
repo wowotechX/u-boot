@@ -59,17 +59,13 @@
 
 /* Define which commands should be available at u-boot command prompt */
 
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C
 #if ENABLE_JFFS
 #define CONFIG_CMD_JFFS2
 #endif
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMDLINE_EDITING
-
-#define CONFIG_SYS_HUSH_PARSER
 
 #define CONFIG_MCFRTC
 #undef RTC_DEBUG
@@ -151,19 +147,6 @@
 /* Define user parameters that have to be customized most likely */
 
 /* AUTOBOOT settings - booting images automatically by u-boot after power on */
-
-/*
- * used for autoboot, delay in seconds u-boot will wait before starting
- * defined (auto-)boot command, setting to -1 disables delay, setting to
- * 0 will too prevent access to u-boot command interface: u-boot then has
- * to be reflashed
- * beware - watchdog is not serviced during autoboot delay time!
- */
-#ifdef CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_BOOTDELAY	1
-#else
-#define CONFIG_BOOTDELAY	1
-#endif
 
 /*
  * The following settings will be contained in the environment block ; if you

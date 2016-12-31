@@ -92,11 +92,8 @@ static inline unsigned long virt_to_phys(volatile const void *address)
 #ifdef CONFIG_64BIT
 	if (addr < CKSEG0)
 		return XPHYSADDR(addr);
-
-	return CPHYSADDR(addr);
-#else
-	return addr - PAGE_OFFSET + PHYS_OFFSET;
 #endif
+	return CPHYSADDR(addr);
 }
 
 /*
@@ -504,7 +501,7 @@ map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 	if (flags == MAP_NOCACHE)
 		return ioremap(paddr, len);
 
-	return (void *)paddr;
+	return (void *)CKSEG0ADDR(paddr);
 }
 
 /*

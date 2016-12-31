@@ -45,7 +45,7 @@
 /* Rather than repeat this expression each time, add a define for it */
 #if defined(CONFIG_CMD_IDE) || \
 	defined(CONFIG_CMD_SATA) || \
-	defined(CONFIG_CMD_SCSI) || \
+	defined(CONFIG_SCSI) || \
 	defined(CONFIG_CMD_USB) || \
 	defined(CONFIG_CMD_PART) || \
 	defined(CONFIG_CMD_GPT) || \
@@ -75,10 +75,6 @@
 #define CONFIG_CMD_BMP
 #endif
 
-#ifndef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT	"=> "
-#endif
-
 #ifndef CONFIG_SYS_PBSIZE
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + 128)
 #endif
@@ -100,11 +96,6 @@
 #ifndef CONFIG_CMDLINE
 #undef CONFIG_CMDLINE_EDITING
 #undef CONFIG_SYS_LONGHELP
-#undef CONFIG_CMD_BOOTD
-#undef CONFIG_CMD_RUN
-#undef CONFIG_SYS_HUSH_PARSER
-#undef CONFIG_CMD_ASKENV
-#undef CONFIG_MENU
 #endif
 
 #endif	/* __CONFIG_FALLBACKS_H */

@@ -13,9 +13,9 @@
 #include <hwconfig.h>
 #include <fdt_support.h>
 #include <libfdt.h>
-#include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
+#include <efi_loader.h>
 #include <i2c.h>
 #include <asm/arch/soc.h>
 #include <fsl_sec.h>
@@ -156,7 +156,9 @@ int board_init(void)
 {
 	char *env_hwconfig;
 	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
+#ifdef CONFIG_FSL_MC_ENET
 	u32 __iomem *irq_ccsr = (u32 __iomem *)ISC_BASE;
+#endif
 	u32 val;
 
 	init_final_memctl_regs();
@@ -178,8 +180,10 @@ int board_init(void)
 
 	QIXIS_WRITE(rst_ctl, QIXIS_RST_CTL_RESET_EN);
 
+#ifdef CONFIG_FSL_MC_ENET
 	/* invert AQR405 IRQ pins polarity */
 	out_le32(irq_ccsr + IRQCR_OFFSET / 4, AQR405_IRQ_MASK);
+#endif
 
 	return 0;
 }
@@ -197,6 +201,14 @@ int misc_init_r(void)
 
 	if (adjust_vdd(0))
 		printf("Warning: Adjusting core voltage failed.\n");
+
+#if defined(CONFIG_EFI_LOADER) && !defined(CONFIG_SPL_BUILD)
+	if (soc_has_dp_ddr() && gd->bd->bi_dram[2].size) {
+		efi_add_memory_map(gd->bd->bi_dram[2].start,
+				   gd->bd->bi_dram[2].size >> EFI_PAGE_SHIFT,
+				   EFI_RESERVED_MEMORY_TYPE, false);
+	}
+#endif
 
 	return 0;
 }
@@ -225,9 +237,6 @@ int dram_init(void)
 #if defined(CONFIG_ARCH_MISC_INIT)
 int arch_misc_init(void)
 {
-#ifdef CONFIG_FSL_DEBUG_SERVER
-	debug_server_init();
-#endif
 #ifdef CONFIG_FSL_CAAM
 	sec_init();
 #endif
@@ -256,12 +265,16 @@ void fdt_fixup_board_enet(void *fdt)
 	else
 		fdt_status_fail(fdt, offset);
 }
+
+void board_quiesce_devices(void)
+{
+	fsl_mc_ldpaa_exit(gd->bd);
+}
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	int err;
 	u64 base[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
 
@@ -275,11 +288,10 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory_banks(blob, base, size, 2);
 
+	fsl_fdt_fixup_dr_usb(blob, bd);
+
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);
-	err = fsl_mc_ldpaa_exit(bd);
-	if (err)
-		return err;
 #endif
 
 	return 0;

@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2012-2015 Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -38,11 +40,16 @@ static int support_card_show_revision(void)
 	u32 revision;
 
 	revision = readl(MICRO_SUPPORT_CARD_REVISION);
-	printf("(CPLD version %d.%d)\n", revision >> 4, revision & 0xf);
+	revision &= 0xff;
+
+	/* revision 3.6.x card changed the revision format */
+	printf("(CPLD version %s%d.%d)\n", revision >> 4 == 6 ? "3." : "",
+	       revision >> 4, revision & 0xf);
+
 	return 0;
 }
 
-int check_support_card(void)
+int checkboard(void)
 {
 	printf("SC:    Micro Support Card ");
 	return support_card_show_revision();
@@ -53,9 +60,8 @@ void support_card_init(void)
 	/*
 	 * After power on, we need to keep the LAN controller in reset state
 	 * for a while. (200 usec)
-	 * Fortunately, enough wait time is already inserted in pll_init()
-	 * function. So we do not have to wait here.
 	 */
+	udelay(200);
 	support_card_reset_deassert();
 }
 

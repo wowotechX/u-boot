@@ -70,7 +70,7 @@ Set compression type.
 Pass \-h as the compression to see the list of supported compression type.
 
 .TP
-.BI "\-a [" "load addess" "]"
+.BI "\-a [" "load address" "]"
 Set load address with a hex number.
 
 .TP
@@ -97,8 +97,8 @@ Set XIP (execute in place) flag.
 .B Create FIT image:
 
 .TP
-.BI "\-b
-Specifies that the following arguments are device tree binary files (.dtb).
+.BI "\-b [" "device tree file" "]
+Appends the device tree binary file (.dtb) to the FIT.
 
 .TP
 .BI "\-c [" "comment" "]"
@@ -138,6 +138,10 @@ This can be used to sign images with additional keys after initial image
 creation.
 
 .TP
+.BI "\-i [" "ramdisk_file" "]"
+Appends the ramdisk file to the FIT.
+
+.TP
 .BI "\-k [" "key_directory" "]"
 Specifies the directory containing keys to use for signing. This directory
 should contain a private key file <name>.key for use with signing and a
@@ -150,6 +154,12 @@ public key information into. When a private key is used to sign an image,
 the corresponding public key is written into this file for for run-time
 verification. Typically the file here is the device tree binary used by
 CONFIG_OF_CONTROL in U-Boot.
+
+.TP
+.BI "\-p [" "external position" "]"
+Place external data at a static external position. See \-E. Instead of writing
+a 'data-offset' property defining the offset from the end of the FIT, \-p will
+use 'data-position' as the absolute position from the base of the FIT.
 
 .TP
 .BI "\-r
@@ -211,7 +221,7 @@ automatic mode. No .its file is required.
 .B mkimage -f auto -A arm -O linux -T kernel -C none -a 43e00000 -e 0 \\\\
 .br
 .B -c """Kernel 4.4 image for production devices""" -d vmlinuz \\\\
-.B -b /path/to/rk3288-firefly.dtb /path/to/rk3288-jerry.dtb kernel.itb
+.B -b /path/to/rk3288-firefly.dtb -b /path/to/rk3288-jerry.dtb kernel.itb
 .fi
 
 .SH HOMEPAGE

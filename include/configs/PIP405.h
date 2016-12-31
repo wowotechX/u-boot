@@ -21,12 +21,10 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
-
 /***********************************************************
  * Clock
  ***********************************************************/
 #define CONFIG_SYS_CLK_FREQ	33000000 /* external frequency to pll	*/
-
 
 /*
  * BOOTP options
@@ -36,30 +34,21 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_FDC
-#define CONFIG_CMD_SCSI
-#define CONFIG_CMD_FAT
+#define CONFIG_SCSI
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_BSP
 
-#define	 CONFIG_SYS_HUSH_PARSER
 /**************************************************************
  * I2C Stuff:
  * the PIP405 is equiped with an Atmel 24C128/256 EEPROM at address
@@ -86,7 +75,6 @@
 					/* last	6 bits of the address	*/
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
 
-
 /***************************************************************
  * Definitions for Serial Presence Detect EEPROM address
  * (to get SDRAM settings)
@@ -101,12 +89,8 @@
  **************************************************************/
 #define CONFIG_BAUDRATE		9600	/* STD Baudrate */
 
-
-#define CONFIG_BOOTDELAY	5
 /* autoboot (do NOT change this set environment variable "bootdelay" to -1 instead) */
 /* #define CONFIG_BOOT_RETRY_TIME	-10	/XXX* feature is available but not enabled */
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check console even if bootdelay = 0 */
-
 
 #define CONFIG_BOOTCOMMAND	"diskboot 400000 0:1; bootm" /* autoboot command		*/
 #define CONFIG_BOOTARGS		"console=ttyS0,9600 root=/dev/hda5" /* boot arguments */
@@ -115,19 +99,12 @@
 #define CONFIG_SERVERIP		10.0.0.1
 #define CONFIG_PREBOOT
 /***************************************************************
- * defines if the console is stored in the environment
- ***************************************************************/
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* stdin, stdout and stderr are in evironment */
-/***************************************************************
  * defines if an overwrite_console function exists
  *************************************************************/
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 /***************************************************************
  * defines if the overwrite_console should be stored in the
  * environment
  **************************************************************/
-#undef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 
 /**************************************************************
  * loads config
@@ -176,10 +153,8 @@
 #define PCI_HOST_FORCE  1               /* configure as pci host        */
 #define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
 
-#define CONFIG_PCI			/* include pci support		*/
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_PCI_HOST PCI_HOST_FORCE	/* configure as pci-host	*/
-#define CONFIG_PCI_PNP			/* pci plug-and-play		*/
 					/* resource configuration	*/
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x0000	/* PCI Vendor ID: to-do!!!	*/
 #define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0x0000	/* PCI Device ID: to-do!!!	*/
@@ -235,7 +210,6 @@
 /* Configuration Port location */
 #define CONFIG_PORT_ADDR	0xF4000000
 #define MULTI_PURPOSE_SOCKET_ADDR 0xF8000000
-
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in On Chip SRAM)
@@ -320,24 +294,15 @@
 /************************************************************
  * Video support
  ************************************************************/
-#define CONFIG_VIDEO			/*To enable video controller support */
-#define CONFIG_VIDEO_CT69000
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_CONSOLE_EXTRA_INFO
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_VIDEO_ONBOARD		/* Video controller is on-board */
 
 /************************************************************
  * USB support
  ************************************************************/
 #define CONFIG_USB_UHCI
-#define CONFIG_USB_KEYBOARD
-#define CONFIG_USB_STORAGE
 
 /* Enable needed helper functions */
-#define CONFIG_SYS_STDIO_DEREGISTER		/* needs stdio_deregister */
 
 /************************************************************
  * Debug support
@@ -350,13 +315,5 @@
  * support BZIP2 compression
  ************************************************************/
 #define CONFIG_BZIP2		1
-
-/************************************************************
- * Ident
- ************************************************************/
-#define VERSION_TAG "released"
-#define CONFIG_ISO_STRING "MEV-10066-001"
-#define CONFIG_IDENT_STRING "\n(c) 2002 by MPL AG Switzerland, " CONFIG_ISO_STRING " " VERSION_TAG
-
 
 #endif	/* __CONFIG_H */

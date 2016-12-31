@@ -146,7 +146,7 @@ static unsigned	net_ip_id;
 /* Ethernet bcast address */
 const u8 net_bcast_ethaddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 const u8 net_null_ethaddr[6];
-#ifdef CONFIG_API
+#if defined(CONFIG_API) || defined(CONFIG_EFI_LOADER)
 void (*push_packet)(void *, int len) = 0;
 #endif
 /* Network loop state */
@@ -834,15 +834,7 @@ int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 #ifndef CONFIG_NET_MAXDEFRAG
 #define CONFIG_NET_MAXDEFRAG 16384
 #endif
-/*
- * MAXDEFRAG, above, is chosen in the config file and  is real data
- * so we need to add the NFS overhead, which is more than TFTP.
- * To use sizeof in the internal unnamed structures, we need a real
- * instance (can't do "sizeof(struct rpc_t.u.reply))", unfortunately).
- * The compiler doesn't complain nor allocates the actual structure
- */
-static struct rpc_t rpc_specimen;
-#define IP_PKTSIZE (CONFIG_NET_MAXDEFRAG + sizeof(rpc_specimen.u.reply))
+#define IP_PKTSIZE (CONFIG_NET_MAXDEFRAG)
 
 #define IP_MAXUDP (IP_PKTSIZE - IP_HDR_SIZE)
 
@@ -1054,7 +1046,7 @@ void net_process_received_packet(uchar *in_packet, int len)
 	if (len < ETHER_HDR_SIZE)
 		return;
 
-#ifdef CONFIG_API
+#if defined(CONFIG_API) || defined(CONFIG_EFI_LOADER)
 	if (push_packet) {
 		(*push_packet)(in_packet, len);
 		return;

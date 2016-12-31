@@ -8,8 +8,6 @@
 #define __PLATINUM_CONFIG_H__
 
 /* SPL */
-#define CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
 
 /* Location in NAND to read U-Boot from */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS     (14 * 1024 * 1024)
@@ -22,17 +20,10 @@
  */
 
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_TIME
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_USB
 
 /*
  * Hardware configuration
@@ -64,7 +55,6 @@
 /* USB config */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_STORAGE
 #define CONFIG_MXC_USB_PORT			1
 #define CONFIG_MXC_USB_PORTSC			(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS			0

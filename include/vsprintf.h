@@ -8,6 +8,8 @@
 #ifndef __VSPRINTF_H
 #define __VSPRINTF_H
 
+#include <stdarg.h>
+
 ulong simple_strtoul(const char *cp, char **endp, unsigned int base);
 
 /**
@@ -70,7 +72,7 @@ long trailing_strtoln(const char *str, const char *end);
  * panic() - Print a message and reset/hang
  *
  * Prints a message on the console(s) and then resets. If CONFIG_PANIC_HANG is
- * defined, then it will hang instead of reseting.
+ * defined, then it will hang instead of resetting.
  *
  * @param fmt:	printf() format string for message, which should not include
  *		\n, followed by arguments
@@ -82,7 +84,7 @@ void panic(const char *fmt, ...)
  * panic_str() - Print a message and reset/hang
  *
  * Prints a message on the console(s) and then resets. If CONFIG_PANIC_HANG is
- * defined, then it will hang instead of reseting.
+ * defined, then it will hang instead of resetting.
  *
  * This function can be used instead of panic() when your board does not
  * already use printf(), * to keep code size small.

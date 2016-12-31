@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
@@ -17,22 +17,22 @@
 #ifdef CONFIG_MP
 #include <asm/arch/mp.h>
 #endif
+#include <efi_loader.h>
 #include <fm_eth.h>
-#include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
+#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+#include <asm/armv8/sec_firmware.h>
+#endif
+#ifdef CONFIG_SYS_FSL_DDR
+#include <fsl_ddr.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct mm_region layerscape_mem_map[] = {
-	{
-		/* List terminator */
-		0,
-	}
-};
-struct mm_region *mem_map = layerscape_mem_map;
+struct mm_region *mem_map = early_map;
 
 void cpu_name(char *name)
 {
@@ -48,6 +48,9 @@ void cpu_name(char *name)
 
 			if (IS_E_PROCESSOR(svr))
 				strcat(name, "E");
+
+			sprintf(name + strlen(name), " Rev%d.%d",
+				SVR_MAJ(svr), SVR_MIN(svr));
 			break;
 		}
 
@@ -56,358 +59,106 @@ void cpu_name(char *name)
 }
 
 #ifndef CONFIG_SYS_DCACHE_OFF
-static void set_pgtable_section(u64 *page_table, u64 index, u64 section,
-			u64 memory_type, u64 attribute)
-{
-       u64 value;
-
-       value = section | PTE_TYPE_BLOCK | PTE_BLOCK_AF;
-       value |= PMD_ATTRINDX(memory_type);
-       value |= attribute;
-       page_table[index] = value;
-}
-
-static void set_pgtable_table(u64 *page_table, u64 index, u64 *table_addr)
-{
-       u64 value;
-
-       value = (u64)table_addr | PTE_TYPE_TABLE;
-       page_table[index] = value;
-}
-
-/*
- * Set the block entries according to the information of the table.
- */
-static int set_block_entry(const struct sys_mmu_table *list,
-			   struct table_info *table)
-{
-	u64 block_size = 0, block_shift = 0;
-	u64 block_addr, index;
-	int j;
-
-	if (table->entry_size == BLOCK_SIZE_L1) {
-		block_size = BLOCK_SIZE_L1;
-		block_shift = SECTION_SHIFT_L1;
-	} else if (table->entry_size == BLOCK_SIZE_L2) {
-		block_size = BLOCK_SIZE_L2;
-		block_shift = SECTION_SHIFT_L2;
-	} else {
-		return -EINVAL;
-	}
-
-	block_addr = list->phys_addr;
-	index = (list->virt_addr - table->table_base) >> block_shift;
-
-	for (j = 0; j < (list->size >> block_shift); j++) {
-		set_pgtable_section(table->ptr,
-				    index,
-				    block_addr,
-				    list->memory_type,
-				    list->attribute);
-		block_addr += block_size;
-		index++;
-	}
-
-	return 0;
-}
-
-/*
- * Find the corresponding table entry for the list.
- */
-static int find_table(const struct sys_mmu_table *list,
-		      struct table_info *table, u64 *level0_table)
-{
-	u64 index = 0, level = 0;
-	u64 *level_table = level0_table;
-	u64 temp_base = 0, block_size = 0, block_shift = 0;
-
-	while (level < 3) {
-		if (level == 0) {
-			block_size = BLOCK_SIZE_L0;
-			block_shift = SECTION_SHIFT_L0;
-		} else if (level == 1) {
-			block_size = BLOCK_SIZE_L1;
-			block_shift = SECTION_SHIFT_L1;
-		} else if (level == 2) {
-			block_size = BLOCK_SIZE_L2;
-			block_shift = SECTION_SHIFT_L2;
-		}
-
-		index = 0;
-		while (list->virt_addr >= temp_base) {
-			index++;
-			temp_base += block_size;
-		}
-
-		temp_base -= block_size;
-
-		if ((level_table[index - 1] & PTE_TYPE_MASK) ==
-		    PTE_TYPE_TABLE) {
-			level_table = (u64 *)(level_table[index - 1] &
-				      ~PTE_TYPE_MASK);
-			level++;
-			continue;
-		} else {
-			if (level == 0)
-				return -EINVAL;
-
-			if ((list->phys_addr + list->size) >
-			    (temp_base + block_size * NUM_OF_ENTRY))
-				return -EINVAL;
-
-			/*
-			 * Check the address and size of the list member is
-			 * aligned with the block size.
-			 */
-			if (((list->phys_addr & (block_size - 1)) != 0) ||
-			    ((list->size & (block_size - 1)) != 0))
-				return -EINVAL;
-
-			table->ptr = level_table;
-			table->table_base = temp_base -
-					    ((index - 1) << block_shift);
-			table->entry_size = block_size;
-
-			return 0;
-		}
-	}
-	return -EINVAL;
-}
-
 /*
  * To start MMU before DDR is available, we create MMU table in SRAM.
  * The base address of SRAM is CONFIG_SYS_FSL_OCRAM_BASE. We use three
  * levels of translation tables here to cover 40-bit address space.
  * We use 4KB granule size, with 40 bits physical address, T0SZ=24
- * Level 0 IA[39], table address @0
- * Level 1 IA[38:30], table address @0x1000, 0x2000
- * Level 2 IA[29:21], table address @0x3000, 0x4000
- * Address above 0x5000 is free for other purpose.
+ * Address above EARLY_PGTABLE_SIZE (0x5000) is free for other purpose.
+ * Note, the debug print in cache_v8.c is not usable for debugging
+ * these early MMU tables because UART is not yet available.
  */
 static inline void early_mmu_setup(void)
 {
-	unsigned int el, i;
-	u64 *level0_table = (u64 *)CONFIG_SYS_FSL_OCRAM_BASE;
-	u64 *level1_table0 = (u64 *)(CONFIG_SYS_FSL_OCRAM_BASE + 0x1000);
-	u64 *level1_table1 = (u64 *)(CONFIG_SYS_FSL_OCRAM_BASE + 0x2000);
-	u64 *level2_table0 = (u64 *)(CONFIG_SYS_FSL_OCRAM_BASE + 0x3000);
-	u64 *level2_table1 = (u64 *)(CONFIG_SYS_FSL_OCRAM_BASE + 0x4000);
+	unsigned int el = current_el();
 
-	struct table_info table = {level0_table, 0, BLOCK_SIZE_L0};
+	/* global data is already setup, no allocation yet */
+	gd->arch.tlb_addr = CONFIG_SYS_FSL_OCRAM_BASE;
+	gd->arch.tlb_fillptr = gd->arch.tlb_addr;
+	gd->arch.tlb_size = EARLY_PGTABLE_SIZE;
 
-	/* Invalidate all table entries */
-	memset(level0_table, 0, 0x5000);
+	/* Create early page tables */
+	setup_pgtables();
 
-	/* Fill in the table entries */
-	set_pgtable_table(level0_table, 0, level1_table0);
-	set_pgtable_table(level0_table, 1, level1_table1);
-	set_pgtable_table(level1_table0, 0, level2_table0);
-
-#ifdef CONFIG_FSL_LSCH3
-	set_pgtable_table(level1_table0,
-			  CONFIG_SYS_FLASH_BASE >> SECTION_SHIFT_L1,
-			  level2_table1);
-#elif defined(CONFIG_FSL_LSCH2)
-	set_pgtable_table(level1_table0, 1, level2_table1);
-#endif
-	/* Find the table and fill in the block entries */
-	for (i = 0; i < ARRAY_SIZE(early_mmu_table); i++) {
-		if (find_table(&early_mmu_table[i],
-			       &table, level0_table) == 0) {
-			/*
-			 * If find_table() returns error, it cannot be dealt
-			 * with here. Breakpoint can be added for debugging.
-			 */
-			set_block_entry(&early_mmu_table[i], &table);
-			/*
-			 * If set_block_entry() returns error, it cannot be
-			 * dealt with here too.
-			 */
-		}
-	}
-
-	el = current_el();
-
-	set_ttbr_tcr_mair(el, (u64)level0_table, LAYERSCAPE_TCR,
+	/* point TTBR to the new table */
+	set_ttbr_tcr_mair(el, gd->arch.tlb_addr,
+			  get_tcr(el, NULL, NULL) &
+			  ~(TCR_ORGN_MASK | TCR_IRGN_MASK),
 			  MEMORY_ATTRIBUTES);
+
 	set_sctlr(get_sctlr() | CR_M);
 }
-
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-/*
- * Called from final mmu setup. The phys_addr is new, non-existing
- * address. A new sub table is created @level2_table_secure to cover
- * size of CONFIG_SYS_MEM_RESERVE_SECURE memory.
- */
-static inline int final_secure_ddr(u64 *level0_table,
-				   u64 *level2_table_secure,
-				   phys_addr_t phys_addr)
-{
-	int ret = -EINVAL;
-	struct table_info table = {};
-	struct sys_mmu_table ddr_entry = {
-		0, 0, BLOCK_SIZE_L1, MT_NORMAL,
-		PTE_BLOCK_OUTER_SHARE | PTE_BLOCK_NS
-	};
-	u64 index;
-
-	/* Need to create a new table */
-	ddr_entry.virt_addr = phys_addr & ~(BLOCK_SIZE_L1 - 1);
-	ddr_entry.phys_addr = phys_addr & ~(BLOCK_SIZE_L1 - 1);
-	ret = find_table(&ddr_entry, &table, level0_table);
-	if (ret)
-		return ret;
-	index = (ddr_entry.virt_addr - table.table_base) >> SECTION_SHIFT_L1;
-	set_pgtable_table(table.ptr, index, level2_table_secure);
-	table.ptr = level2_table_secure;
-	table.table_base = ddr_entry.virt_addr;
-	table.entry_size = BLOCK_SIZE_L2;
-	ret = set_block_entry(&ddr_entry, &table);
-	if (ret) {
-		printf("MMU error: could not fill non-secure ddr block entries\n");
-		return ret;
-	}
-	ddr_entry.virt_addr = phys_addr;
-	ddr_entry.phys_addr = phys_addr;
-	ddr_entry.size = CONFIG_SYS_MEM_RESERVE_SECURE;
-	ddr_entry.attribute = PTE_BLOCK_OUTER_SHARE;
-	ret = find_table(&ddr_entry, &table, level0_table);
-	if (ret) {
-		printf("MMU error: could not find secure ddr table\n");
-		return ret;
-	}
-	ret = set_block_entry(&ddr_entry, &table);
-	if (ret)
-		printf("MMU error: could not set secure ddr block entry\n");
-
-	return ret;
-}
-#endif
 
 /*
  * The final tables look similar to early tables, but different in detail.
  * These tables are in DRAM. Sub tables are added to enable cache for
  * QBMan and OCRAM.
  *
- * Put the MMU table in secure memory if gd->secure_ram is valid.
- * OCRAM will be not used for this purpose so gd->secure_ram can't be 0.
- *
- * Level 1 table 0 contains 512 entries for each 1GB from 0 to 512GB.
- * Level 1 table 1 contains 512 entries for each 1GB from 512GB to 1TB.
- * Level 2 table 0 contains 512 entries for each 2MB from 0 to 1GB.
- *
- * For LSCH3:
- * Level 2 table 1 contains 512 entries for each 2MB from 32GB to 33GB.
- * For LSCH2:
- * Level 2 table 1 contains 512 entries for each 2MB from 1GB to 2GB.
- * Level 2 table 2 contains 512 entries for each 2MB from 20GB to 21GB.
+ * Put the MMU table in secure memory if gd->arch.secure_ram is valid.
+ * OCRAM will be not used for this purpose so gd->arch.secure_ram can't be 0.
  */
 static inline void final_mmu_setup(void)
 {
+	u64 tlb_addr_save = gd->arch.tlb_addr;
 	unsigned int el = current_el();
-	unsigned int i;
-	u64 *level0_table = (u64 *)gd->arch.tlb_addr;
-	u64 *level1_table0;
-	u64 *level1_table1;
-	u64 *level2_table0;
-	u64 *level2_table1;
-#ifdef CONFIG_FSL_LSCH2
-	u64 *level2_table2;
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	int index;
 #endif
-	struct table_info table = {NULL, 0, BLOCK_SIZE_L0};
+
+	mem_map = final_map;
 
 #ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-	u64 *level2_table_secure;
-
-	if (el == 3) {
-		/*
-		 * Only use gd->secure_ram if the address is recalculated
-		 * Align to 4KB for MMU table
-		 */
-		if (gd->secure_ram & MEM_RESERVE_SECURE_MAINTAINED)
-			level0_table = (u64 *)(gd->secure_ram & ~0xfff);
-		else
-			printf("MMU warning: gd->secure_ram is not maintained, disabled.\n");
-	}
-#endif
-	level1_table0 = level0_table + 512;
-	level1_table1 = level1_table0 + 512;
-	level2_table0 = level1_table1 + 512;
-	level2_table1 = level2_table0 + 512;
-#ifdef CONFIG_FSL_LSCH2
-	level2_table2 = level2_table1 + 512;
-#endif
-	table.ptr = level0_table;
-
-	/* Invalidate all table entries */
-	memset(level0_table, 0, PGTABLE_SIZE);
-
-	/* Fill in the table entries */
-	set_pgtable_table(level0_table, 0, level1_table0);
-	set_pgtable_table(level0_table, 1, level1_table1);
-	set_pgtable_table(level1_table0, 0, level2_table0);
-#ifdef CONFIG_FSL_LSCH3
-	set_pgtable_table(level1_table0,
-			  CONFIG_SYS_FSL_QBMAN_BASE >> SECTION_SHIFT_L1,
-			  level2_table1);
-#elif defined(CONFIG_FSL_LSCH2)
-	set_pgtable_table(level1_table0, 1, level2_table1);
-	set_pgtable_table(level1_table0,
-			  CONFIG_SYS_FSL_QBMAN_BASE >> SECTION_SHIFT_L1,
-			  level2_table2);
-#endif
-
-	/* Find the table and fill in the block entries */
-	for (i = 0; i < ARRAY_SIZE(final_mmu_table); i++) {
-		if (find_table(&final_mmu_table[i],
-			       &table, level0_table) == 0) {
-			if (set_block_entry(&final_mmu_table[i],
-					    &table) != 0) {
-				printf("MMU error: could not set block entry for %p\n",
-				       &final_mmu_table[i]);
-			}
-
+	if (gd->arch.secure_ram & MEM_RESERVE_SECURE_MAINTAINED) {
+		if (el == 3) {
+			/*
+			 * Only use gd->arch.secure_ram if the address is
+			 * recalculated. Align to 4KB for MMU table.
+			 */
+			/* put page tables in secure ram */
+			index = ARRAY_SIZE(final_map) - 2;
+			gd->arch.tlb_addr = gd->arch.secure_ram & ~0xfff;
+			final_map[index].virt = gd->arch.secure_ram & ~0x3;
+			final_map[index].phys = final_map[index].virt;
+			final_map[index].size = CONFIG_SYS_MEM_RESERVE_SECURE;
+			final_map[index].attrs = PTE_BLOCK_OUTER_SHARE;
+			gd->arch.secure_ram |= MEM_RESERVE_SECURE_SECURED;
+			tlb_addr_save = gd->arch.tlb_addr;
 		} else {
-			printf("MMU error: could not find the table for %p\n",
-			       &final_mmu_table[i]);
-		}
-	}
-	/* Set the secure memory to secure in MMU */
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-	if (el == 3 && gd->secure_ram & MEM_RESERVE_SECURE_MAINTAINED) {
-#ifdef CONFIG_FSL_LSCH3
-		level2_table_secure = level2_table1 + 512;
-#elif defined(CONFIG_FSL_LSCH2)
-		level2_table_secure = level2_table2 + 512;
-#endif
-		if (!final_secure_ddr(level0_table,
-				      level2_table_secure,
-				      gd->secure_ram & ~0x3)) {
-			gd->secure_ram |= MEM_RESERVE_SECURE_SECURED;
-			debug("Now MMU table is in secured memory at 0x%llx\n",
-			      gd->secure_ram & ~0x3);
-		} else {
-			printf("MMU warning: Failed to secure DDR\n");
+			/* Use allocated (board_f.c) memory for TLB */
+			tlb_addr_save = gd->arch.tlb_allocated;
+			gd->arch.tlb_addr = tlb_addr_save;
 		}
 	}
 #endif
+
+	/* Reset the fill ptr */
+	gd->arch.tlb_fillptr = tlb_addr_save;
+
+	/* Create normal system page tables */
+	setup_pgtables();
+
+	/* Create emergency page tables */
+	gd->arch.tlb_addr = gd->arch.tlb_fillptr;
+	gd->arch.tlb_emerg = gd->arch.tlb_addr;
+	setup_pgtables();
+	gd->arch.tlb_addr = tlb_addr_save;
 
 	/* flush new MMU table */
-	flush_dcache_range((ulong)level0_table,
-			   (ulong)level0_table + gd->arch.tlb_size);
+	flush_dcache_range(gd->arch.tlb_addr,
+			   gd->arch.tlb_addr + gd->arch.tlb_size);
 
-#ifdef CONFIG_SYS_DPAA_FMAN
-	flush_dcache_all();
-#endif
 	/* point TTBR to the new table */
-	set_ttbr_tcr_mair(el, (u64)level0_table, LAYERSCAPE_TCR_FINAL,
+	set_ttbr_tcr_mair(el, gd->arch.tlb_addr, get_tcr(el, NULL, NULL),
 			  MEMORY_ATTRIBUTES);
 	/*
-	 * MMU is already enabled, just need to invalidate TLB to load the
+	 * EL3 MMU is already enabled, just need to invalidate TLB to load the
 	 * new table. The new table is compatible with the current table, if
 	 * MMU somehow walks through the new table before invalidation TLB,
 	 * it still works. So we don't need to turn off MMU here.
+	 * When EL2 MMU table is created by calling this function, MMU needs
+	 * to be enabled.
 	 */
+	set_sctlr(get_sctlr() | CR_M);
 }
 
 u64 get_page_table_size(void)
@@ -425,19 +176,25 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+void mmu_setup(void)
+{
+	final_mmu_setup();
+}
+
 /*
- * This function is called from lib/board.c.
- * It recreates MMU table in main memory. MMU and d-cache are enabled earlier.
- * There is no need to disable d-cache for this operation.
+ * This function is called from common/board_r.c.
+ * It recreates MMU table in main memory.
  */
 void enable_caches(void)
 {
-	final_mmu_setup();
+	mmu_setup();
 	__asm_invalidate_tlb_all();
+	icache_enable();
+	dcache_enable();
 }
 #endif
 
-static inline u32 initiator_type(u32 cluster, int init_id)
+u32 initiator_type(u32 cluster, int init_id)
 {
 	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	u32 idx = (cluster >> (init_id * 8)) & TP_CLUSTER_INIT_MASK;
@@ -448,6 +205,27 @@ static inline u32 initiator_type(u32 cluster, int init_id)
 		return type;
 
 	return 0;
+}
+
+u32 cpu_pos_mask(void)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	int i = 0;
+	u32 cluster, type, mask = 0;
+
+	do {
+		int j;
+
+		cluster = gur_in32(&gur->tp_cluster[i].lower);
+		for (j = 0; j < TP_INIT_PER_CLUSTER; j++) {
+			type = initiator_type(cluster, j);
+			if (type && (TP_ITYP_TYPE(type) == TP_ITYP_TYPE_ARM))
+				mask |= 1 << (i * TP_INIT_PER_CLUSTER + j);
+		}
+		i++;
+	} while ((cluster & TP_CLUSTER_EOC) == 0x0);
+
+	return mask;
 }
 
 u32 cpu_mask(void)
@@ -531,6 +309,15 @@ u32 fsl_qoriq_core_to_type(unsigned int core)
 	return -1;      /* cannot identify the cluster */
 }
 
+#ifndef CONFIG_FSL_LSCH3
+uint get_svr(void)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+
+	return gur_in32(&gur->svr);
+}
+#endif
+
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
@@ -554,7 +341,8 @@ int print_cpuinfo(void)
 		printf("CPU%d(%s):%-4s MHz  ", core,
 		       type == TY_ITYP_VER_A7 ? "A7 " :
 		       (type == TY_ITYP_VER_A53 ? "A53" :
-			(type == TY_ITYP_VER_A57 ? "A57" : "   ")),
+		       (type == TY_ITYP_VER_A57 ? "A57" :
+		       (type == TY_ITYP_VER_A72 ? "A72" : "   "))),
 		       strmhz(buf, sysinfo.freq_processor[core]));
 	}
 	printf("\n       Bus:      %-4s MHz  ",
@@ -612,16 +400,26 @@ int arch_early_init_r(void)
 {
 #ifdef CONFIG_MP
 	int rv = 1;
+	u32 psci_ver = 0xffffffff;
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009635
 	erratum_a009635();
 #endif
-
+#if defined(CONFIG_SYS_FSL_ERRATUM_A009942) && defined(CONFIG_SYS_FSL_DDR)
+	erratum_a009942_check_cpo();
+#endif
 #ifdef CONFIG_MP
-	rv = fsl_layerscape_wake_seconday_cores();
-	if (rv)
-		printf("Did not wake secondary cores\n");
+#if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && \
+	defined(CONFIG_FSL_PPA_ARMV8_PSCI)
+	/* Check the psci version to determine if the psci is supported */
+	psci_ver = sec_firmware_support_psci_version();
+#endif
+	if (psci_ver == 0xffffffff) {
+		rv = fsl_layerscape_wake_seconday_cores();
+		if (rv)
+			printf("Did not wake secondary cores\n");
+	}
 #endif
 
 #ifdef CONFIG_SYS_HAS_SERDES
@@ -639,6 +437,10 @@ int timer_init(void)
 #ifdef CONFIG_FSL_LSCH3
 	u32 __iomem *cltbenr = (u32 *)CONFIG_SYS_FSL_PMU_CLTBENR;
 #endif
+#ifdef CONFIG_LS2080A
+	u32 __iomem *pctbenr = (u32 *)FSL_PMU_PCTBENR_OFFSET;
+	u32 svr_dev_id;
+#endif
 #ifdef COUNTER_FREQUENCY_REAL
 	unsigned long cntfrq = COUNTER_FREQUENCY_REAL;
 
@@ -653,6 +455,23 @@ int timer_init(void)
 	out_le32(cltbenr, 0xf);
 #endif
 
+#ifdef CONFIG_LS2080A
+	/*
+	 * In certain Layerscape SoCs, the clock for each core's
+	 * has an enable bit in the PMU Physical Core Time Base Enable
+	 * Register (PCTBENR), which allows the watchdog to operate.
+	 */
+	setbits_le32(pctbenr, 0xff);
+	/*
+	 * For LS2080A SoC and its personalities, timer controller
+	 * offset is different
+	 */
+	svr_dev_id = get_svr() >> 16;
+	if (svr_dev_id == SVR_DEV_LS2080A)
+		cntcr = (u32 *)SYS_FSL_LS2080A_LS2085A_TIMER_ADDR;
+
+#endif
+
 	/* Enable clock for timer
 	 * This is a global setting.
 	 */
@@ -661,9 +480,10 @@ int timer_init(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+__efi_runtime_data u32 __iomem *rstcr = (u32 *)CONFIG_SYS_FSL_RST_ADDR;
+
+void __efi_runtime reset_cpu(ulong addr)
 {
-	u32 __iomem *rstcr = (u32 *)CONFIG_SYS_FSL_RST_ADDR;
 	u32 val;
 
 	/* Raise RESET_REQ_B */
@@ -672,16 +492,39 @@ void reset_cpu(ulong addr)
 	scfg_out32(rstcr, val);
 }
 
+#ifdef CONFIG_EFI_LOADER
+
+void __efi_runtime EFIAPI efi_reset_system(
+		       enum efi_reset_type reset_type,
+		       efi_status_t reset_status,
+		       unsigned long data_size, void *reset_data)
+{
+	switch (reset_type) {
+	case EFI_RESET_COLD:
+	case EFI_RESET_WARM:
+		reset_cpu(0);
+		break;
+	case EFI_RESET_SHUTDOWN:
+		/* Nothing we can do */
+		break;
+	}
+
+	while (1) { }
+}
+
+void efi_reset_system_init(void)
+{
+       efi_add_runtime_mmio(&rstcr, sizeof(*rstcr));
+}
+
+#endif
+
 phys_size_t board_reserve_ram_top(phys_size_t ram_size)
 {
 	phys_size_t ram_top = ram_size;
 
 #ifdef CONFIG_SYS_MEM_TOP_HIDE
 #error CONFIG_SYS_MEM_TOP_HIDE not to be used together with this function
-#endif
-/* Carve the Debug Server private DRAM block from the end of DRAM */
-#ifdef CONFIG_FSL_DEBUG_SERVER
-	ram_top -= debug_server_get_dram_block_size();
 #endif
 
 /* Carve the MC private DRAM block from the end of DRAM */

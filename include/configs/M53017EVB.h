@@ -27,11 +27,7 @@
 #define CONFIG_WATCHDOG_TIMEOUT		5000
 
 /* Command line configuration */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#undef CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #define CONFIG_SYS_UNIFY_CACHE
@@ -83,7 +79,6 @@
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x58000
 #define CONFIG_SYS_IMMR			CONFIG_SYS_MBAR
 
-#define CONFIG_BOOTDELAY		1	/* autoboot after 5 seconds */
 #define CONFIG_UDP_CHECKSUM
 
 #ifdef CONFIG_MCFFEC

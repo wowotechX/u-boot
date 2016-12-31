@@ -29,8 +29,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Console configuration */
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #define CONFIG_BOOTARGS			"Please use defined boot"
 #define CONFIG_BOOTCOMMAND		"run mmcboot"
@@ -155,27 +153,6 @@
 #define CONFIG_SAMSUNG_ONENAND
 #define CONFIG_SYS_ONENAND_BASE		0x0C000000
 
-#include <asm/arch/gpio.h>
-/*
- * I2C Settings
- */
-#define CONFIG_SOFT_I2C_GPIO_SCL EXYNOS4_GPIO_B7
-#define CONFIG_SOFT_I2C_GPIO_SDA EXYNOS4_GPIO_B6
-
-#define CONFIG_CMD_I2C
-
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
-#define CONFIG_SYS_I2C_SOFT_SPEED	50000
-#define CONFIG_SYS_I2C_SOFT_SLAVE	0
-#define CONFIG_SOFT_I2C_READ_REPEATED_START
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_MAX_I2C_BUS	7
-
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
-#define CONFIG_POWER_MAX8998
-
 #define CONFIG_USB_GADGET_DWC2_OTG_PHY
 
 /*
@@ -219,9 +196,6 @@ int universal_spi_read(void);
 /*
  * LCD Settings
  */
-#define CONFIG_EXYNOS_FB
-#define CONFIG_LCD
-#define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
 #define CONFIG_LD9040
 #define CONFIG_VIDEO_BMP_GZIP

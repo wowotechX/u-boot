@@ -28,6 +28,7 @@ F:	configs/Auxtek-T004_defconfig
 F:	configs/CHIP_defconfig
 F:	configs/difrnce_dit4350_defconfig
 F:	configs/Empire_electronix_d709_defconfig
+F:	configs/Empire_electronix_m712_defconfig
 F:	configs/inet98v_rev2_defconfig
 F:	configs/mk802_a10s_defconfig
 F:	configs/q8_a13_tablet_defconfig
@@ -37,6 +38,7 @@ F:	configs/Wobo_i5_defconfig
 F:	include/configs/sun6i.h
 F:	configs/colorfly_e708_q1_defconfig
 F:	configs/CSQ_CS908_defconfig
+F:	configs/inet_q972_defconfig
 F:	configs/Mele_A1000G_quad_defconfig
 F:	configs/Mele_M9_defconfig
 F:	configs/Sinovoip_BPI_M2_defconfig
@@ -54,10 +56,15 @@ F:	configs/Wits_Pro_A20_DKT_defconfig
 F:	include/configs/sun8i.h
 F:	configs/ga10h_v1_1_defconfig
 F:	configs/gt90h_v4_defconfig
+F:	configs/inet86dz_defconfig
 F:	configs/orangepi_2_defconfig
+F:	configs/orangepi_lite_defconfig
 F:	configs/orangepi_one_defconfig
 F:	configs/orangepi_pc_defconfig
+F:	configs/orangepi_pc_plus_defconfig
 F:	configs/orangepi_plus_defconfig
+F:	configs/orangepi_plus2e_defconfig
+F:	configs/polaroid_mid2407pxe03_defconfig
 F:	configs/polaroid_mid2809pxe04_defconfig
 F:	configs/q8_a23_tablet_800x480_defconfig
 F:	configs/q8_a33_tablet_800x480_defconfig
@@ -82,6 +89,16 @@ M:	Iain Paton <ipaton0@gmail.com>
 S:	Maintained
 F:	configs/A20-OLinuXino-Lime2_defconfig
 
+A33-OLINUXINO BOARD
+M:	Stefan Mavrodiev <stefan.mavrodiev@gmail.com>
+S:	Maintained
+F:	configs/A33-OLinuXino_defconfig
+
+A80 OPTIMUS BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Merrii_A80_Optimus_defconfig
+
 AINOL AW1 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
@@ -104,6 +121,11 @@ S:	Maintained
 F:	include/configs/sun7i.h
 F:	configs/Cubieboard2_defconfig
 F:	configs/Cubietruck_defconfig
+
+CUBIEBOARD4 BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Cubieboard4_defconfig
 
 CUBIETRUCK-PLUS BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
@@ -149,6 +171,11 @@ INET 86VS BOARD
 M:	Michal Suchanek <hramrach@gmail.com>
 S:	Maintained
 F:	configs/iNet_86VS_defconfig
+
+INET D978 BOARD
+M:	Icenowy Zheng <icenowy@aosc.xyz>
+S:	Maintained
+F:	configs/iNet_D978_rev2_defconfig
 
 LAMOBO-R1 BOARD
 M:	Jelle de Jong <jelledejong@powercraft.nl>
@@ -199,6 +226,21 @@ MSI-PRIMO81 BOARD
 M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
+
+NANOPI-NEO BOARD
+M:	Jelle van der Waa <jelle@vdwaa.nl>
+S:	Maintained
+F:	configs/nanopi_neo_defconfig
+
+NINTENDO NES CLASSIC EDITION BOARD
+M:	FUKAUMI Naoki <naobsd@gmail.com>
+S:	Maintained
+F:	configs/Nintendo_NES_Classic_Edition_defconfig
+
+R16 EVB PARROT BOARD
+M:	Quentin Schulz <quentin.schulz@free-electrons.com>
+S:	Maintained
+F:	configs/parrot_r16_defconfig
 
 SINLINX SINA31s BOARD
 M:	Chen-Yu Tsai <wens@csie.org>

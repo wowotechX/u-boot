@@ -14,10 +14,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_FSL_ELBC
-#define CONFIG_PCI
 #define CONFIG_PCIE1	/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2	/* PCIE controller 2 (slot 2) */
 #define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
@@ -30,7 +27,6 @@
 #define CONFIG_UCP1020_REV_1_3
 
 #define CONFIG_BOARDNAME "uCP1020-64EE512-0U1-XR-T1"
-#define CONFIG_P1020
 
 #define CONFIG_TSEC_ENET
 #define CONFIG_TSEC1
@@ -49,14 +45,9 @@
 #endif
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
-#define CONFIG_MMC
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 
 #define CONFIG_LAST_STAGE_INIT
-
-#if !defined(CONFIG_DONGLE)
-#define CONFIG_SILENT_CONSOLE
-#endif
 
 #endif
 
@@ -66,7 +57,6 @@
 #define CONFIG_UCP1020_REV_1_3
 
 #define CONFIG_BOARDNAME_LOCAL "uCP1020-64EEE512-OU1-XR"
-#define CONFIG_P1020
 
 #define CONFIG_TSEC_ENET
 #define CONFIG_TSEC1
@@ -90,7 +80,6 @@
 #endif
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
-#define CONFIG_MMC
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 
 #define CONFIG_LAST_STAGE_INIT
@@ -132,8 +121,6 @@
 /* #define CONFIG_MPC85xx */
 
 #define CONFIG_MP
-
-#define CONFIG_FSL_LAW
 
 #define CONFIG_ENV_OVERWRITE
 
@@ -342,9 +329,6 @@
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR + 0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR + 0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL
@@ -369,8 +353,6 @@
  */
 #define CONFIG_HARD_SPI
 
-#define CONFIG_CMD_SF			1
-#define CONFIG_CMD_SPI			1
 #define CONFIG_SF_DEFAULT_SPEED		10000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 
@@ -402,7 +384,6 @@
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xffc00000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
-#define CONFIG_PCI_PNP	/* do pci plug-and-play */
 #define CONFIG_CMD_PCI
 
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
@@ -473,14 +454,8 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_CRAMFS
@@ -496,10 +471,8 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
-#define CONFIG_USB_STORAGE
 #endif
 #endif
 
@@ -508,15 +481,12 @@
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
-#define CONFIG_CMD_MMC
 #define CONFIG_MMC_SPI
 #define CONFIG_CMD_MMC_SPI
 #define CONFIG_GENERIC_MMC
 #endif
 
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI) || defined(CONFIG_FSL_SATA)
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
@@ -567,7 +537,6 @@
 #error "UCP1020 module revision is not defined !!!"
 #endif
 
-#define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_SERVERIP
 
 #define CONFIG_MII		/* MII PHY management */
@@ -606,7 +575,6 @@
 
 #if defined(CONFIG_DONGLE)
 
-#define CONFIG_BOOTDELAY 1	/* autoboot after 1 seconds */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 "bootcmd=run prog_spi_mbrbootcramfs\0"					\
 "bootfile=uImage\0"							\
@@ -736,7 +704,6 @@
 
 #if defined(CONFIG_UCP1020T1)
 
-#define CONFIG_BOOTDELAY 2 /* autoboot after 2 sec, -1 disables auto-boot */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 "bootcmd=run releasefpga; run norbootworking || run norbootrecovery\0"	\
 "bootfile=uImage\0"							\
@@ -826,7 +793,6 @@
 
 #else /* For Arcturus Modules */
 
-#define CONFIG_BOOTDELAY 2 /* autoboot after 2 sec, -1 disables auto-boot */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 "bootcmd=run norkernel\0"						\
 "bootfile=uImage\0"							\

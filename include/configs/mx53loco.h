@@ -12,8 +12,6 @@
 
 #define CONFIG_MX53
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX53_LOCO
 
 #include <asm/arch/imx-regs.h>
@@ -40,12 +38,7 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_ESDHC_NUM	2
 
-#define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
 
 /* Eth Configs */
@@ -55,16 +48,9 @@
 #define IMX_FEC_BASE	FEC_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR	0x1F
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
-
 /* USB Configs */
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_FAT
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX5
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_MCS7830
@@ -95,10 +81,8 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
 
-#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_ETHPRIME		"FEC0"
 
@@ -178,7 +162,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 
@@ -229,12 +212,7 @@
 
 /* Framebuffer and LCD */
 #define CONFIG_PREBOOT
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_BMP_16BPP

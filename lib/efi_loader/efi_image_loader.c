@@ -37,7 +37,7 @@ static void efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
 		const uint16_t *relocs = (const uint16_t *)(rel + 1);
 		i = (rel->SizeOfBlock - sizeof(*rel)) / sizeof(uint16_t);
 		while (i--) {
-			uint16_t offset = (*relocs & 0xfff) +
+			uint32_t offset = (uint32_t)(*relocs & 0xfff) +
 					  rel->VirtualAddress;
 			int type = *relocs >> EFI_PAGE_SHIFT;
 			unsigned long delta = (unsigned long)efi_reloc;
@@ -174,7 +174,8 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 	efi_loader_relocate(rel, rel_size, efi_reloc);
 
 	/* Flush cache */
-	flush_cache((ulong)efi_reloc, virt_size);
+	flush_cache((ulong)efi_reloc,
+		    ALIGN(virt_size, CONFIG_SYS_CACHELINE_SIZE));
 	invalidate_icache_all();
 
 	/* Populate the loaded image interface bits */

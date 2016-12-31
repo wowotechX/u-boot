@@ -13,27 +13,19 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DEFAULTENV_VARS
-#define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_IMMAP
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MTDPARTS
 
 #undef	CONFIG_WATCHDOG		/* disable platform specific watchdog */
 
-#define CONFIG_BOOTDELAY	2 /* autoboot after 2 seconds */
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	  */
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
@@ -56,9 +48,6 @@
 #define CONFIG_LOADS_ECHO
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
 
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT "Hit <SPACE> key to stop autoboot in %2ds\n"
-#define CONFIG_AUTOBOOT_STOP_STR        " "
 
 /* Support the IVM EEprom */
 #define	CONFIG_SYS_IVM_EEPROM_ADR	0x50
@@ -76,7 +65,6 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* UBI Support for all Keymile boards */
-#define CONFIG_CMD_UBI
 #define CONFIG_RBTREE
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
@@ -247,7 +235,5 @@
 	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
 	""
 #endif /* CONFIG_KM_DEF_ENV */
-
-#define CONFIG_VERSION_VARIABLE	/* include version env variable */
 
 #endif /* __CONFIG_KEYMILE_H */

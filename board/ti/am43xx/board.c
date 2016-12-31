@@ -10,9 +10,10 @@
 
 #include <common.h>
 #include <i2c.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <spl.h>
 #include <usb.h>
+#include <asm/omap_sec_common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mux.h>
@@ -38,10 +39,13 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 /*
  * Read header information from EEPROM into global structure.
  */
-static inline int __maybe_unused read_eeprom(void)
+#ifdef CONFIG_TI_I2C_BOARD_DETECT
+void do_board_detect(void)
 {
-	return ti_i2c_eeprom_am_get(-1, CONFIG_SYS_I2C_EEPROM_ADDR);
+	if (ti_i2c_eeprom_am_get(-1, CONFIG_SYS_I2C_EEPROM_ADDR))
+		printf("ti_i2c_eeprom_init failed\n");
 }
+#endif
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -336,12 +340,9 @@ const struct dpll_params *get_dpll_ddr_params(void)
 {
 	int ind = get_sys_clk_index();
 
-	if (read_eeprom() < 0)
-		return NULL;
-
 	if (board_is_eposevm())
 		return &epos_evm_dpll_ddr[ind];
-	else if (board_is_gpevm() || board_is_sk())
+	else if (board_is_evm() || board_is_sk())
 		return &gp_evm_dpll_ddr;
 	else if (board_is_idk())
 		return &idk_dpll_ddr;
@@ -494,9 +495,6 @@ void scale_vcores(void)
 {
 	const struct dpll_params *mpu_params;
 
-	if (read_eeprom() < 0)
-		puts("Could not get board ID.\n");
-
 	/* Ensure I2C is initialized for PMIC configuration */
 	gpi2c_init();
 
@@ -536,8 +534,6 @@ static void enable_vtt_regulator(void)
 
 void sdram_init(void)
 {
-	if (read_eeprom() < 0)
-		return;
 	/*
 	 * EPOS EVM has 1GB LPDDR2 connected to EMIF.
 	 * GP EMV has 1GB DDR3 connected to EMIF
@@ -553,7 +549,7 @@ void sdram_init(void)
 		enable_vtt_regulator();
 		config_ddr(0, &ioregs_ddr3, NULL, NULL,
 			   &ddr3_emif_regs_400Mhz_beta, 0);
-	} else if (board_is_gpevm()) {
+	} else if (board_is_evm()) {
 		enable_vtt_regulator();
 		config_ddr(0, &ioregs_ddr3, NULL, NULL,
 			   &ddr3_emif_regs_400Mhz, 0);
@@ -636,6 +632,13 @@ int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info_env(NULL);
+
+	/*
+	 * Default FIT boot on HS devices. Non FIT images are not allowed
+	 * on HS devices.
+	 */
+	if (get_device_type() == HS_DEVICE)
+		setenv("boot_fit", "1");
 #endif
 	return 0;
 }
@@ -678,60 +681,6 @@ static struct ti_usb_phy_device usb_phy2_device = {
 	.index = 1,
 };
 
-int board_usb_init(int index, enum usb_init_type init)
-{
-	enable_usb_clocks(index);
-	switch (index) {
-	case 0:
-		if (init == USB_INIT_DEVICE) {
-			usb_otg_ss1.dr_mode = USB_DR_MODE_PERIPHERAL;
-			usb_otg_ss1_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
-		} else {
-			usb_otg_ss1.dr_mode = USB_DR_MODE_HOST;
-			usb_otg_ss1_glue.vbus_id_status = OMAP_DWC3_ID_GROUND;
-		}
-
-		dwc3_omap_uboot_init(&usb_otg_ss1_glue);
-		ti_usb_phy_uboot_init(&usb_phy1_device);
-		dwc3_uboot_init(&usb_otg_ss1);
-		break;
-	case 1:
-		if (init == USB_INIT_DEVICE) {
-			usb_otg_ss2.dr_mode = USB_DR_MODE_PERIPHERAL;
-			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
-		} else {
-			usb_otg_ss2.dr_mode = USB_DR_MODE_HOST;
-			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_ID_GROUND;
-		}
-
-		ti_usb_phy_uboot_init(&usb_phy2_device);
-		dwc3_omap_uboot_init(&usb_otg_ss2_glue);
-		dwc3_uboot_init(&usb_otg_ss2);
-		break;
-	default:
-		printf("Invalid Controller Index\n");
-	}
-
-	return 0;
-}
-
-int board_usb_cleanup(int index, enum usb_init_type init)
-{
-	switch (index) {
-	case 0:
-	case 1:
-		ti_usb_phy_uboot_exit(index);
-		dwc3_uboot_exit(index);
-		dwc3_omap_uboot_exit(index);
-		break;
-	default:
-		printf("Invalid Controller Index\n");
-	}
-	disable_usb_clocks(index);
-
-	return 0;
-}
-
 int usb_gadget_handle_interrupts(int index)
 {
 	u32 status;
@@ -742,7 +691,61 @@ int usb_gadget_handle_interrupts(int index)
 
 	return 0;
 }
+#endif /* CONFIG_USB_DWC3 */
+
+#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
+int board_usb_init(int index, enum usb_init_type init)
+{
+	enable_usb_clocks(index);
+#ifdef CONFIG_USB_DWC3
+	switch (index) {
+	case 0:
+		if (init == USB_INIT_DEVICE) {
+			usb_otg_ss1.dr_mode = USB_DR_MODE_PERIPHERAL;
+			usb_otg_ss1_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
+			dwc3_omap_uboot_init(&usb_otg_ss1_glue);
+			ti_usb_phy_uboot_init(&usb_phy1_device);
+			dwc3_uboot_init(&usb_otg_ss1);
+		}
+		break;
+	case 1:
+		if (init == USB_INIT_DEVICE) {
+			usb_otg_ss2.dr_mode = USB_DR_MODE_PERIPHERAL;
+			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
+			ti_usb_phy_uboot_init(&usb_phy2_device);
+			dwc3_omap_uboot_init(&usb_otg_ss2_glue);
+			dwc3_uboot_init(&usb_otg_ss2);
+		}
+		break;
+	default:
+		printf("Invalid Controller Index\n");
+	}
 #endif
+
+	return 0;
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+#ifdef CONFIG_USB_DWC3
+	switch (index) {
+	case 0:
+	case 1:
+		if (init == USB_INIT_DEVICE) {
+			ti_usb_phy_uboot_exit(index);
+			dwc3_uboot_exit(index);
+			dwc3_omap_uboot_exit(index);
+		}
+		break;
+	default:
+		printf("Invalid Controller Index\n");
+	}
+#endif
+	disable_usb_clocks(index);
+
+	return 0;
+}
+#endif /* defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP) */
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 
@@ -844,5 +847,28 @@ int board_eth_init(bd_t *bis)
 		printf("Error %d registering CPSW switch\n", rv);
 
 	return rv;
+}
+#endif
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (board_is_evm() && !strcmp(name, "am437x-gp-evm"))
+		return 0;
+	else if (board_is_sk() && !strcmp(name, "am437x-sk-evm"))
+		return 0;
+	else if (board_is_eposevm() && !strcmp(name, "am43x-epos-evm"))
+		return 0;
+	else if (board_is_idk() && !strcmp(name, "am437x-idk-evm"))
+		return 0;
+	else
+		return -1;
+}
+#endif
+
+#ifdef CONFIG_TI_SECURE_DEVICE
+void board_fit_image_post_process(void **p_image, size_t *p_size)
+{
+	secure_boot_verify_image(p_image, p_size);
 }
 #endif

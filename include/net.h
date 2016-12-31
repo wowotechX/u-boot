@@ -238,7 +238,7 @@ int eth_getenv_enetaddr(const char *name, uchar *enetaddr);
 int eth_setenv_enetaddr(const char *name, const uchar *enetaddr);
 
 /**
- * eth_setenv_enetaddr_by_index() - set the MAC address envrionment variable
+ * eth_setenv_enetaddr_by_index() - set the MAC address environment variable
  *
  * This sets up an environment variable with the given MAC address (@enetaddr).
  * The environment variable to be set is defined by <@base_name><@index>addr.
@@ -269,7 +269,7 @@ int eth_getenv_enetaddr_by_index(const char *base_name, int index,
 int eth_init(void);			/* Initialize the device */
 int eth_send(void *packet, int length);	   /* Send a packet */
 
-#ifdef CONFIG_API
+#if defined(CONFIG_API) || defined(CONFIG_EFI_LOADER)
 int eth_receive(void *packet, int length); /* Receive a packet*/
 extern void (*push_packet)(void *packet, int length);
 #endif
@@ -465,20 +465,14 @@ struct icmp_hdr {
 #define IP_ICMP_HDR_SIZE	(IP_HDR_SIZE + ICMP_HDR_SIZE)
 
 /*
- * Maximum packet size; used to allocate packet storage.
- * TFTP packets can be 524 bytes + IP header + ethernet header.
- * Lets be conservative, and go for 38 * 16.  (Must also be
- * a multiple of 32 bytes).
- */
-/*
- * AS.HARNOIS : Better to set PKTSIZE to maximum size because
- * traffic type is not always controlled
- * maximum packet size =  1518
+ * Maximum packet size; used to allocate packet storage. Use
+ * the maxium Ethernet frame size as specified by the Ethernet
+ * standard including the 802.1Q tag (VLAN tagging).
+ * maximum packet size =  1522
  * maximum packet size and multiple of 32 bytes =  1536
  */
-#define PKTSIZE			1518
+#define PKTSIZE			1522
 #define PKTSIZE_ALIGN		1536
-/*#define PKTSIZE		608*/
 
 /*
  * Maximum receive ring size; that is, the number of packets

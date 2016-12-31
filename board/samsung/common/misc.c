@@ -101,6 +101,7 @@ void set_board_info(void)
 #ifdef CONFIG_LCD_MENU
 static int power_key_pressed(u32 reg)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	struct pmic *pmic;
 	u32 status;
 	u32 mask;
@@ -123,6 +124,9 @@ static int power_key_pressed(u32 reg)
 		return 0;
 
 	return !!(status & mask);
+#else
+	return 0;
+#endif
 }
 
 static int key_pressed(int key)
@@ -147,6 +151,7 @@ static int key_pressed(int key)
 	return value;
 }
 
+#ifdef CONFIG_LCD
 static int check_keys(void)
 {
 	int keys = 0;
@@ -235,9 +240,11 @@ static void display_board_info(void)
 
 	lcd_printf("\tDisplay BPP: %u\n", 1 << vid->vl_bpix);
 }
+#endif
 
 static int mode_leave_menu(int mode)
 {
+#ifdef CONFIG_LCD
 	char *exit_option;
 	char *exit_reset = "reset";
 	char *exit_back = "back";
@@ -301,8 +308,12 @@ static int mode_leave_menu(int mode)
 
 	lcd_clear();
 	return leave;
+#else
+	return 0;
+#endif
 }
 
+#ifdef CONFIG_LCD
 static void display_download_menu(int mode)
 {
 	char *selection[BOOT_MODE_EXIT + 1];
@@ -320,9 +331,11 @@ static void display_download_menu(int mode)
 		lcd_printf("\t%s  %s - %s\n\n", selection[i],
 			   mode_name[i][0], mode_info[i]);
 }
+#endif
 
 static void download_menu(void)
 {
+#ifdef CONFIG_LCD
 	int mode = 0;
 	int last_mode = 0;
 	int run;
@@ -393,6 +406,7 @@ static void download_menu(void)
 	}
 
 	lcd_clear();
+#endif
 }
 
 void check_boot_mode(void)

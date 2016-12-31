@@ -20,14 +20,12 @@
 #define CONFIG_405GP		1	/* This is a PPC405 CPU		*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 
 #define CONFIG_SYS_CLK_FREQ	33330000 /* external frequency to pll	*/
 
 #define CONFIG_BAUDRATE		9600
-#define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
 #undef	CONFIG_BOOTARGS
 #undef	CONFIG_BOOTCOMMAND
@@ -48,16 +46,13 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_EEPROM
-
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -67,8 +62,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-
-#undef	CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser	*/
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
@@ -80,8 +73,6 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
-
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
 #define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
 
@@ -104,12 +95,6 @@
 #define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 #define CONFIG_SYS_EXTBDINFO	1		/* To use extended board_into (bd_t) */
 
-#define CONFIG_LOOPW            1       /* enable loopw command         */
-
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
-
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-
 #define CONFIG_SYS_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
 
 /*-----------------------------------------------------------------------
@@ -120,10 +105,8 @@
 #define PCI_HOST_FORCE  1               /* configure as pci host        */
 #define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
 
-#define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_PCI_HOST	PCI_HOST_AUTO   /* select pci host function     */
-#define CONFIG_PCI_PNP			/* do pci plug-and-play         */
 					/* resource configuration       */
 
 #define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */

@@ -17,6 +17,7 @@
 #define __CONFIG_AM335X_EVM_H
 
 #include <configs/ti_am335x_common.h>
+#include <environment/ti/dfu.h>
 
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_TIMESTAMP
@@ -90,7 +91,11 @@
 	func(DHCP, dhcp, na)
 
 #define CONFIG_BOOTCOMMAND \
+	"if test ${boot_fit} -eq 1; then "	\
+		"run update_to_fit;"	\
+	"fi;"	\
 	"run findfdt; " \
+	"run init_console; " \
 	"run envboot; " \
 	"run distro_bootcmd"
 
@@ -100,7 +105,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	DEFAULT_MMC_TI_ARGS \
-	"boot_fdt=try\0" \
+	DEFAULT_FIT_TI_ARGS \
 	"bootpart=0:2\0" \
 	"bootdir=/boot\0" \
 	"bootfile=zImage\0" \
@@ -126,30 +131,6 @@
 		"root=${ramroot} " \
 		"rootfstype=${ramrootfstype}\0" \
 	"loadramdisk=load mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
-	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
-	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
-	"mmcloados=run args_mmc; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if run loadfdt; then " \
-				"bootz ${loadaddr} - ${fdtaddr}; " \
-			"else " \
-				"if test ${boot_fdt} = try; then " \
-					"bootz; " \
-				"else " \
-					"echo WARN: Cannot load the DT; " \
-				"fi; " \
-			"fi; " \
-		"else " \
-			"bootz; " \
-		"fi;\0" \
-	"mmcboot=mmc dev ${mmcdev}; " \
-		"if mmc rescan; then " \
-			"echo SD/MMC found on device ${mmcdev};" \
-			"run envboot; " \
-			"if run loadimage; then " \
-				"run mmcloados;" \
-			"fi;" \
-		"fi;\0" \
 	"spiboot=echo Booting from spi ...; " \
 		"run spiargs; " \
 		"sf probe ${spibusno}:0; " \
@@ -162,18 +143,23 @@
 		"if test $board_name = A335BONE; then " \
 			"setenv fdtfile am335x-bone.dtb; fi; " \
 		"if test $board_name = A335BNLT; then " \
-			"if test $board_rev = BBG1; then " \
-				"setenv fdtfile am335x-bonegreen.dtb; " \
-			"else " \
-				"setenv fdtfile am335x-boneblack.dtb; " \
-			"fi; " \
-		"fi; " \
+			"setenv fdtfile am335x-boneblack.dtb; fi; " \
+		"if test $board_name = BBG1; then " \
+			"setenv fdtfile am335x-bonegreen.dtb; fi; " \
 		"if test $board_name = A33515BB; then " \
 			"setenv fdtfile am335x-evm.dtb; fi; " \
 		"if test $board_name = A335X_SK; then " \
 			"setenv fdtfile am335x-evmsk.dtb; fi; " \
+		"if test $board_name = A335_ICE; then " \
+			"setenv fdtfile am335x-icev2.dtb; fi; " \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
+	"init_console=" \
+		"if test $board_name = A335_ICE; then "\
+			"setenv console ttyO3,115200n8;" \
+		"else " \
+			"setenv console ttyO0,115200n8;" \
+		"fi;\0" \
 	NANDARGS \
 	NETARGS \
 	DFUARGS \
@@ -200,18 +186,14 @@
 
 /* SPL */
 #ifndef CONFIG_NOR_BOOT
-#define CONFIG_SPL_POWER_SUPPORT
-#define CONFIG_SPL_YMODEM_SUPPORT
-
 /* Bootcount using the RTC block */
 #define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_BOOTCOUNT_AM33XX
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* USB gadget RNDIS */
-#define CONFIG_SPL_MUSB_NEW_SUPPORT
 
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 #endif
 
 #ifdef CONFIG_NAND
@@ -252,11 +234,6 @@
 					"8m(NAND.kernel)," \
 					"-(NAND.file-system)"
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
-#undef CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET		0x001c0000
-#define CONFIG_ENV_OFFSET_REDUND	0x001e0000
-#define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
 /* NAND: SPL related configs */
 #ifdef CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_AM33XX_BCH
@@ -287,7 +264,6 @@
 #define CONFIG_ARCH_MISC_INIT
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
-#define CONFIG_USB_MUSB_HOST
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
 #define CONFIG_AM335X_USB1
@@ -301,14 +277,7 @@
 #define CONFIG_FASTBOOT_BUF_ADDR	CONFIG_SYS_LOAD_ADDR
 #define CONFIG_FASTBOOT_BUF_SIZE	0x07000000
 
-/* To support eMMC booting */
-#define CONFIG_STORAGE_EMMC
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
-#endif
-
-#ifdef CONFIG_USB_MUSB_HOST
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
 #endif
 
 #ifdef CONFIG_USB_MUSB_GADGET
@@ -327,65 +296,21 @@
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_DM_MMC
 #undef CONFIG_TIMER
+#undef CONFIG_DM_USB
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
 /* Remove other SPL modes. */
-#undef CONFIG_SPL_YMODEM_SUPPORT
-#undef CONFIG_SPL_NAND_SUPPORT
-#undef CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_ENV_IS_NOWHERE
 #undef CONFIG_ENV_IS_IN_NAND
 /* disable host part of MUSB in SPL */
-#undef CONFIG_USB_MUSB_HOST
 /* disable EFI partitions and partition UUID support */
 #undef CONFIG_PARTITION_UUIDS
 #undef CONFIG_EFI_PARTITION
-/* General network SPL  */
-#define CONFIG_SPL_NET_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"
 #endif
 
 /* USB Device Firmware Update support */
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_MMC
-#define CONFIG_CMD_DFU
-#define DFU_ALT_INFO_MMC \
-	"dfu_alt_info_mmc=" \
-	"boot part 0 1;" \
-	"rootfs part 0 2;" \
-	"MLO fat 0 1;" \
-	"MLO.raw raw 0x100 0x100;" \
-	"u-boot.img.raw raw 0x300 0x400;" \
-	"spl-os-args.raw raw 0x80 0x80;" \
-	"spl-os-image.raw raw 0x900 0x2000;" \
-	"spl-os-args fat 0 1;" \
-	"spl-os-image fat 0 1;" \
-	"u-boot.img fat 0 1;" \
-	"uEnv.txt fat 0 1\0"
-#ifdef CONFIG_NAND
-#define CONFIG_DFU_NAND
-#define DFU_ALT_INFO_NAND \
-	"dfu_alt_info_nand=" \
-	"SPL part 0 1;" \
-	"SPL.backup1 part 0 2;" \
-	"SPL.backup2 part 0 3;" \
-	"SPL.backup3 part 0 4;" \
-	"u-boot part 0 5;" \
-	"u-boot-spl-os part 0 6;" \
-	"kernel part 0 8;" \
-	"rootfs part 0 9\0"
-#else
-#define DFU_ALT_INFO_NAND ""
-#endif
-#define CONFIG_DFU_RAM
-#define DFU_ALT_INFO_RAM \
-	"dfu_alt_info_ram=" \
-	"kernel ram 0x80200000 0xD80000;" \
-	"fdt ram 0x80F80000 0x80000;" \
-	"ramdisk ram 0x81000000 0x4000000\0"
 #define DFUARGS \
 	"dfu_alt_info_emmc=rawemmc raw 0 3751936\0" \
 	DFU_ALT_INFO_MMC \
@@ -404,9 +329,6 @@
  */
 #if defined(CONFIG_SPI_BOOT)
 /* SPL related */
-#undef CONFIG_SPL_OS_BOOT		/* Not supported by existing map */
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 
@@ -422,24 +344,44 @@
 					"128k(u-boot-env2),3464k(kernel)," \
 					"-(rootfs)"
 #elif defined(CONFIG_EMMC_BOOT)
-#undef CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		0x0
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#elif defined(CONFIG_NOR_BOOT)
+#define CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE		(128 << 10)	/* 128 KiB */
+#define CONFIG_ENV_OFFSET		(512 << 10)	/* 512 KiB */
+#define CONFIG_ENV_OFFSET_REDUND	(768 << 10)	/* 768 KiB */
+#define MTDIDS_DEFAULT			"nor0=physmap-flash.0"
+#define MTDPARTS_DEFAULT		"mtdparts=physmap-flash.0:" \
+					"512k(u-boot)," \
+					"128k(u-boot-env1)," \
+					"128k(u-boot-env2)," \
+					"4m(kernel),-(rootfs)"
+#elif defined(CONFIG_ENV_IS_IN_NAND)
+#define CONFIG_ENV_OFFSET		0x001c0000
+#define CONFIG_ENV_OFFSET_REDUND	0x001e0000
+#define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
+#elif !defined(CONFIG_ENV_IS_NOWHERE)
+/* Not NAND, SPI, NOR or eMMC env, so put ENV in a file on FAT */
+#define CONFIG_ENV_IS_IN_FAT
+#define FAT_ENV_INTERFACE		"mmc"
+#define FAT_ENV_DEVICE_AND_PART		"0:1"
+#define FAT_ENV_FILE			"uboot.env"
 #endif
 
 /* SPI flash. */
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
 /* Network. */
 #define CONFIG_PHY_GIGE
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
+/* Enable Atheros phy driver */
+#define CONFIG_PHY_ATHEROS
 
 /*
  * NOR Size = 16 MiB
@@ -466,19 +408,11 @@
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_SYS_FLASH_SIZE		0x01000000
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
-/* Reduce SPL size by removing unlikey targets */
-#ifdef CONFIG_NOR_BOOT
-#define CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_SECT_SIZE		(128 << 10)	/* 128 KiB */
-#define CONFIG_ENV_OFFSET		(512 << 10)	/* 512 KiB */
-#define CONFIG_ENV_OFFSET_REDUND	(768 << 10)	/* 768 KiB */
-#define MTDIDS_DEFAULT			"nor0=physmap-flash.0"
-#define MTDPARTS_DEFAULT		"mtdparts=physmap-flash.0:" \
-					"512k(u-boot)," \
-					"128k(u-boot-env1)," \
-					"128k(u-boot-env2)," \
-					"4m(kernel),-(rootfs)"
-#endif
 #endif  /* NOR support */
+
+#ifdef CONFIG_DRIVER_TI_CPSW
+#define CONFIG_CLOCK_SYNTHESIZER
+#define CLK_SYNTHESIZER_I2C_ADDR 0x65
+#endif
 
 #endif	/* ! __CONFIG_AM335X_EVM_H */

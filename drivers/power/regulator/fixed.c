@@ -19,6 +19,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct fixed_regulator_platdata {
 	struct gpio_desc gpio; /* GPIO for regulator enable control */
+	unsigned int startup_delay_us;
 };
 
 static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
@@ -26,6 +27,8 @@ static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
 	struct dm_regulator_uclass_platdata *uc_pdata;
 	struct fixed_regulator_platdata *dev_pdata;
 	struct gpio_desc *gpio;
+	const void *blob = gd->fdt_blob;
+	int node = dev->of_offset, flags = GPIOD_IS_OUT;
 	int ret;
 
 	dev_pdata = dev_get_platdata(dev);
@@ -36,11 +39,23 @@ static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
 	/* Set type to fixed */
 	uc_pdata->type = REGULATOR_TYPE_FIXED;
 
-	/* Get fixed regulator gpio desc */
+	if (fdtdec_get_bool(blob, node, "enable-active-high"))
+		flags |= GPIOD_IS_OUT_ACTIVE;
+
+	/* Get fixed regulator optional enable GPIO desc */
 	gpio = &dev_pdata->gpio;
-	ret = gpio_request_by_name(dev, "gpio", 0, gpio, GPIOD_IS_OUT);
-	if (ret)
-		debug("Fixed regulator gpio - not found! Error: %d", ret);
+	ret = gpio_request_by_name(dev, "gpio", 0, gpio, flags);
+	if (ret) {
+		debug("Fixed regulator optional enable GPIO - not found! Error: %d\n",
+		      ret);
+		if (ret != -ENOENT)
+			return ret;
+	}
+
+	/* Get optional ramp up delay */
+	dev_pdata->startup_delay_us = fdtdec_get_uint(gd->fdt_blob,
+						      dev->of_offset,
+						      "startup-delay-us", 0);
 
 	return 0;
 }
@@ -81,8 +96,9 @@ static bool fixed_regulator_get_enable(struct udevice *dev)
 {
 	struct fixed_regulator_platdata *dev_pdata = dev_get_platdata(dev);
 
+	/* Enable GPIO is optional */
 	if (!dev_pdata->gpio.dev)
-		return false;
+		return true;
 
 	return dm_gpio_get_value(&dev_pdata->gpio);
 }
@@ -92,8 +108,12 @@ static int fixed_regulator_set_enable(struct udevice *dev, bool enable)
 	struct fixed_regulator_platdata *dev_pdata = dev_get_platdata(dev);
 	int ret;
 
-	if (!dev_pdata->gpio.dev)
-		return -ENOSYS;
+	/* Enable GPIO is optional */
+	if (!dev_pdata->gpio.dev) {
+		if (!enable)
+			return -ENOSYS;
+		return 0;
+	}
 
 	ret = dm_gpio_set_value(&dev_pdata->gpio, enable);
 	if (ret) {
@@ -101,6 +121,10 @@ static int fixed_regulator_set_enable(struct udevice *dev, bool enable)
 		      enable);
 		return ret;
 	}
+
+	if (enable && dev_pdata->startup_delay_us)
+		udelay(dev_pdata->startup_delay_us);
+
 	return 0;
 }
 

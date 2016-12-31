@@ -13,7 +13,6 @@
 #define __CONFIG_H
 
 #define CONFIG_AC14XX 1
-#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * Memory map for the ifm AC14xx board:
@@ -31,11 +30,6 @@
 #define CONFIG_E300		1	/* E300 Family */
 
 #define CONFIG_SYS_TEXT_BASE	0xFFF00000
-
-#if defined(CONFIG_VIDEO)
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#endif
 
 #define CONFIG_SYS_MPC512X_CLKIN	25000000	/* in Hz */
 #define SCFR1_IPS_DIV			2
@@ -342,7 +336,6 @@
 			 CLOCK_SCCR2_DIU_EN |		\
 			 CLOCK_SCCR2_I2C_EN)
 
-
 #define CONFIG_CMDLINE_EDITING		1	/* command line history */
 
 /* I2C */
@@ -393,16 +386,10 @@
 #define CONFIG_LOADS_ECHO		1
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1
 
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_FUSE
-#define CONFIG_CMD_I2C
 #undef CONFIG_CMD_IDE
-#undef CONFIG_CMD_EXT2
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
@@ -456,14 +443,6 @@
 
 #define CONFIG_HIGH_BATS		1	/* High BATs supported */
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD			0x01
-#define BOOTFLAG_WARM			0x02
-
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_KGDB_BAUDRATE		230400	/* speed of kgdb serial port */
 #endif
@@ -477,7 +456,6 @@
 /* default load addr for tftp and bootm */
 #define CONFIG_LOADADDR		400000
 
-#define CONFIG_BOOTDELAY	2	/* -1 disables auto-boot */
 
 /* the builtin environment and standard greeting */
 #define CONFIG_PREBOOT	"echo;"	\

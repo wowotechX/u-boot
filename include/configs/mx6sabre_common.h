@@ -24,9 +24,6 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -37,7 +34,6 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
 
-#define CONFIG_CMD_SF
 #ifdef CONFIG_CMD_SF
 #define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS		0
@@ -78,7 +74,7 @@
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
-	"console=" CONFIG_CONSOLE_DEV "\0" \
+	"console=" CONSOLE_DEV "\0" \
 	"dfuspi=dfu 0 sf 0:0:10000000:0\0" \
 	"dfu_alt_info_spl=spl raw 0x400\0" \
 	"dfu_alt_info_img=u-boot raw 0x10000\0" \
@@ -167,7 +163,6 @@
 					"echo WARNING: Could not determine dtb to use; fi; " \
 			"fi;\0" \
 
-
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt;" \
 	"mmc dev ${mmcdev};" \
@@ -213,12 +208,7 @@
 #endif
 
 /* Framebuffer */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
@@ -236,7 +226,6 @@
 #ifndef CONFIG_SPL
 #define CONFIG_USBD_HS
 
-#define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 #define CONFIG_USB_FUNCTION_FASTBOOT
@@ -244,12 +233,6 @@
 #define CONFIG_ANDROID_BOOT_IMAGE
 #define CONFIG_FASTBOOT_BUF_ADDR   CONFIG_SYS_LOAD_ADDR
 #define CONFIG_FASTBOOT_BUF_SIZE   0x07000000
-
-/* USB Device Firmware Update support */
-#define CONFIG_CMD_DFU
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_MMC
-#define CONFIG_DFU_SF
 #endif
 
 #endif                         /* __MX6QSABRE_COMMON_CONFIG_H */

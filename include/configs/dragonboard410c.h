@@ -12,8 +12,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/sysmap-apq8016.h>
 
-#define CONFIG_IDENT_STRING		"\nQualcomm-DragonBoard 410C"
-
 #define CONFIG_MISC_INIT_R /* To stop autoboot */
 
 /* Physical Memory Map */
@@ -27,8 +25,6 @@
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x80000)
 #define CONFIG_SYS_BOOTM_LEN		0x1000000 /* 16MB max kernel size */
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 /* UART */
 #define CONFIG_BAUDRATE			115200
 
@@ -36,9 +32,7 @@
 #define COUNTER_FREQUENCY		19000000
 
 /* This are needed to have proper mmc support */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_SDHCI
 
 #define CONFIG_SYS_LDSCRIPT "board/qualcomm/dragonboard410c/u-boot.lds"
 
@@ -59,20 +53,15 @@
 #define CONFIG_MD5
 
 /* Extra Commands */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_GPT
 #define CONFIG_CMD_MD5SUM
-#define CONFIG_CMD_MEMINFO
-#define CONFIG_CMD_MMC
 /* Enable that for switching of boot partitions */
 /* Disabled by default as some sub-commands can brick eMMC */
 /*#define CONFIG_SUPPORT_EMMC_BOOT */
 #define CONFIG_CMD_PART
 #define CONFIG_CMD_REGINFO	/* Register dump		*/
 #define CONFIG_CMD_TFTP
-#define CONFIG_CMD_TIMER
 #define CONFIG_CMD_UNZIP
 
 /* Partition table support */
@@ -89,8 +78,8 @@
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
-	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0) \
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
@@ -101,7 +90,6 @@
 "part size mmc 0 "#part" size && "\
 "tftp $loadaddr "#file" && " \
 "mmc write $loadaddr $start $size && "
-
 
 #define CONFIG_ENV_REFLASH \
 "mmc dev 0 && "\
@@ -132,10 +120,12 @@ REFLASH(dragonboard/u-boot.img, 8)\
 	"fdtfile=apq8016-sbc.dtb\0" \
 	"fdt_addr_r=0x83000000\0"\
 	"ramdisk_addr_r=0x84000000\0"\
+	"scriptaddr=0x90000000\0"\
+	"pxefile_addr_r=0x90100000\0"\
 	BOOTENV
 
 #define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_SIZE			0x1000
+#define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_SYS_NO_FLASH
 

@@ -24,7 +24,7 @@
 #include <asm/system.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -53,16 +53,16 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_GEM_NWCTRL_MDEN_MASK	0x00000010 /* Enable MDIO port */
 #define ZYNQ_GEM_NWCTRL_STARTTX_MASK	0x00000200 /* Start tx (tx_go) */
 
-#define ZYNQ_GEM_NWCFG_SPEED100		0x000000001 /* 100 Mbps operation */
-#define ZYNQ_GEM_NWCFG_SPEED1000	0x000000400 /* 1Gbps operation */
-#define ZYNQ_GEM_NWCFG_FDEN		0x000000002 /* Full Duplex mode */
-#define ZYNQ_GEM_NWCFG_FSREM		0x000020000 /* FCS removal */
-#define ZYNQ_GEM_NWCFG_SGMII_ENBL	0x080000000 /* SGMII Enable */
-#define ZYNQ_GEM_NWCFG_PCS_SEL		0x000000800 /* PCS select */
+#define ZYNQ_GEM_NWCFG_SPEED100		0x00000001 /* 100 Mbps operation */
+#define ZYNQ_GEM_NWCFG_SPEED1000	0x00000400 /* 1Gbps operation */
+#define ZYNQ_GEM_NWCFG_FDEN		0x00000002 /* Full Duplex mode */
+#define ZYNQ_GEM_NWCFG_FSREM		0x00020000 /* FCS removal */
+#define ZYNQ_GEM_NWCFG_SGMII_ENBL	0x08000000 /* SGMII Enable */
+#define ZYNQ_GEM_NWCFG_PCS_SEL		0x00000800 /* PCS select */
 #ifdef CONFIG_ARM64
-#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000100000 /* Div pclk by 64, max 160MHz */
+#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x00100000 /* Div pclk by 64, max 160MHz */
 #else
-#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x0000c0000 /* Div pclk by 48, max 120MHz */
+#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000c0000 /* Div pclk by 48, max 120MHz */
 #endif
 
 #ifdef CONFIG_ARM64
@@ -179,6 +179,7 @@ struct zynq_gem_priv {
 	struct zynq_gem_regs *iobase;
 	phy_interface_t interface;
 	struct phy_device *phydev;
+	int phy_of_handle;
 	struct mii_dev *bus;
 };
 
@@ -352,14 +353,17 @@ static int zynq_phy_init(struct udevice *dev)
 	priv->phydev->supported = supported | ADVERTISED_Pause |
 				  ADVERTISED_Asym_Pause;
 	priv->phydev->advertising = priv->phydev->supported;
-	phy_config(priv->phydev);
 
-	return 0;
+	if (priv->phy_of_handle > 0)
+		priv->phydev->dev->of_offset = priv->phy_of_handle;
+
+	return phy_config(priv->phydev);
 }
 
 static int zynq_gem_init(struct udevice *dev)
 {
 	u32 i, nwconfig;
+	int ret;
 	unsigned long clk_rate = 0;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct zynq_gem_regs *regs = priv->iobase;
@@ -427,7 +431,9 @@ static int zynq_gem_init(struct udevice *dev)
 		priv->init++;
 	}
 
-	phy_startup(priv->phydev);
+	ret = phy_startup(priv->phydev);
+	if (ret)
+		return ret;
 
 	if (!priv->phydev->link) {
 		printf("%s: No link.\n", priv->phydev->dev->name);
@@ -641,9 +647,8 @@ static int zynq_gem_probe(struct udevice *dev)
 	priv->bus->read = zynq_gem_miiphy_read;
 	priv->bus->write = zynq_gem_miiphy_write;
 	priv->bus->priv = priv;
-	strcpy(priv->bus->name, "gem");
 
-	ret = mdio_register(priv->bus);
+	ret = mdio_register_seq(priv->bus, dev->seq);
 	if (ret)
 		return ret;
 
@@ -675,7 +680,6 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
-	int offset = 0;
 	const char *phy_mode;
 
 	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
@@ -684,10 +688,11 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	priv->emio = 0;
 	priv->phyaddr = -1;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
-				       "phy-handle");
-	if (offset > 0)
-		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
+	priv->phy_of_handle = fdtdec_lookup_phandle(gd->fdt_blob,
+					dev->of_offset, "phy-handle");
+	if (priv->phy_of_handle > 0)
+		priv->phyaddr = fdtdec_get_int(gd->fdt_blob,
+					priv->phy_of_handle, "reg", -1);
 
 	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
 	if (phy_mode)
@@ -700,7 +705,7 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 
 	priv->emio = fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "xlnx,emio");
 
-	printf("ZYNQ GEM: %lx, phyaddr %d, interface %s\n", (ulong)priv->iobase,
+	printf("ZYNQ GEM: %lx, phyaddr %x, interface %s\n", (ulong)priv->iobase,
 	       priv->phyaddr, phy_string_for_interface(priv->interface));
 
 	return 0;

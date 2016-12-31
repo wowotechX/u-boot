@@ -46,20 +46,62 @@ ENTRY(default_psci_vector)
 ENDPROC(default_psci_vector)
 .weak default_psci_vector
 
+ENTRY(psci_version)
 ENTRY(psci_cpu_suspend)
 ENTRY(psci_cpu_off)
 ENTRY(psci_cpu_on)
+ENTRY(psci_affinity_info)
 ENTRY(psci_migrate)
+ENTRY(psci_migrate_info_type)
+ENTRY(psci_migrate_info_up_cpu)
+ENTRY(psci_system_off)
+ENTRY(psci_system_reset)
+ENTRY(psci_features)
+ENTRY(psci_cpu_freeze)
+ENTRY(psci_cpu_default_suspend)
+ENTRY(psci_node_hw_state)
+ENTRY(psci_system_suspend)
+ENTRY(psci_set_suspend_mode)
+ENTRY(psi_stat_residency)
+ENTRY(psci_stat_count)
 	mov	r0, #ARM_PSCI_RET_NI	@ Return -1 (Not Implemented)
 	mov	pc, lr
+ENDPROC(psci_stat_count)
+ENDPROC(psi_stat_residency)
+ENDPROC(psci_set_suspend_mode)
+ENDPROC(psci_system_suspend)
+ENDPROC(psci_node_hw_state)
+ENDPROC(psci_cpu_default_suspend)
+ENDPROC(psci_cpu_freeze)
+ENDPROC(psci_features)
+ENDPROC(psci_system_reset)
+ENDPROC(psci_system_off)
+ENDPROC(psci_migrate_info_up_cpu)
+ENDPROC(psci_migrate_info_type)
 ENDPROC(psci_migrate)
+ENDPROC(psci_affinity_info)
 ENDPROC(psci_cpu_on)
 ENDPROC(psci_cpu_off)
 ENDPROC(psci_cpu_suspend)
+ENDPROC(psci_version)
+.weak psci_version
 .weak psci_cpu_suspend
 .weak psci_cpu_off
 .weak psci_cpu_on
+.weak psci_affinity_info
 .weak psci_migrate
+.weak psci_migrate_info_type
+.weak psci_migrate_info_up_cpu
+.weak psci_system_off
+.weak psci_system_reset
+.weak psci_features
+.weak psci_cpu_freeze
+.weak psci_cpu_default_suspend
+.weak psci_node_hw_state
+.weak psci_system_suspend
+.weak psci_set_suspend_mode
+.weak psi_stat_residency
+.weak psci_stat_count
 
 _psci_table:
 	.word	ARM_PSCI_FN_CPU_SUSPEND
@@ -70,6 +112,42 @@ _psci_table:
 	.word	psci_cpu_on
 	.word	ARM_PSCI_FN_MIGRATE
 	.word	psci_migrate
+	.word	ARM_PSCI_0_2_FN_PSCI_VERSION
+	.word	psci_version
+	.word	ARM_PSCI_0_2_FN_CPU_SUSPEND
+	.word	psci_cpu_suspend
+	.word	ARM_PSCI_0_2_FN_CPU_OFF
+	.word	psci_cpu_off
+	.word	ARM_PSCI_0_2_FN_CPU_ON
+	.word	psci_cpu_on
+	.word	ARM_PSCI_0_2_FN_AFFINITY_INFO
+	.word	psci_affinity_info
+	.word	ARM_PSCI_0_2_FN_MIGRATE
+	.word	psci_migrate
+	.word	ARM_PSCI_0_2_FN_MIGRATE_INFO_TYPE
+	.word	psci_migrate_info_type
+	.word	ARM_PSCI_0_2_FN_MIGRATE_INFO_UP_CPU
+	.word	psci_migrate_info_up_cpu
+	.word	ARM_PSCI_0_2_FN_SYSTEM_OFF
+	.word	psci_system_off
+	.word	ARM_PSCI_0_2_FN_SYSTEM_RESET
+	.word	psci_system_reset
+	.word	ARM_PSCI_1_0_FN_PSCI_FEATURES
+	.word	psci_features
+	.word	ARM_PSCI_1_0_FN_CPU_FREEZE
+	.word	psci_cpu_freeze
+	.word	ARM_PSCI_1_0_FN_CPU_DEFAULT_SUSPEND
+	.word	psci_cpu_default_suspend
+	.word	ARM_PSCI_1_0_FN_NODE_HW_STATE
+	.word	psci_node_hw_state
+	.word	ARM_PSCI_1_0_FN_SYSTEM_SUSPEND
+	.word	psci_system_suspend
+	.word	ARM_PSCI_1_0_FN_SET_SUSPEND_MODE
+	.word	psci_set_suspend_mode
+	.word	ARM_PSCI_1_0_FN_STAT_RESIDENCY
+	.word	psi_stat_residency
+	.word	ARM_PSCI_1_0_FN_STAT_COUNT
+	.word	psci_stat_count
 	.word	0
 	.word	0
 
@@ -109,7 +187,8 @@ ENDPROC(psci_get_cpu_id)
 .weak psci_get_cpu_id
 
 /* Imported from Linux kernel */
-LENTRY(v7_flush_dcache_all)
+ENTRY(psci_v7_flush_dcache_all)
+	stmfd	sp!, {r4-r5, r7, r9-r11, lr}
 	dmb					@ ensure ordering with previous memory accesses
 	mrc	p15, 1, r0, c0, c0, 1		@ read clidr
 	ands	r3, r0, #0x7000000		@ extract loc from clidr
@@ -153,8 +232,9 @@ finished:
 	mcr	p15, 2, r10, c0, c0, 0		@ select current cache level in cssr
 	dsb	st
 	isb
+	ldmfd	sp!, {r4-r5, r7, r9-r11, lr}
 	bx	lr
-ENDPROC(v7_flush_dcache_all)
+ENDPROC(psci_v7_flush_dcache_all)
 
 ENTRY(psci_disable_smp)
 	mrc	p15, 0, r0, c1, c0, 1		@ ACTLR
@@ -178,13 +258,17 @@ ENDPROC(psci_enable_smp)
 ENTRY(psci_cpu_off_common)
 	push	{lr}
 
+	bl	psci_v7_flush_dcache_all
+
+	clrex					@ Why???
+
 	mrc	p15, 0, r0, c1, c0, 0		@ SCTLR
 	bic	r0, r0, #(1 << 2)		@ Clear C bit
 	mcr	p15, 0, r0, c1, c0, 0		@ SCTLR
 	isb
 	dsb
 
-	bl	v7_flush_dcache_all
+	bl	psci_v7_flush_dcache_all
 
 	clrex					@ Why???
 
@@ -194,20 +278,48 @@ ENTRY(psci_cpu_off_common)
 	bx	lr
 ENDPROC(psci_cpu_off_common)
 
-@ expects CPU ID in r0 and returns stack top in r0
-ENTRY(psci_get_cpu_stack_top)
-	mov	r5, #0x400			@ 1kB of stack per CPU
-	mul	r0, r0, r5
-
-	ldr	r5, =psci_text_end		@ end of monitor text
-	add	r5, r5, #0x2000			@ Skip two pages
-	lsr	r5, r5, #12			@ Align to start of page
-	lsl	r5, r5, #12
-	sub	r5, r5, #4			@ reserve 1 word for target PC
-	sub	r0, r5, r0			@ here's our stack!
-
+@ The stacks are allocated in reverse order, i.e.
+@ the stack for CPU0 has the highest memory address.
+@
+@ --------------------  __secure_stack_end
+@ |  CPU0 target PC  |
+@ |------------------|
+@ |                  |
+@ |    CPU0 stack    |
+@ |                  |
+@ |------------------|  __secure_stack_end - 1KB
+@ |        .         |
+@ |        .         |
+@ |        .         |
+@ |        .         |
+@ --------------------  __secure_stack_start
+@
+@ This expects CPU ID in r0 and returns stack top in r0
+LENTRY(psci_get_cpu_stack_top)
+	@ stack top = __secure_stack_end - (cpuid << ARM_PSCI_STACK_SHIFT)
+	ldr	r3, =__secure_stack_end
+	sub	r0, r3, r0, LSL #ARM_PSCI_STACK_SHIFT
+	sub	r0, r0, #4		@ Save space for target PC
 	bx	lr
 ENDPROC(psci_get_cpu_stack_top)
+
+@ {r0, r1, r2, ip} from _do_nonsec_entry(kernel_entry, 0, machid, r2) in
+@ arch/arm/lib/bootm.c:boot_jump_linux() must remain unchanged across
+@ this function.
+ENTRY(psci_stack_setup)
+	mov	r6, lr
+	mov	r7, r0
+	bl	psci_get_cpu_id		@ CPU ID => r0
+	bl	psci_get_cpu_stack_top	@ stack top => r0
+	mov	sp, r0
+	mov	r0, r7
+	bx	r6
+ENDPROC(psci_stack_setup)
+
+ENTRY(psci_arch_init)
+	mov	pc, lr
+ENDPROC(psci_arch_init)
+.weak psci_arch_init
 
 ENTRY(psci_cpu_entry)
 	bl	psci_enable_smp
@@ -215,8 +327,7 @@ ENTRY(psci_cpu_entry)
 	bl	_nonsec_init
 
 	bl	psci_get_cpu_id			@ CPU ID => r0
-	bl	psci_get_cpu_stack_top		@ stack top => r0
-	ldr	r0, [r0]			@ target PC at stack top
+	bl	psci_get_target_pc		@ target PC => r0
 	b	_do_nonsec_entry
 ENDPROC(psci_cpu_entry)
 

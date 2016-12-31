@@ -13,6 +13,7 @@
 #ifndef _ELF_H
 #define _ELF_H
 
+#ifndef __ASSEMBLER__
 #include "compiler.h"
 
 /*
@@ -394,6 +395,12 @@ typedef struct {
 	Elf64_Xword r_info;	/* index and type of relocation */
 } Elf64_Rel;
 
+typedef struct {
+	Elf64_Addr r_offset;    /* Location at which to apply the action */
+	Elf64_Xword r_info;     /* index and type of relocation */
+	Elf64_Sxword r_addend;  /* Constant addend used to compute value */
+} Elf64_Rela;
+
 /* Extract relocation info - r_info */
 #define ELF32_R_SYM(i)		((i) >> 8)
 #define ELF32_R_TYPE(i)		((unsigned char) (i))
@@ -511,6 +518,8 @@ unsigned long elf_hash(const unsigned char *name);
 
 #define ELF_TARG_VER	1	/* The ver for which this code is intended */
 
+#endif /* __ASSEMBLER */
+
 /*
  * XXX - PowerPC defines really don't belong in here,
  * but we'll put them in for simplicity.
@@ -596,6 +605,16 @@ unsigned long elf_hash(const unsigned char *name);
    that may still be in object files.  */
 #define R_PPC_TOC16             255
 
+ /* ARM relocs */
+#define R_ARM_NONE		0	/* No reloc */
+#define R_ARM_RELATIVE		23	/* Adjust by program base */
+
+/* AArch64 relocs */
+#define R_AARCH64_NONE		0	/* No relocation.  */
+#define R_AARCH64_RELATIVE	1027	/* Adjust by program base.  */
+
+#ifndef __ASSEMBLER__
 int valid_elf_image(unsigned long addr);
+#endif
 
 #endif /* _ELF_H */

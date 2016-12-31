@@ -10,7 +10,7 @@ obj-y += bios_asm.o
 obj-y += bios_interrupts.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y	+= cmd_boot.o
-obj-y	+= coreboot_table.o
+obj-$(CONFIG_SEABIOS) += coreboot_table.o
 obj-$(CONFIG_EFI) += efi/
 obj-y	+= e820.o
 obj-y	+= gcc.o
@@ -28,10 +28,10 @@ obj-y	+= pirq_routing.o
 obj-y	+= relocate.o
 obj-y += physmem.o
 obj-$(CONFIG_X86_RAMTEST) += ramtest.o
+obj-y	+= sections.o
 obj-y += sfi.o
-obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += smbios.o
 obj-y	+= string.o
-ifndef CONFIG_QEMU_ACPI_TABLE
+ifndef CONFIG_QEMU
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi_table.o
 endif
 obj-y	+= tables.o
@@ -44,3 +44,26 @@ NORMAL_LIBGCC = $(shell $(CC) $(PLATFORM_CPPFLAGS) -print-libgcc-file-name)
 OBJCOPYFLAGS := --prefix-symbols=__normal_
 $(obj)/lib.a: $(NORMAL_LIBGCC) FORCE
 	$(call if_changed,objcopy)
+
+obj-$(CONFIG_EFI_APP) += crt0_ia32_efi.o reloc_ia32_efi.o
+
+ifneq ($(CONFIG_EFI_STUB),)
+
+CFLAGS_REMOVE_reloc_ia32_efi.o += -mregparm=3
+CFLAGS_reloc_ia32_efi.o += -fpic -fshort-wchar
+
+# When building for 64-bit we must remove the i386-specific flags
+CFLAGS_REMOVE_reloc_x86_64_efi.o += -mregparm=3 -march=i386 -m32
+CFLAGS_reloc_x86_64_efi.o += -fpic -fshort-wchar
+
+AFLAGS_REMOVE_crt0_x86_64_efi.o += -mregparm=3 -march=i386 -m32
+AFLAGS_crt0_x86_64_efi.o += -fpic -fshort-wchar
+
+extra-$(CONFIG_EFI_STUB_32BIT) += crt0_ia32_efi.o reloc_ia32_efi.o
+extra-$(CONFIG_EFI_STUB_64BIT) += crt0_x86_64_efi.o reloc_x86_64_efi.o
+
+endif
+
+ifneq ($(CONFIG_EFI_STUB)$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
+extra-y += $(EFI_CRT0) $(EFI_RELOC)
+endif

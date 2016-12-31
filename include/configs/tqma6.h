@@ -12,12 +12,6 @@
 #include <linux/kconfig.h>
 /* SPL */
 /* #if defined(CONFIG_SPL_BUILD) */
-
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_EXT_SUPPORT
-
 /* common IMX6 SPL configuration */
 #include "imx6_spl.h"
 
@@ -44,21 +38,18 @@
 #define CONFIG_MXC_UART
 
 /* SPI */
-#define CONFIG_CMD_SPI
 #define CONFIG_MXC_SPI
 
 /* SPI Flash */
 
 #define TQMA6_SPI_FLASH_SECTOR_SIZE	SZ_64K
 
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_BUS	0
 #define CONFIG_SF_DEFAULT_CS	0
 #define CONFIG_SF_DEFAULT_SPEED	50000000
 #define CONFIG_SF_DEFAULT_MODE	(SPI_MODE_0)
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -91,19 +82,13 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
-
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -287,7 +272,6 @@
 		"sf read ${${fdt_addr}} ${offset} ${size}; "                   \
 		"setenv size ; setenv offset\0"                                \
 
-
 #define CONFIG_BOOTCOMMAND                                                     \
 	"sf probe; run mmcboot; run netboot; run panicboot"                    \
 
@@ -311,7 +295,7 @@
 	"uboot=u-boot.imx\0"                                                   \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0"                               \
 	"fdt_addr="__stringify(TQMA6_FDT_ADDRESS)"\0"                          \
-	"console=" CONFIG_CONSOLE_DEV "\0"                                     \
+	"console=" CONSOLE_DEV "\0"                                     \
 	"fdt_high=0xffffffff\0"                                                \
 	"initrd_high=0xffffffff\0"                                             \
 	"addtty=setenv bootargs ${bootargs} console=${console},${baudrate}\0"  \

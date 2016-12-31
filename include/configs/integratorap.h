@@ -28,11 +28,9 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock0 console=ttyAM0 console=tty"
 #define CONFIG_BOOTCOMMAND	""
 
@@ -46,14 +44,11 @@
  * PCI definitions
  */
 
-#define CONFIG_PCI
 #define CONFIG_CMD_PCI
-#define CONFIG_PCI_PNP
 
 #define CONFIG_TULIP
 #define CONFIG_EEPRO100
 #define CONFIG_SYS_RX_ETH_BUFFER	8	/* use 8 rx buffer on eepro100	*/
-
 
 /*-----------------------------------------------------------------------
  * There are various dependencies on the core module (CM) fitted

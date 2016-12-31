@@ -9,16 +9,11 @@
 
 /* SPL */
 #define CONFIG_SPL_BOARD_INIT
-#define CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_POWER_SUPPORT
 /* Location in NAND to read U-Boot from */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS     (14 * SZ_1M)
 
 /* Falcon Mode */
 #define CONFIG_CMD_SPL
-#define CONFIG_SPL_OS_BOOT
-#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000
 #define CONFIG_CMD_SPL_WRITE_SIZE	(128 * SZ_1K)
 
@@ -33,6 +28,7 @@
 
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
+#define CONFIG_DISPLAY_BOARDINFO_LATE
 
 #define CONFIG_MACH_TYPE	4520   /* Gateworks Ventana Platform */
 
@@ -52,9 +48,6 @@
 #define CONFIG_DM_THERMAL
 #endif
 
-/* GPIO */
-#define CONFIG_MXC_GPIO
-
 /* Thermal */
 #define CONFIG_IMX_THERMAL
 
@@ -65,7 +58,6 @@
 #ifdef CONFIG_SPI_FLASH
 
 /* SPI */
-#define CONFIG_CMD_SF
 #ifdef CONFIG_CMD_SF
   #define CONFIG_MXC_SPI
   #define CONFIG_SPI_FLASH_MTD
@@ -79,7 +71,6 @@
 
 #else
 /* Enable NAND support */
-#define CONFIG_CMD_TIME
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
 #ifdef CONFIG_CMD_NAND
@@ -98,7 +89,6 @@
 #endif /* CONFIG_SPI_FLASH */
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -134,8 +124,6 @@
  */
 #define CONFIG_CMD_PCI
 #ifdef CONFIG_CMD_PCI
-#define CONFIG_PCI
-#define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_PCI_FIXUP_DEV
 #define CONFIG_PCIE_IMX
@@ -152,14 +140,10 @@
 #define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_BMODE         /* set eFUSE shadow for a boot dev and reset */
 #define CONFIG_CMD_HDMIDETECT    /* detect HDMI output device */
 #define CONFIG_CMD_GSC
 #define CONFIG_CMD_EECONFIG      /* Gateworks EEPROM config cmd */
-#define CONFIG_CMD_UBI
 #define CONFIG_RBTREE
 
 /* Ethernet support */
@@ -172,10 +156,8 @@
 #define CONFIG_ARP_TIMEOUT       200UL
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_SMSC95XX
@@ -183,7 +165,6 @@
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET  /* For OTG port */
 #define CONFIG_MXC_USB_PORTSC     (PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS      0
-#define CONFIG_USB_KEYBOARD
 #define CONFIG_USBD_HS
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_CDC
@@ -191,27 +172,22 @@
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
 
 /* USB Mass Storage Gadget */
-#define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 /* Framebuffer and LCD */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_IPUV3_CLK          260000000
 #define CONFIG_CMD_HDMIDETECT
-#define CONFIG_CONSOLE_MUX
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_HIDE_LOGO_VERSION  /* Custom config to hide U-boot version */
 
 /* Miscellaneous configurable options */
 #define CONFIG_HWCONFIG
+#define CONFIG_PREBOOT
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -279,50 +255,57 @@
 /* Environment */
 #define CONFIG_IPADDR             192.168.1.1
 #define CONFIG_SERVERIP           192.168.1.146
-#define HWCONFIG_DEFAULT \
-	"hwconfig=rs232;" \
-	"dio0:mode=gpio;dio1:mode=gpio;dio2:mode=gpio;dio3:mode=gpio\0" \
 
 #define CONFIG_EXTRA_ENV_SETTINGS_COMMON \
+	"pcidisable=1\0" \
+	"splashpos=m,m\0" \
 	"usb_pgood_delay=2000\0" \
 	"console=ttymxc1\0" \
 	"bootdevs=usb mmc sata flash\0" \
-	HWCONFIG_DEFAULT \
+	"hwconfig=_UNKNOWN_\0" \
 	"video=\0" \
 	\
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"mtdids=" MTDIDS_DEFAULT "\0" \
+	"disk=0\0" \
+	"part=1\0" \
 	\
 	"fdt_high=0xffffffff\0" \
 	"fdt_addr=0x18000000\0" \
 	"initrd_high=0xffffffff\0" \
+	"fixfdt=" \
+		"fdt addr ${fdt_addr}\0" \
 	"bootdir=boot\0" \
 	"loadfdt=" \
 		"if ${fsload} ${fdt_addr} ${bootdir}/${fdt_file}; then " \
 			"echo Loaded DTB from ${bootdir}/${fdt_file}; " \
+			"run fixfdt; " \
 		"elif ${fsload} ${fdt_addr} ${bootdir}/${fdt_file1}; then " \
 			"echo Loaded DTB from ${bootdir}/${fdt_file1}; " \
+			"run fixfdt; " \
 		"elif ${fsload} ${fdt_addr} ${bootdir}/${fdt_file2}; then " \
 			"echo Loaded DTB from ${bootdir}/${fdt_file2}; " \
+			"run fixfdt; " \
 		"fi\0" \
 	\
+	"fs=ext4\0" \
 	"script=6x_bootscript-ventana\0" \
 	"loadscript=" \
 		"if ${fsload} ${loadaddr} ${bootdir}/${script}; then " \
-			"source; " \
+			"source ${loadaddr}; " \
 		"fi\0" \
 	\
 	"uimage=uImage\0" \
-	"mmc_root=/dev/mmcblk0p1 rootfstype=ext4 rootwait rw\0" \
+	"mmc_root=/dev/mmcblk0p1 rootfstype=${fs} rootwait rw\0" \
 	"mmc_boot=" \
-		"setenv fsload 'ext2load mmc 0:1'; " \
-		"mmc dev 0 && mmc rescan && " \
+		"setenv fsload \"${fs}load mmc ${disk}:${part}\"; " \
+		"mmc dev ${disk} && mmc rescan && " \
 		"setenv dtype mmc; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=/dev/mmcblk0p1 rootfstype=ext4 " \
+				"root=/dev/mmcblk0p1 rootfstype=${fs} " \
 				"rootwait rw ${video} ${extra}; " \
-			"if run loadfdt && fdt addr ${fdt_addr}; then " \
+			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"bootm; " \
@@ -330,26 +313,28 @@
 		"fi\0" \
 	\
 	"sata_boot=" \
-		"setenv fsload 'ext2load sata 0:1'; sata init && " \
+		"setenv fsload \"${fs}load sata ${disk}:${part}\"; " \
+		"sata init && " \
 		"setenv dtype sata; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=/dev/sda1 rootfstype=ext4 " \
+				"root=/dev/sda1 rootfstype=${fs} " \
 				"rootwait rw ${video} ${extra}; " \
-			"if run loadfdt && fdt addr ${fdt_addr}; then " \
+			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"bootm; " \
 			"fi; " \
 		"fi\0" \
 	"usb_boot=" \
-		"setenv fsload 'ext2load usb 0:1'; usb start && usb dev 0 && " \
+		"setenv fsload \"${fs}load usb ${disk}:${part}\"; " \
+		"usb start && usb dev ${disk} && " \
 		"setenv dtype usb; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=/dev/sda1 rootfstype=ext4 " \
+				"root=/dev/sda1 rootfstype=${fs} " \
 				"rootwait rw ${video} ${extra}; " \
-			"if run loadfdt && fdt addr ${fdt_addr}; then " \
+			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"bootm; " \
@@ -412,7 +397,7 @@
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
 				"root=${root} ${video} ${extra}; " \
-			"if run loadfdt && fdt addr ${fdt_addr}; then " \
+			"if run loadfdt; then " \
 				"ubifsumount; " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
 			"else " \
@@ -426,8 +411,5 @@
 		"echo; echo Attempting ${btype} boot...; " \
 		"if run ${btype}_boot; then; fi; " \
 	"done"
-
-/* Device Tree Support */
-#define CONFIG_FDT_FIXUP_PARTITIONS
 
 #endif			       /* __CONFIG_H */

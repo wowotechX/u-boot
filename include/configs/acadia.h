@@ -153,7 +153,6 @@
 	""
 
 #define CONFIG_USB_OHCI
-#define CONFIG_USB_STORAGE
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION
@@ -167,7 +166,6 @@
  */
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_USB
 
 /*-----------------------------------------------------------------------
  * NAND FLASH

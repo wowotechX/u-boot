@@ -35,11 +35,8 @@
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
-#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_DISPLAY_CPUINFO
-
-#define CONFIG_CMD_BOOTZ
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
@@ -56,7 +53,6 @@
 #define CONFIG_RED_LED		AT91_PIN_PD31	/* this is the user1 led */
 #define CONFIG_GREEN_LED	AT91_PIN_PD0	/* this is the user2 led */
 
-#define CONFIG_BOOTDELAY	3
 
 /*
  * BOOTP options
@@ -69,10 +65,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_USB
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -101,6 +94,7 @@
 
 /* Ethernet */
 #define CONFIG_MACB
+#define CONFIG_PHYLIB
 #define CONFIG_RMII
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_AT91_WANTS_COMMON_PHY
@@ -110,7 +104,6 @@
 #define CONFIG_USB_EHCI_ATMEL
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
 #define CONFIG_DOS_PARTITION
-#define CONFIG_USB_STORAGE
 
 /* USB DFU support */
 #define CONFIG_CMD_MTDPARTS
@@ -118,13 +111,9 @@
 #define CONFIG_MTD_PARTITIONS
 
 /* DFU class support */
-#define CONFIG_CMD_DFU
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_NAND
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	(SZ_1M)
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 
-#define CONFIG_SYS_CACHELINE_SIZE	SZ_8K
 #define CONFIG_SYS_LOAD_ADDR	ATMEL_BASE_CS6
 
 /* bootstrap + u-boot + env in nandflash */
@@ -152,7 +141,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 
 /*
  * Size of malloc() pool
@@ -169,13 +157,7 @@
 #define CONFIG_SPL_BSS_START_ADDR	CONFIG_SPL_MAX_SIZE
 #define CONFIG_SPL_BSS_MAX_SIZE		(SZ_2K)
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-
 #define CONFIG_SPL_BOARD_INIT
-#define CONFIG_SPL_GPIO_SUPPORT
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_ECC

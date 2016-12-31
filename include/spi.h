@@ -26,16 +26,9 @@
 #define SPI_TX_BYTE	BIT(8)			/* transmit with 1 wire byte */
 #define SPI_TX_DUAL	BIT(9)			/* transmit with 2 wires */
 #define SPI_TX_QUAD	BIT(10)			/* transmit with 4 wires */
-
-/* SPI mode_rx flags */
-#define SPI_RX_SLOW	BIT(0)			/* receive with 1 wire slow */
-#define SPI_RX_FAST	BIT(1)			/* receive with 1 wire fast */
-#define SPI_RX_DUAL	BIT(2)			/* receive with 2 wires */
-#define SPI_RX_QUAD	BIT(3)			/* receive with 4 wires */
-
-/* SPI bus connection options - see enum spi_dual_flash */
-#define SPI_CONN_DUAL_SHARED		(1 << 0)
-#define SPI_CONN_DUAL_SEPARATED	(1 << 1)
+#define SPI_RX_SLOW	BIT(11)			/* receive with 1 wire slow */
+#define SPI_RX_DUAL	BIT(12)			/* receive with 2 wires */
+#define SPI_RX_QUAD	BIT(13)			/* receive with 4 wires */
 
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec
@@ -61,13 +54,11 @@ struct dm_spi_bus {
  * @cs:		Chip select number (0..n-1)
  * @max_hz:	Maximum bus speed that this slave can tolerate
  * @mode:	SPI mode to use for this device (see SPI mode flags)
- * @mode_rx:	SPI RX mode to use for this slave (see SPI mode_rx flags)
  */
 struct dm_spi_slave_platdata {
 	unsigned int cs;
 	uint max_hz;
 	uint mode;
-	u8 mode_rx;
 };
 
 #endif /* CONFIG_DM_SPI */
@@ -94,12 +85,10 @@ struct dm_spi_slave_platdata {
  *			bus (bus->seq) so does not need to be stored
  * @cs:			ID of the chip select connected to the slave.
  * @mode:		SPI mode to use for this slave (see SPI mode flags)
- * @mode_rx:		SPI RX mode to use for this slave (see SPI mode_rx flags)
  * @wordlen:		Size of SPI word in number of bits
  * @max_write_size:	If non-zero, the maximum number of bytes which can
  *			be written at once, excluding command bytes.
  * @memory_map:		Address of read-only SPI flash access.
- * @option:		Varies SPI bus options - separate, shared bus.
  * @flags:		Indication of SPI flags.
  */
 struct spi_slave {
@@ -112,7 +101,6 @@ struct spi_slave {
 	unsigned int cs;
 #endif
 	uint mode;
-	u8 mode_rx;
 	unsigned int wordlen;
 	unsigned int max_write_size;
 	void *memory_map;
@@ -124,7 +112,6 @@ struct spi_slave {
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
 #define SPI_XFER_MMAP		BIT(2)	/* Memory Mapped start */
 #define SPI_XFER_MMAP_END	BIT(3)	/* Memory Mapped End */
-#define SPI_XFER_U_PAGE		BIT(4)
 };
 
 /**
@@ -611,6 +598,58 @@ struct sandbox_state;
 int sandbox_spi_get_emul(struct sandbox_state *state,
 			 struct udevice *bus, struct udevice *slave,
 			 struct udevice **emulp);
+
+/**
+ * Claim the bus and prepare it for communication with a given slave.
+ *
+ * This must be called before doing any transfers with a SPI slave. It
+ * will enable and initialize any SPI hardware as necessary, and make
+ * sure that the SCK line is in the correct idle state. It is not
+ * allowed to claim the same bus for several slaves without releasing
+ * the bus in between.
+ *
+ * @dev:	The SPI slave device
+ *
+ * Returns: 0 if the bus was claimed successfully, or a negative value
+ * if it wasn't.
+ */
+int dm_spi_claim_bus(struct udevice *dev);
+
+/**
+ * Release the SPI bus
+ *
+ * This must be called once for every call to dm_spi_claim_bus() after
+ * all transfers have finished. It may disable any SPI hardware as
+ * appropriate.
+ *
+ * @slave:	The SPI slave device
+ */
+void dm_spi_release_bus(struct udevice *dev);
+
+/**
+ * SPI transfer
+ *
+ * This writes "bitlen" bits out the SPI MOSI port and simultaneously clocks
+ * "bitlen" bits in the SPI MISO port.  That's just the way SPI works.
+ *
+ * The source of the outgoing bits is the "dout" parameter and the
+ * destination of the input bits is the "din" parameter.  Note that "dout"
+ * and "din" can point to the same memory location, in which case the
+ * input data overwrites the output data (since both are buffered by
+ * temporary variables, this is OK).
+ *
+ * dm_spi_xfer() interface:
+ * @dev:	The SPI slave device which will be sending/receiving the data.
+ * @bitlen:	How many bits to write and read.
+ * @dout:	Pointer to a string of bits to send out.  The bits are
+ *		held in a byte array and are sent MSB first.
+ * @din:	Pointer to a string of bits that will be filled in.
+ * @flags:	A bitwise combination of SPI_XFER_* flags.
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
+int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
+		const void *dout, void *din, unsigned long flags);
 
 /* Access the operations for a SPI device */
 #define spi_get_ops(dev)	((struct dm_spi_ops *)(dev)->driver->ops)

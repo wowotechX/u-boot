@@ -122,7 +122,7 @@
 #include <jffs2/jffs2.h>
 #include <jffs2/jffs2_1pass.h>
 #include <linux/compat.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #include "jffs2_private.h"
 
@@ -195,7 +195,7 @@ static int read_nand_cached(u32 off, u32 size, u_char *buf)
 			}
 
 			retlen = NAND_CACHE_SIZE;
-			if (nand_read(&nand_info[id->num], nand_cache_off,
+			if (nand_read(nand_info[id->num], nand_cache_off,
 						&retlen, nand_cache) != 0 ||
 					retlen != NAND_CACHE_SIZE) {
 				printf("read_nand_cached: error reading nand off %#x size %d bytes\n",

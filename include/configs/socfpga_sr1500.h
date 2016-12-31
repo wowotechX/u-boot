@@ -16,36 +16,15 @@
 
 #define CONFIG_HW_WATCHDOG
 
-/* U-Boot Commands */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_GPIO
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_MEMTEST
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_TIME
-
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on SR1500 */
 
 /* Booting Linux */
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		"uImage"
-#define CONFIG_BOOTARGS		"console=ttyS0" __stringify(CONFIG_BAUDRATE)
+#define CONFIG_BOOTARGS		"console=ttyS0," __stringify(CONFIG_BAUDRATE)
 #define CONFIG_BOOTCOMMAND	"run mmcload; run mmcboot"
 #define CONFIG_LOADADDR		0x01000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 
 /* Ethernet on SoC (EMAC) */
 #define CONFIG_PHY_INTERFACE_MODE	PHY_INTERFACE_MODE_RGMII

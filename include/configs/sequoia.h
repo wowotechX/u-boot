@@ -45,7 +45,6 @@
  * Define this if you want support for video console with radeon 9200 pci card
  * Also set CONFIG_SYS_TEXT_BASE to 0xFFF80000 in board/amcc/sequoia/config.mk in this case
  */
-#undef CONFIG_VIDEO
 
 #ifdef CONFIG_VIDEO
 /*
@@ -214,7 +213,6 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 15
 #endif
 
-#define CONFIG_USB_STORAGE
 /* Comment this out to enable USB 1.1 device */
 #define USB_2_0_DEVICE
 
@@ -230,13 +228,11 @@
  */
 #define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DTT
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
 
 #ifdef CONFIG_440EPX
-#define CONFIG_CMD_USB
 #endif
 
 #ifndef CONFIG_RAINIER
@@ -269,17 +265,13 @@
 #define CONFIG_LOGBUFFER
 #define CONFIG_SYS_POST_CACHE_ADDR	0x7fff0000	/* free virtual address     */
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* Otherwise it catches logbuffer as output */
-
 #define CONFIG_SUPPORT_VFAT
 
 /*
  * PCI stuff
  */
 /* General PCI */
-#define CONFIG_PCI			/* include pci support		*/
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
 #define CONFIG_SYS_PCI_CACHE_LINE_SIZE	0	/* to avoid problems with PNP	*/
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #define CONFIG_SYS_PCI_TARGBASE	0x80000000	/* PCIaddr mapped to	*/
@@ -414,11 +406,8 @@
 #define CONFIG_ATI_RADEON_FB		/* use radeon framebuffer driver */
 #define VIDEO_IO_OFFSET			0xe8000000
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS		VIDEO_IO_OFFSET
-#define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_SPLASH_SCREEN
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_CMD_BMP
 #endif
 

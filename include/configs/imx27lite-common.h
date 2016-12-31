@@ -16,9 +16,6 @@
 #define CONFIG_MX27
 #define CONFIG_MX27_CLK32	32768		/* OSC32K frequency */
 
-#define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_DISPLAY_CPUINFO
-
 #define CONFIG_SYS_TEXT_BASE		0xc0000000
 
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
@@ -140,7 +137,6 @@
 /*
  * SD/MMC
  */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MXC_MMC
 #define CONFIG_DOS_PARTITION
@@ -171,18 +167,10 @@
 /*
  * U-Boot commands
  */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
 
-#define CONFIG_BOOTDELAY	5
 
 #define CONFIG_LOADADDR		0xa0800000	/* loadaddr env var */
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR

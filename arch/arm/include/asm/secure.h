@@ -3,7 +3,10 @@
 
 #include <config.h>
 
-#ifdef CONFIG_ARMV7_SECURE_BASE
+#define __secure __attribute__ ((section ("._secure.text")))
+#define __secure_data __attribute__ ((section ("._secure.data")))
+
+#if defined(CONFIG_ARMV7_SECURE_BASE) || defined(CONFIG_ARMV8_SECURE_BASE)
 /*
  * Warning, horror ahead.
  *

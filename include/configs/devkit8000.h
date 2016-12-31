@@ -40,10 +40,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-/* Display CPU and Board information */
-#define CONFIG_DISPLAY_CPUINFO		1
-#define CONFIG_DISPLAY_BOARDINFO	1
-
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_REVISION_TAG		1
@@ -96,17 +92,11 @@
 							/* partition */
 
 /* commands to include */
-#define CONFIG_CMD_DHCP			/* DHCP support			*/
 #define CONFIG_CMD_JFFS2		/* JFFS2 Support		*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
 
-#undef CONFIG_CMD_SPI
-#undef CONFIG_CMD_ASKENV
-#undef CONFIG_CMD_BOOTZ
 #undef CONFIG_SUPPORT_RAW_INITRD
 #undef CONFIG_FAT_WRITE
-#undef CONFIG_CMD_EXT4
-#undef CONFIG_CMD_FS_GENERIC
 
 /* BOOTP/DHCP options */
 #define CONFIG_BOOTP_SUBNETMASK
@@ -187,7 +177,6 @@
 			"fi; " \
 		"else run nandboot; fi\0"
 
-
 #define CONFIG_BOOTCOMMAND "run autoboot"
 
 /* Boot Argument Buffer Size */
@@ -206,7 +195,6 @@
 #define CONFIG_SYS_SRAM_SIZE               0x10000
 
 /* Defines for SPL */
-#undef CONFIG_SPL_MTD_SUPPORT
 
 #undef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/

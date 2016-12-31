@@ -31,7 +31,7 @@ void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 		(pad & MUX_PAD_CTRL_OFS_MASK) >> MUX_PAD_CTRL_OFS_SHIFT;
 	u32 pad_ctrl = (pad & MUX_PAD_CTRL_MASK) >> MUX_PAD_CTRL_SHIFT;
 
-#if defined CONFIG_MX6SL
+#if defined(CONFIG_MX6SL) || defined(CONFIG_MX6SLL)
 	/* Check whether LVE bit needs to be set */
 	if (pad_ctrl & PAD_CTL_LVE) {
 		pad_ctrl &= ~PAD_CTL_LVE;
@@ -42,6 +42,7 @@ void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 #ifdef CONFIG_IOMUX_LPSR
 	u32 lpsr = (pad & MUX_MODE_LPSR) >> MUX_MODE_SHIFT;
 
+#ifdef CONFIG_MX7
 	if (lpsr == IOMUX_CONFIG_LPSR) {
 		base = (void *)IOMUXC_LPSR_BASE_ADDR;
 		mux_mode &= ~IOMUX_CONFIG_LPSR;
@@ -49,9 +50,17 @@ void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 		if (sel_input_ofs)
 			sel_input_ofs += IOMUX_LPSR_SEL_INPUT_OFS;
 	}
+#else
+	if (is_mx6ull() || is_mx6sll()) {
+		if (lpsr == IOMUX_CONFIG_LPSR) {
+			base = (void *)IOMUXC_SNVS_BASE_ADDR;
+			mux_mode &= ~IOMUX_CONFIG_LPSR;
+		}
+	}
+#endif
 #endif
 
-	if (is_soc_type(MXC_SOC_MX7) || mux_ctrl_ofs)
+	if (is_mx7() || is_mx6ull() || is_mx6sll() || mux_ctrl_ofs)
 		__raw_writel(mux_mode, base + mux_ctrl_ofs);
 
 	if (sel_input_ofs)
@@ -64,6 +73,10 @@ void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 #else
 	if (!(pad_ctrl & NO_PAD_CTRL) && pad_ctrl_ofs)
 		__raw_writel(pad_ctrl, base + pad_ctrl_ofs);
+#if defined(CONFIG_MX6SLL)
+	else if ((pad_ctrl & NO_PAD_CTRL) && pad_ctrl_ofs)
+		clrbits_le32(base + pad_ctrl_ofs, PAD_CTL_IPD_BIT);
+#endif
 #endif
 
 #ifdef CONFIG_IOMUX_LPSR
@@ -83,7 +96,7 @@ void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
 
 #if defined(CONFIG_MX6QDL)
 	stride = 2;
-	if (!is_cpu_type(MXC_CPU_MX6Q) && !is_cpu_type(MXC_CPU_MX6D))
+	if (!is_mx6dq() && !is_mx6dqp())
 		p += 1;
 #else
 	stride = 1;

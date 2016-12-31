@@ -136,7 +136,7 @@ static void netboot_update_env(void)
 	}
 #if !defined(CONFIG_BOOTP_SERVERIP)
 	/*
-	 * Only attempt to change serverip if net/bootp.c:BootpCopyNetParams()
+	 * Only attempt to change serverip if net/bootp.c:store_net_params()
 	 * could have set it
 	 */
 	if (net_server_ip.s_addr) {
@@ -242,9 +242,6 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 		bootstage_error(BOOTSTAGE_ID_NET_LOADED);
 		return CMD_RET_SUCCESS;
 	}
-
-	/* flush cache */
-	flush_cache(load_addr, size);
 
 	bootstage_mark(BOOTSTAGE_ID_NET_LOADED);
 

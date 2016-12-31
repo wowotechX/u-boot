@@ -29,7 +29,6 @@
 /*
  * Enable this board for more than 2GB of SDRAM
  */
-#define CONFIG_PHYS_64BIT
 #define	CONFIG_VERY_BIG_RAM
 
 /*
@@ -175,11 +174,8 @@
 #define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_ECCTEST
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_SNTP
 
 #define	CONFIG_IBM_EMAC4_V4	1	/* 440SPe has this EMAC version	*/
 #define CONFIG_PHY_ADDR		1	/* PHY address, See schematics	*/
@@ -218,9 +214,7 @@
  *-----------------------------------------------------------------------
  */
 /* General PCI */
-#define CONFIG_PCI			/* include pci support		*/
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_PCI_PNP		1	/* do pci plug-and-play		*/
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup	*/
 #define CONFIG_PCI_CONFIG_HOST_BRIDGE
 

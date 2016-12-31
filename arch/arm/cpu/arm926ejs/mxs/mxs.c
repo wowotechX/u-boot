@@ -11,7 +11,7 @@
  */
 
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/imx-common/dma.h>
@@ -167,9 +167,9 @@ const char *get_imx_type(u32 imxtype)
 {
 	switch (imxtype) {
 	case MXC_CPU_MX23:
-		return "23";	/* Quad-Plus version of the mx6 */
+		return "23";
 	case MXC_CPU_MX28:
-		return "28";	/* Dual-Plus version of the mx6 */
+		return "28";
 	default:
 		return "??";
 	}

@@ -12,7 +12,6 @@
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <libfdt.h>
-#include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
 #include <asm/arch/soc.h>
@@ -60,10 +59,6 @@ int dram_init(void)
 #if defined(CONFIG_ARCH_MISC_INIT)
 int arch_misc_init(void)
 {
-#ifdef CONFIG_FSL_DEBUG_SERVER
-	debug_server_init();
-#endif
-
 	return 0;
 }
 #endif
@@ -107,6 +102,11 @@ void fdt_fixup_board_enet(void *fdt)
 	else
 		fdt_status_fail(fdt, offset);
 }
+
+void board_quiesce_devices(void)
+{
+	fsl_mc_ldpaa_exit(gd->bd);
+}
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
@@ -127,7 +127,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);
-	fsl_mc_ldpaa_exit(bd);
 #endif
 
 	return 0;

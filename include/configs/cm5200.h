@@ -8,10 +8,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-
-#define CONFIG_DISPLAY_BOARDINFO
-
-
 /*
  * High Level Configuration Options
  */
@@ -25,19 +21,11 @@
 /*
  * Supported commands
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SNTP
-#define CONFIG_CMD_USB
 
 /*
  * Serial console configuration
@@ -45,7 +33,6 @@
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1 */
 #define CONFIG_BAUDRATE		57600	/* ... at 57600 bps */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
-#define CONFIG_SILENT_CONSOLE	1	/* needed to silence i2c_init() */
 
 /*
  * Ethernet configuration
@@ -74,7 +61,6 @@
 /*
  * Autobooting
  */
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 #define CONFIG_PREBOOT	"echo;" \
 	"echo Type \"run net_nfs_fdt\" to mount root filesystem over NFS;" \
 	"echo"
@@ -172,12 +158,10 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	256	/* max num of sectors on one chip */
 #define CONFIG_SYS_FLASH_SIZE		0x02000000 /* 32 MiB */
 
-
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT		1
 #undef CONFIG_SYS_LOWBOOT
 #endif
-
 
 /*
  * Chip selects configuration
@@ -238,7 +222,6 @@
  * USB configuration
  */
 #define CONFIG_USB_OHCI		1
-#define CONFIG_USB_STORAGE	1
 #define CONFIG_USB_CLOCK	0x0001BBBB
 #define CONFIG_USB_CONFIG	0x00001000
 /* Partitions (for USB) */
@@ -291,8 +274,6 @@
 #define CONFIG_SYS_ALT_MEMTEST		1
 #define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x03f00000	/* 1 .. 63 MiB in SDRAM */
-
-#define CONFIG_LOOPW		1
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
 

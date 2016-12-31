@@ -172,19 +172,11 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MFSL
 
-#if defined(CONFIG_DCACHE) || defined(CONFIG_ICACHE)
-# define CONFIG_CMD_CACHE
-#else
-# undef CONFIG_CMD_CACHE
-#endif
-
 #if defined(FLASH)
 # define CONFIG_CMD_JFFS2
-# define CONFIG_CMD_UBI
 # undef CONFIG_CMD_UBIFS
 
 # if !defined(RAMENV)
@@ -193,14 +185,12 @@
 
 #else
 #if defined(SPIFLASH)
-# define CONFIG_CMD_SF
 
 # if !defined(RAMENV)
 #  define CONFIG_CMD_SAVES
 # endif
 #else
 # undef CONFIG_CMD_JFFS2
-# undef CONFIG_CMD_UBI
 # undef CONFIG_CMD_UBIFS
 #endif
 #endif
@@ -210,7 +200,6 @@
 #endif
 
 #if defined(CONFIG_CMD_UBIFS)
-# define CONFIG_CMD_UBI
 # define CONFIG_LZO
 #endif
 
@@ -243,7 +232,6 @@
 /* default load address */
 #define	CONFIG_SYS_LOAD_ADDR	0
 
-#define	CONFIG_BOOTDELAY	-1	/* -1 disables auto-boot */
 #define	CONFIG_BOOTARGS		"root=romfs"
 #define	CONFIG_HOSTNAME		XILINX_BOARD_NAME
 #define	CONFIG_BOOTCOMMAND	"base 0;tftp 11000000 image.img;bootm"
@@ -268,14 +256,11 @@
 
 #define CONFIG_CMDLINE_EDITING
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-
 /* Enable flat device tree support */
 #define CONFIG_LMB		1
 
 #if defined(CONFIG_XILINX_AXIEMAC)
 # define CONFIG_MII		1
-# define CONFIG_CMD_MII		1
 # define CONFIG_PHY_GIGE	1
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	1
 # define CONFIG_PHY_ATHEROS	1
@@ -290,32 +275,25 @@
 # define CONFIG_PHY_VITESSE	1
 #else
 # undef CONFIG_MII
-# undef CONFIG_CMD_MII
 #endif
 
 /* SPL part */
 #define CONFIG_CMD_SPL
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_BOARD_INIT
 
 #define CONFIG_SPL_LDSCRIPT	"arch/microblaze/cpu/u-boot-spl.lds"
 
 #define CONFIG_SPL_RAM_DEVICE
 #ifdef CONFIG_SYS_FLASH_BASE
-# define CONFIG_SPL_NOR_SUPPORT
 # define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_FLASH_BASE
 #endif
 
 /* for booting directly linux */
-#define CONFIG_SPL_OS_BOOT
 
-#define CONFIG_SYS_OS_BASE		(CONFIG_SYS_FLASH_BASE + \
-					 0x60000)
 #define CONFIG_SYS_FDT_BASE		(CONFIG_SYS_FLASH_BASE + \
 					 0x40000)
+#define CONFIG_SYS_FDT_SIZE		(16<<10)
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_TEXT_BASE + \
 					 0x1000000)
 

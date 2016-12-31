@@ -33,8 +33,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* call board_early_init_f*/
 #define CONFIG_MISC_INIT_R		1	/* call misc_init_r()     */
 
-#undef CONFIG_ZERO_BOOTDELAY_CHECK     /* ignore keypress on bootdelay==0 */
-
 /*
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
@@ -157,9 +155,7 @@
  */
 
 /* General PCI */
-#define CONFIG_PCI				/* include pci support        */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#undef  CONFIG_PCI_PNP				/* do (not) pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW			/* show pci devices on startup*/
 #define CONFIG_SYS_PCI_TARGBASE		0x80000000	/* PCIaddr mapped to \
 							CONFIG_SYS_PCI_MEMBASE*/

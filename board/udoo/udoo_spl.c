@@ -10,7 +10,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/video.h>
@@ -193,6 +193,8 @@ static struct mx6_ddr_sysinfo mem_qdl = {
 	.mif3_mode = 3,
 	.rst_to_cke = 0x23,
 	.sde_to_rst = 0x10,
+	.refsel = 1,	/* Refresh cycles at 32KHz */
+	.refr = 7,	/* 8 refresh commands per refresh cycle */
 };
 
 static void ccgr_init(void)

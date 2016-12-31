@@ -19,6 +19,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <dm/device-internal.h>
+#include <dt-bindings/gpio/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -215,12 +216,27 @@ static int sunxi_gpio_get_function(struct udevice *dev, unsigned offset)
 		return GPIOF_FUNC;
 }
 
+static int sunxi_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
+			    struct fdtdec_phandle_args *args)
+{
+	int ret;
+
+	ret = device_get_child(dev, args->args[0], &desc->dev);
+	if (ret)
+		return ret;
+	desc->offset = args->args[1];
+	desc->flags = args->args[2] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;
+
+	return 0;
+}
+
 static const struct dm_gpio_ops gpio_sunxi_ops = {
 	.direction_input	= sunxi_gpio_direction_input,
 	.direction_output	= sunxi_gpio_direction_output,
 	.get_value		= sunxi_gpio_get_value,
 	.set_value		= sunxi_gpio_set_value,
 	.get_function		= sunxi_gpio_get_function,
+	.xlate			= sunxi_gpio_xlate,
 };
 
 /**
@@ -258,43 +274,30 @@ static int gpio_sunxi_probe(struct udevice *dev)
 
 	return 0;
 }
+
+struct sunxi_gpio_soc_data {
+	int start;
+	int no_banks;
+};
+
 /**
  * We have a top-level GPIO device with no actual GPIOs. It has a child
  * device for each Sunxi bank.
  */
 static int gpio_sunxi_bind(struct udevice *parent)
 {
+	struct sunxi_gpio_soc_data *soc_data =
+		(struct sunxi_gpio_soc_data *)dev_get_driver_data(parent);
 	struct sunxi_gpio_platdata *plat = parent->platdata;
 	struct sunxi_gpio_reg *ctlr;
-	int bank, no_banks, ret, start;
+	int bank, ret;
 
 	/* If this is a child device, there is nothing to do here */
 	if (plat)
 		return 0;
 
-	if (fdt_node_check_compatible(gd->fdt_blob, parent->of_offset,
-				"allwinner,sun6i-a31-r-pinctrl") == 0) {
-		start = 'L' - 'A';
-		no_banks = 2; /* L & M */
-	} else if (fdt_node_check_compatible(gd->fdt_blob, parent->of_offset,
-				"allwinner,sun8i-a23-r-pinctrl") == 0 ||
-		   fdt_node_check_compatible(gd->fdt_blob, parent->of_offset,
-				"allwinner,sun8i-a83t-r-pinctrl") == 0 ||
-		   fdt_node_check_compatible(gd->fdt_blob, parent->of_offset,
-				"allwinner,sun8i-h3-r-pinctrl") == 0) {
-		start = 'L' - 'A';
-		no_banks = 1; /* L only */
-	} else if (fdt_node_check_compatible(gd->fdt_blob, parent->of_offset,
-				"allwinner,sun9i-a80-r-pinctrl") == 0) {
-		start = 'L' - 'A';
-		no_banks = 3; /* L, M & N */
-	} else {
-		start = 0;
-		no_banks = SUNXI_GPIO_BANKS;
-	}
-
 	ctlr = (struct sunxi_gpio_reg *)dev_get_addr(parent);
-	for (bank = 0; bank < no_banks; bank++) {
+	for (bank = 0; bank < soc_data->no_banks; bank++) {
 		struct sunxi_gpio_platdata *plat;
 		struct udevice *dev;
 
@@ -302,7 +305,7 @@ static int gpio_sunxi_bind(struct udevice *parent)
 		if (!plat)
 			return -ENOMEM;
 		plat->regs = &ctlr->gpio_bank[bank];
-		plat->bank_name = gpio_bank_name(start + bank);
+		plat->bank_name = gpio_bank_name(soc_data->start + bank);
 		plat->gpio_count = SUNXI_GPIOS_PER_BANK;
 
 		ret = device_bind(parent, parent->driver,
@@ -315,23 +318,46 @@ static int gpio_sunxi_bind(struct udevice *parent)
 	return 0;
 }
 
+static const struct sunxi_gpio_soc_data soc_data_a_all = {
+	.start = 0,
+	.no_banks = SUNXI_GPIO_BANKS,
+};
+
+static const struct sunxi_gpio_soc_data soc_data_l_1 = {
+	.start = 'L' - 'A',
+	.no_banks = 1,
+};
+
+static const struct sunxi_gpio_soc_data soc_data_l_2 = {
+	.start = 'L' - 'A',
+	.no_banks = 2,
+};
+
+static const struct sunxi_gpio_soc_data soc_data_l_3 = {
+	.start = 'L' - 'A',
+	.no_banks = 3,
+};
+
+#define ID(_compat_, _soc_data_) \
+	{ .compatible = _compat_, .data = (ulong)&soc_data_##_soc_data_ }
+
 static const struct udevice_id sunxi_gpio_ids[] = {
-	{ .compatible = "allwinner,sun4i-a10-pinctrl" },
-	{ .compatible = "allwinner,sun5i-a10s-pinctrl" },
-	{ .compatible = "allwinner,sun5i-a13-pinctrl" },
-	{ .compatible = "allwinner,sun6i-a31-pinctrl" },
-	{ .compatible = "allwinner,sun6i-a31s-pinctrl" },
-	{ .compatible = "allwinner,sun7i-a20-pinctrl" },
-	{ .compatible = "allwinner,sun8i-a23-pinctrl" },
-	{ .compatible = "allwinner,sun8i-a33-pinctrl" },
-	{ .compatible = "allwinner,sun8i-a83t-pinctrl", },
-	{ .compatible = "allwinner,sun8i-h3-pinctrl" },
-	{ .compatible = "allwinner,sun9i-a80-pinctrl" },
-	{ .compatible = "allwinner,sun6i-a31-r-pinctrl" },
-	{ .compatible = "allwinner,sun8i-a23-r-pinctrl" },
-	{ .compatible = "allwinner,sun8i-a83t-r-pinctrl" },
-	{ .compatible = "allwinner,sun8i-h3-r-pinctrl", },
-	{ .compatible = "allwinner,sun9i-a80-r-pinctrl", },
+	ID("allwinner,sun4i-a10-pinctrl",	a_all),
+	ID("allwinner,sun5i-a10s-pinctrl",	a_all),
+	ID("allwinner,sun5i-a13-pinctrl",	a_all),
+	ID("allwinner,sun6i-a31-pinctrl",	a_all),
+	ID("allwinner,sun6i-a31s-pinctrl",	a_all),
+	ID("allwinner,sun7i-a20-pinctrl",	a_all),
+	ID("allwinner,sun8i-a23-pinctrl",	a_all),
+	ID("allwinner,sun8i-a33-pinctrl",	a_all),
+	ID("allwinner,sun8i-a83t-pinctrl",	a_all),
+	ID("allwinner,sun8i-h3-pinctrl",	a_all),
+	ID("allwinner,sun9i-a80-pinctrl",	a_all),
+	ID("allwinner,sun6i-a31-r-pinctrl",	l_2),
+	ID("allwinner,sun8i-a23-r-pinctrl",	l_1),
+	ID("allwinner,sun8i-a83t-r-pinctrl",	l_1),
+	ID("allwinner,sun8i-h3-r-pinctrl",	l_1),
+	ID("allwinner,sun9i-a80-r-pinctrl",	l_3),
 	{ }
 };
 

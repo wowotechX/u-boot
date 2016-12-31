@@ -12,9 +12,10 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <dt-structs.h>
 #include <errno.h>
 #include <spi.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/periph.h>
@@ -27,6 +28,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DEBUG_RK_SPI	0
 
 struct rockchip_spi_platdata {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_rockchip_rk3288_spi of_plat;
+#endif
 	s32 frequency;		/* Default clock frequency, -1 for none */
 	fdt_addr_t base;
 	uint deactivate_delay_us;	/* Delay to wait after deactivate */
@@ -35,8 +39,7 @@ struct rockchip_spi_platdata {
 
 struct rockchip_spi_priv {
 	struct rockchip_spi *regs;
-	struct udevice *clk;
-	int clk_id;
+	struct clk clk;
 	unsigned int max_freq;
 	unsigned int mode;
 	ulong last_transaction_us;	/* Time of last transaction end */
@@ -107,6 +110,14 @@ static void spi_cs_activate(struct udevice *dev, uint cs)
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	struct rockchip_spi *regs = priv->regs;
 
+	/* If it's too soon to do another transaction, wait */
+	if (plat->deactivate_delay_us && priv->last_transaction_us) {
+		ulong delay_us;		/* The delay completed so far */
+		delay_us = timer_get_us() - priv->last_transaction_us;
+		if (delay_us < plat->deactivate_delay_us)
+			udelay(plat->deactivate_delay_us - delay_us);
+	}
+
 	debug("activate cs%u\n", cs);
 	writel(1 << cs, &regs->ser);
 	if (plat->activate_delay_us)
@@ -128,9 +139,29 @@ static void spi_cs_deactivate(struct udevice *dev, uint cs)
 		priv->last_transaction_us = timer_get_us();
 }
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+static int conv_of_platdata(struct udevice *dev)
+{
+	struct rockchip_spi_platdata *plat = dev->platdata;
+	struct dtd_rockchip_rk3288_spi *dtplat = &plat->of_plat;
+	struct rockchip_spi_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	plat->base = dtplat->reg[0];
+	plat->frequency = 20000000;
+	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &priv->clk);
+	if (ret < 0)
+		return ret;
+	dev->req_seq = 0;
+
+	return 0;
+}
+#endif
+
 static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct rockchip_spi_platdata *plat = bus->platdata;
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct rockchip_spi_platdata *plat = dev_get_platdata(bus);
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	const void *blob = gd->fdt_blob;
 	int node = bus->of_offset;
@@ -144,7 +175,6 @@ static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 		      bus->name, ret);
 		return ret;
 	}
-	priv->clk_id = ret;
 
 	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
 					 50000000);
@@ -155,6 +185,7 @@ static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 	debug("%s: base=%x, max-frequency=%d, deactivate_delay=%d\n",
 	      __func__, (uint)plat->base, plat->frequency,
 	      plat->deactivate_delay_us);
+#endif
 
 	return 0;
 }
@@ -166,6 +197,11 @@ static int rockchip_spi_probe(struct udevice *bus)
 	int ret;
 
 	debug("%s: probe\n", __func__);
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	ret = conv_of_platdata(bus);
+	if (ret)
+		return ret;
+#endif
 	priv->regs = (struct rockchip_spi *)plat->base;
 
 	priv->last_transaction_us = timer_get_us();
@@ -175,7 +211,7 @@ static int rockchip_spi_probe(struct udevice *bus)
 	 * Use 99 MHz as our clock since it divides nicely into 594 MHz which
 	 * is the assumed speed for CLK_GENERAL.
 	 */
-	ret = clk_set_periph_rate(priv->clk, priv->clk_id, 99000000);
+	ret = clk_set_rate(&priv->clk, 99000000);
 	if (ret < 0) {
 		debug("%s: Failed to set clock: %d\n", __func__, ret);
 		return ret;
@@ -371,7 +407,11 @@ static const struct udevice_id rockchip_spi_ids[] = {
 };
 
 U_BOOT_DRIVER(rockchip_spi) = {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	.name	= "rockchip_rk3288_spi",
+#else
 	.name	= "rockchip_spi",
+#endif
 	.id	= UCLASS_SPI,
 	.of_match = rockchip_spi_ids,
 	.ops	= &rockchip_spi_ops,

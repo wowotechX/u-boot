@@ -67,7 +67,6 @@
 
 /* support for serial flash */
 #define CONFIG_BFIN_SPI
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_HZ	30000000
 
 #define CONFIG_ENV_IS_IN_SPI_FLASH
@@ -86,7 +85,6 @@
 #define CONFIG_BFIN_SERIAL
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock0 rw"
 #define CONFIG_BOOTCOMMAND	"run sfboot"
-#define CONFIG_BOOTDELAY	5
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"sfboot=sf probe 1;" \
 		"sf read 0x1000000 0x20000 0x300000;" \

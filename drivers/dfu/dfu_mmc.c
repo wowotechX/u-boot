@@ -49,9 +49,10 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 	}
 
 	if (dfu->data.mmc.hw_partition >= 0) {
-		part_num_bkp = mmc->block_dev.hwpart;
-		ret = mmc_select_hwpart(dfu->data.mmc.dev_num,
-					dfu->data.mmc.hw_partition);
+		part_num_bkp = mmc_get_blk_desc(mmc)->hwpart;
+		ret = blk_select_hwpart_devnum(IF_TYPE_MMC,
+					       dfu->data.mmc.dev_num,
+					       dfu->data.mmc.hw_partition);
 		if (ret)
 			return ret;
 	}
@@ -61,12 +62,11 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 	      dfu->data.mmc.dev_num, blk_start, blk_count, buf);
 	switch (op) {
 	case DFU_OP_READ:
-		n = mmc->block_dev.block_read(&mmc->block_dev, blk_start,
-					      blk_count, buf);
+		n = blk_dread(mmc_get_blk_desc(mmc), blk_start, blk_count, buf);
 		break;
 	case DFU_OP_WRITE:
-		n = mmc->block_dev.block_write(&mmc->block_dev, blk_start,
-					       blk_count, buf);
+		n = blk_dwrite(mmc_get_blk_desc(mmc), blk_start, blk_count,
+			       buf);
 		break;
 	default:
 		error("Operation not supported\n");
@@ -75,12 +75,16 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 	if (n != blk_count) {
 		error("MMC operation failed");
 		if (dfu->data.mmc.hw_partition >= 0)
-			mmc_select_hwpart(dfu->data.mmc.dev_num, part_num_bkp);
+			blk_select_hwpart_devnum(IF_TYPE_MMC,
+						 dfu->data.mmc.dev_num,
+						 part_num_bkp);
 		return -EIO;
 	}
 
 	if (dfu->data.mmc.hw_partition >= 0) {
-		ret = mmc_select_hwpart(dfu->data.mmc.dev_num, part_num_bkp);
+		ret = blk_select_hwpart_devnum(IF_TYPE_MMC,
+					       dfu->data.mmc.dev_num,
+					       part_num_bkp);
 		if (ret)
 			return ret;
 	}
@@ -351,7 +355,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 
 	} else if (!strcmp(entity_type, "part")) {
 		disk_partition_t partinfo;
-		struct blk_desc *blk_dev = &mmc->block_dev;
+		struct blk_desc *blk_dev = mmc_get_blk_desc(mmc);
 		int mmcdev = second_arg;
 		int mmcpart = third_arg;
 

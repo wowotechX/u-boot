@@ -20,37 +20,10 @@ enum spi_dual_flash {
 	SF_DUAL_PARALLEL_FLASH	= BIT(1),
 };
 
-/* Enum list - Full read commands */
-enum spi_read_cmds {
-	ARRAY_SLOW		= BIT(0),
-	ARRAY_FAST		= BIT(1),
-	DUAL_OUTPUT_FAST	= BIT(2),
-	QUAD_OUTPUT_FAST	= BIT(3),
-	DUAL_IO_FAST		= BIT(4),
-	QUAD_IO_FAST		= BIT(5),
-};
-
-/* Normal - Extended - Full command set */
-#define RD_NORM		(ARRAY_SLOW | ARRAY_FAST)
-#define RD_EXTN		(RD_NORM | DUAL_OUTPUT_FAST | DUAL_IO_FAST)
-#define RD_FULL		(RD_EXTN | QUAD_OUTPUT_FAST | QUAD_IO_FAST)
-
-/* sf param flags */
-enum {
-#ifndef CONFIG_SPI_FLASH_USE_4K_SECTORS
-	SECT_4K		= 0,
-#else
-	SECT_4K		= BIT(0),
-#endif
-	SECT_32K	= BIT(1),
-	E_FSR		= BIT(2),
-	SST_WR		= BIT(3),
-	WR_QPP		= BIT(4),
-};
-
 enum spi_nor_option_flags {
 	SNOR_F_SST_WR		= BIT(0),
 	SNOR_F_USE_FSR		= BIT(1),
+	SNOR_F_USE_UPAGE	= BIT(3),
 };
 
 #define SPI_FLASH_3B_ADDR_LEN		3
@@ -67,7 +40,6 @@ enum spi_nor_option_flags {
 
 /* Erase commands */
 #define CMD_ERASE_4K			0x20
-#define CMD_ERASE_32K			0x52
 #define CMD_ERASE_CHIP			0xc7
 #define CMD_ERASE_64K			0xd8
 
@@ -77,7 +49,6 @@ enum spi_nor_option_flags {
 #define CMD_WRITE_DISABLE		0x04
 #define CMD_WRITE_ENABLE		0x06
 #define CMD_QUAD_PAGE_PROGRAM		0x32
-#define CMD_WRITE_EVCR			0x61
 
 /* Read commands */
 #define CMD_READ_ARRAY_SLOW		0x03
@@ -91,7 +62,6 @@ enum spi_nor_option_flags {
 #define CMD_READ_STATUS1		0x35
 #define CMD_READ_CONFIG			0x35
 #define CMD_FLAG_STATUS			0x70
-#define CMD_READ_EVCR			0x65
 
 /* Bank addr access commands */
 #ifdef CONFIG_SPI_FLASH_BAR
@@ -106,7 +76,6 @@ enum spi_nor_option_flags {
 #define STATUS_QEB_WINSPAN		BIT(1)
 #define STATUS_QEB_MXIC			BIT(6)
 #define STATUS_PEC			BIT(7)
-#define STATUS_QEB_MICRON		BIT(7)
 #define SR_BP0				BIT(2)  /* Block protect 0 */
 #define SR_BP1				BIT(3)  /* Block protect 1 */
 #define SR_BP2				BIT(4)  /* Block protect 2 */
@@ -127,29 +96,45 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 		const void *buf);
 #endif
 
-/**
- * struct spi_flash_params - SPI/QSPI flash device params structure
- *
- * @name:		Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO])
- * @jedec:		Device jedec ID (0x[1byte_manuf_id][2byte_dev_id])
- * @ext_jedec:		Device ext_jedec ID
- * @sector_size:	Isn't necessarily a sector size from vendor,
- *			the size listed here is what works with CMD_ERASE_64K
- * @nr_sectors:		No.of sectors on this device
- * @e_rd_cmd:		Enum list for read commands
- * @flags:		Important param, for flash specific behaviour
- */
-struct spi_flash_params {
-	const char *name;
-	u32 jedec;
-	u16 ext_jedec;
-	u32 sector_size;
-	u32 nr_sectors;
-	u8 e_rd_cmd;
-	u16 flags;
+#define JEDEC_MFR(info)		((info)->id[0])
+#define JEDEC_ID(info)		(((info)->id[1]) << 8 | ((info)->id[2]))
+#define JEDEC_EXT(info)		(((info)->id[3]) << 8 | ((info)->id[4]))
+#define SPI_FLASH_MAX_ID_LEN	6
+
+struct spi_flash_info {
+	/* Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO]) */
+	const char	*name;
+
+	/*
+	 * This array stores the ID bytes.
+	 * The first three bytes are the JEDIC ID.
+	 * JEDEC ID zero means "no ID" (mostly older chips).
+	 */
+	u8		id[SPI_FLASH_MAX_ID_LEN];
+	u8		id_len;
+
+	/*
+	 * The size listed here is what works with SPINOR_OP_SE, which isn't
+	 * necessarily called a "sector" by the vendor.
+	 */
+	u32		sector_size;
+	u32		n_sectors;
+
+	u16		page_size;
+
+	u16		flags;
+#define SECT_4K			BIT(0)	/* CMD_ERASE_4K works uniformly */
+#define E_FSR			BIT(1)	/* use flag status register for */
+#define SST_WR			BIT(2)	/* use SST byte/word programming */
+#define WR_QPP			BIT(3)	/* use Quad Page Program */
+#define RD_QUAD			BIT(4)	/* use Quad Read */
+#define RD_DUAL			BIT(5)	/* use Dual Read */
+#define RD_QUADIO		BIT(6)	/* use Quad IO Read */
+#define RD_DUALIO		BIT(7)	/* use Dual IO Read */
+#define RD_FULL			(RD_QUAD | RD_DUAL | RD_QUADIO | RD_DUALIO)
 };
 
-extern const struct spi_flash_params spi_flash_params_table[];
+extern const struct spi_flash_info spi_flash_ids[];
 
 /* Send a single-byte command to the device and read the response */
 int spi_flash_cmd(struct spi_slave *spi, u8 cmd, void *response, size_t len);
@@ -198,7 +183,7 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
  * - SPI claim
  * - spi_flash_cmd_write_enable
  * - spi_flash_cmd_write
- * - spi_flash_cmd_wait_ready
+ * - spi_flash_wait_till_ready
  * - SPI release
  */
 int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,

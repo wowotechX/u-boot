@@ -32,8 +32,6 @@
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
 #define CONFIG_SYS_TEXT_BASE		0x60000000
 #define CONFIG_DA850_LOWLEVEL
-#define CONFIG_SYS_DA850_PLL_INIT
-#define CONFIG_SYS_DA850_DDR_INIT
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DA8XX_GPIO
 #define CONFIG_HW_WATCHDOG
@@ -198,9 +196,7 @@
 #define CONFIG_SYS_BARGSIZE    CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 #define CONFIG_SYS_LOAD_ADDR   (PHYS_SDRAM_1 + 0x700000)
 #define CONFIG_LOADADDR        0xc0700000
-#define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CRC32_VERIFY
@@ -215,8 +211,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_BOOTARGS           ""
 #define CONFIG_BOOTCOMMAND        "run checkupdate; run checkbutton;"
-#define CONFIG_BOOTDELAY          0
-#define CONFIG_ZERO_BOOTDELAY_CHECK   /* check for keypress on bootdelay==0 */
 #define CONFIG_BOOT_RETRY_TIME    60  /* continue boot after 60 s inactivity */
 #define CONFIG_RESET_TO_RETRY
 
@@ -309,17 +303,10 @@
  * U-Boot commands
  */
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 
 #ifndef CONFIG_DRIVER_TI_EMAC
-#undef CONFIG_CMD_DHCP
-#undef CONFIG_CMD_MII
-#undef CONFIG_CMD_PING
 #endif
 
 /* additions for new relocation code, must added to all boards */

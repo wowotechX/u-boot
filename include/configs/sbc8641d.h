@@ -20,9 +20,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-
 /* High Level Configuration Options */
-#define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_SBC8641D		1	/* SBC8641D board specific */
 #define CONFIG_MP		1	/* support multiple processors */
 #define CONFIG_LINUX_RESET_VEC  0x100   /* Reset vector used by Linux */
@@ -44,12 +42,10 @@
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 
-#define CONFIG_PCI		1	/* Enable PCIE */
-#define CONFIG_PCIE1		1	/* PCIE controler 1 (slot 1) */
-#define CONFIG_PCIE2		1	/* PCIE controler 2 (slot 2) */
+#define CONFIG_PCIE1		1	/* PCIE controller 1 (slot 1) */
+#define CONFIG_PCIE2		1	/* PCIE controller 2 (slot 2) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
@@ -66,7 +62,6 @@
 #define PAGE_INTERLEAVING		0x21000000
 #define BANK_INTERLEAVING		0x22000000
 #define SUPER_BANK_INTERLEAVING		0x23000000
-
 
 #define CONFIG_ALTIVEC          1
 
@@ -91,7 +86,6 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #define CONFIG_SYS_CCSRBAR		0xf8000000	/* relocated CCSRBAR */
 #define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR */
 
@@ -172,7 +166,6 @@
     #define CONFIG_SYS_DDR2_DATA_INIT	0x00000000
     #define CONFIG_SYS_DDR2_CLK_CTRL	0x03800000
     #define CONFIG_SYS_DDR2_CFG_1B	0xC3008008
-
 
 #endif
 
@@ -257,11 +250,6 @@
 #define CONFIG_SYS_NS16550_COM1        (CONFIG_SYS_CCSRBAR+0x4500)
 #define CONFIG_SYS_NS16550_COM2        (CONFIG_SYS_CCSRBAR+0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef  CONFIG_SYS_HUSH_PARSER
-#endif
-
 /*
  * I2C
  */
@@ -304,10 +292,6 @@
 #if defined(CONFIG_PCI)
 
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup */
-
-#undef CONFIG_SYS_SCSI_SCAN_BUS_REVERSE
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
@@ -472,8 +456,6 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
@@ -539,7 +521,6 @@
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-#define CONFIG_BOOTDELAY 10	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 #define CONFIG_BAUDRATE	115200

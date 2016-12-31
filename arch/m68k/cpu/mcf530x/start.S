@@ -10,10 +10,6 @@
 #include "version.h"
 #include <asm/cache.h>
 
-#ifndef	 CONFIG_IDENT_STRING
-#define	 CONFIG_IDENT_STRING ""
-#endif
-
 #define _START	_start
 #define _FAULT	_fault
 
@@ -36,12 +32,12 @@
 #if !defined(CONFIG_MONITOR_IS_IN_RAM)
 
 .text
+
 /*
- *	Vector table. This is used for initial platform startup.
- *	These vectors are to catch any un-intended traps.
+ * Vector table. This is used for initial platform startup.
+ * These vectors are to catch any un-intended traps.
  */
 _vectors:
-
 /* Flash offset is 0 until we setup CS0 */
 .long	0x00000000
 #if defined(CONFIG_M5307) && \
@@ -89,12 +85,13 @@ _vectors:
 
 #endif
 
-	.text
-	.globl	_start
+.text
+
+.globl _start
 _start:
 	nop
 	nop
-	move.w  #0x2700,%sr
+	move.w	#0x2700,%sr
 
 	/* set MBAR address + valid flag */
 	move.l	#(CONFIG_SYS_MBAR + 1), %d0
@@ -104,11 +101,11 @@ _start:
 	move.c	%d0, %RAMBAR
 
 	/* DS 4.8.2 (Cache Organization) invalidate and disable cache */
-        move.l  #CF_CACR_CINVA, %d0
-        movec   %d0, %CACR
-        move.l  #0, %d0
-        movec   %d0, %ACR0
-        movec   %d0, %ACR1
+        move.l	#CF_CACR_CINVA, %d0
+        movec	%d0, %CACR
+        move.l	#0, %d0
+        movec	%d0, %ACR0
+        movec	%d0, %ACR1
 
 	/*
 	 * if we come from a pre-loader we have no exception table and
@@ -126,26 +123,37 @@ _start:
 	move.l	%d0, (%a1)
 	move.l	%d0, (%a2)
 
-	/*
-	 * set stackpointer to internal sram end - 80
-	 * (global data struct size + some bytes)
-	 * get some stackspace for the first c-code,
-	 */
-	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET), %sp
-	clr.l   %sp@-
-
 	/* put relocation table address to a5 */
-	move.l #__got_start, %a5
+	move.l	#__got_start, %a5
+
+	/* setup stack initially on top of internal static ram  */
+	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE), %sp
+
+	/*
+	 * if configured, malloc_f arena will be reserved first,
+	 * then (and always) gd struct space will be reserved
+	 */
+	move.l	%sp, -(%sp)
+	bsr	board_init_f_alloc_reserve
+
+	/* update stack and frame-pointers */
+	move.l	%d0, %sp
+	move.l	%sp, %fp
+
+	/* initialize reserved area */
+	move.l	%d0, -(%sp)
+	bsr	board_init_f_init_reserve
 
 	/* run low-level CPU init code (from flash) */
-	bsr cpu_init_f
+	bsr	cpu_init_f
 
 	/* run low-level board init code (from flash) */
-	bsr board_init_f
+	clr.l	%sp@-
+	bsr	board_init_f
 
 	/* board_init_f() does not return */
 
-/*--------------------------------------------------------------------------*/
+/******************************************************************************/
 
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
@@ -154,7 +162,7 @@ _start:
  * after relocating the monitor code.
  *
  */
-	.globl	relocate_code
+.globl relocate_code
 relocate_code:
 	link.w	%a6,#0
 	move.l	8(%a6), %sp	/* set new stack pointer */
@@ -198,7 +206,8 @@ clear_bss:
 	 */
 	move.l	%a0, %a1
 	add.l	#(__got_start - CONFIG_SYS_MONITOR_BASE), %a1
-	/* * fix got pointer register a5 */
+
+	/* fix got pointer register a5 */
 	move.l	%a1,%a5
 
 	move.l	%a0, %a2
@@ -225,33 +234,34 @@ clear_bss:
 #endif
 	jsr	(%a1)
 
-/*--------------------------------------------------------------------------*/
+/******************************************************************************/
+
 /* exception code */
-	.globl _fault
+.globl _fault
 _fault:
 	bra	_fault
 
-	.globl	_exc_handler
+.globl _exc_handler
 _exc_handler:
 	SAVE_ALL
 	movel	%sp,%sp@-
-	bsr 	exc_handler
+	bsr	exc_handler
 	addql	#4,%sp
 	RESTORE_ALL
 
-	.globl	_int_handler
+.globl _int_handler
 _int_handler:
 	SAVE_ALL
 	movel	%sp,%sp@-
-	bsr 	int_handler
+	bsr	int_handler
 	addql	#4,%sp
 	RESTORE_ALL
 
-/*--------------------------------------------------------------------------*/
+/******************************************************************************/
 
-	.globl	version_string
+.globl version_string
 version_string:
-	.ascii	U_BOOT_VERSION
-	.ascii	" (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
-	.ascii	CONFIG_IDENT_STRING, "\0"
-	.align	4
+.ascii	U_BOOT_VERSION
+.ascii	" (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
+.ascii	CONFIG_IDENT_STRING, "\0"
+.align	4

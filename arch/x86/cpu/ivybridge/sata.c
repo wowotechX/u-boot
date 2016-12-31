@@ -12,7 +12,6 @@
 #include <asm/pch_common.h>
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
-#include <asm/arch/bd82x6x.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -233,7 +232,7 @@ static const struct udevice_id bd82x6x_ahci_ids[] = {
 
 U_BOOT_DRIVER(ahci_ivybridge_drv) = {
 	.name		= "ahci_ivybridge",
-	.id		= UCLASS_DISK,
+	.id		= UCLASS_AHCI,
 	.of_match	= bd82x6x_ahci_ids,
 	.probe		= bd82x6x_sata_probe,
 };

@@ -10,20 +10,18 @@
 #ifndef __IGEP00X0_H
 #define __IGEP00X0_H
 
-#ifdef CONFIG_BOOT_NAND
-#define CONFIG_NAND
-#endif
-
 #define CONFIG_NR_DRAM_BANKS            2
+#define CONFIG_NAND
 
 #include <configs/ti_omap3_common.h>
 #include <asm/mach-types.h>
 
 /*
- * Display CPU and Board information
+ * We are only ever GP parts and will utilize all of the "downloaded image"
+ * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB).
  */
-#define CONFIG_DISPLAY_CPUINFO		1
-#define CONFIG_DISPLAY_BOARDINFO	1
+#undef CONFIG_SPL_TEXT_BASE
+#define CONFIG_SPL_TEXT_BASE		0x40200000
 
 #define CONFIG_MISC_INIT_R
 
@@ -61,7 +59,6 @@
 /* USB device configuration */
 #define CONFIG_USB_DEVICE		1
 #define CONFIG_USB_TTY			1
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 
 /* Change these to suit your needs */
 #define CONFIG_USBD_VENDORID		0x0451
@@ -69,12 +66,8 @@
 #define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
 #define CONFIG_USBD_PRODUCT_NAME	"IGEP"
 
-#define CONFIG_CMD_CACHE
-#ifdef CONFIG_BOOT_ONENAND
-#define CONFIG_CMD_ONENAND	/* ONENAND support		*/
-#endif
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_CMD_ONENAND
 
 #ifndef CONFIG_SPL_BUILD
 
@@ -94,33 +87,11 @@
 
 #include <config_distro_bootcmd.h>
 
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ENV_DEVICE_SETTINGS \
 	MEM_LAYOUT_SETTINGS \
 	BOOTENV
 
-#endif
-
-/*
- * FLASH and environment organization
- */
-
-#ifdef CONFIG_BOOT_ONENAND
-#define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
-
-#define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
-
-#define CONFIG_ENV_IS_IN_ONENAND	1
-#define CONFIG_ENV_SIZE			(512 << 10) /* Total Size Environment */
-#define CONFIG_ENV_ADDR			ONENAND_ENV_OFFSET
-#endif
-
-#ifdef CONFIG_NAND
-#define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
-#define CONFIG_ENV_IS_IN_NAND	        1
-#define CONFIG_ENV_SIZE			(512 << 10) /* Total Size Environment */
-#define CONFIG_ENV_ADDR			NAND_ENV_OFFSET
 #endif
 
 /*
@@ -132,19 +103,17 @@
 #define CONFIG_SMC911X_BASE		0x2C000000
 #endif /* (CONFIG_CMD_NET) */
 
-/* OneNAND boot config */
-#ifdef CONFIG_BOOT_ONENAND
-#define CONFIG_SPL_ONENAND_SUPPORT
-#define CONFIG_SYS_ONENAND_U_BOOT_OFFS  0x80000
-#define CONFIG_SYS_ONENAND_PAGE_SIZE	2048
-#define CONFIG_SPL_ONENAND_LOAD_ADDR    0x80000
-#define CONFIG_SPL_ONENAND_LOAD_SIZE    \
-	(512 * 1024 - CONFIG_SPL_ONENAND_LOAD_ADDR)
+#define CONFIG_RBTREE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_SYS_MTDPARTS_RUNTIME
 
-#endif
+/* OneNAND config */
+#define CONFIG_USE_ONENAND_BOARD_INIT
+#define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
+#define CONFIG_SYS_ONENAND_BLOCK_SIZE	(128*1024)
 
-/* NAND boot config */
-#ifdef CONFIG_NAND
+/* NAND config */
+#define CONFIG_SPL_OMAP3_ID_NAND
 #define CONFIG_SYS_NAND_BUSWIDTH_16BIT
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
@@ -165,13 +134,27 @@
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_BCH
 
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
-/* NAND: SPL falcon mode configs */
-#ifdef CONFIG_SPL_OS_BOOT
-#define CONFIG_CMD_SPL_NAND_OFS		0x240000
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x280000
-#define CONFIG_CMD_SPL_WRITE_SIZE	0x2000
-#endif
-#endif
+/* UBI configuration */
+#define CONFIG_SPL_UBI			1
+#define CONFIG_SPL_UBI_MAX_VOL_LEBS	256
+#define CONFIG_SPL_UBI_MAX_PEB_SIZE	(256*1024)
+#define CONFIG_SPL_UBI_MAX_PEBS		4096
+#define CONFIG_SPL_UBI_VOL_IDS		8
+#define CONFIG_SPL_UBI_LOAD_MONITOR_ID	0
+#define CONFIG_SPL_UBI_LOAD_KERNEL_ID	3
+#define CONFIG_SPL_UBI_LOAD_ARGS_ID	4
+#define CONFIG_SPL_UBI_PEB_OFFSET	4
+#define CONFIG_SPL_UBI_VID_OFFSET	512
+#define CONFIG_SPL_UBI_LEB_START	2048
+#define CONFIG_SPL_UBI_INFO_ADDR	0x88080000
+
+/* environment organization */
+#define CONFIG_ENV_IS_IN_UBI		1
+#define CONFIG_ENV_UBI_PART		"UBI"
+#define CONFIG_ENV_UBI_VOLUME		"config"
+#define CONFIG_ENV_UBI_VOLUME_REDUND	"config_r"
+#define CONFIG_UBI_SILENCE_MSG		1
+#define CONFIG_UBIFS_SILENCE_MSG	1
+#define CONFIG_ENV_SIZE			(32*1024)
 
 #endif /* __IGEP00X0_H */

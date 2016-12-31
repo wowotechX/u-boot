@@ -24,15 +24,7 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_TFTPPUT
-#define CONFIG_CMD_TIME
-#define CONFIG_CMD_USB
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -59,7 +51,6 @@
 
 /* PCIe support */
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_PCI
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PCI_ENUM
 #define CONFIG_PCI_MVEBU
@@ -79,19 +70,17 @@
  * - USB init fails, controller does not respond in time */
 #if 0
 #undef CONFIG_DM_USB
-#define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_PCI
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
 #endif
 
-#if !defined(CONFIG_USB_XHCI)
+#if !defined(CONFIG_USB_XHCI_HCD)
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MARVELL
 #define CONFIG_EHCI_IS_TDI
 #endif
 
 /* why is this only defined in mv-common.h if CONFIG_DM is undefined? */
-#define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 #define CONFIG_SUPPORT_VFAT
@@ -132,17 +121,8 @@
 #define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-
 /* SPL related SPI defines */
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
-#define CONFIG_SPL_SPI_BUS		0
-#define CONFIG_SPL_SPI_CS		0
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x24000
 
 /* DS414 bus width is 32bits */

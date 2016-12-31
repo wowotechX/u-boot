@@ -7,20 +7,14 @@
 #ifndef __LS2_COMMON_H
 #define __LS2_COMMON_H
 
-
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LAYERSCAPE
-#define CONFIG_FSL_LSCH3
 #define CONFIG_MP
 #define CONFIG_GICV3
 #define CONFIG_FSL_TZPC_BP147
 
-
 #include <asm/arch/ls2080a_stream_id.h>
 #include <asm/arch/config.h>
-#if (defined(CONFIG_SYS_FSL_SRDS_1) || defined(CONFIG_SYS_FSL_SRDS_2))
-#define	CONFIG_SYS_HAS_SERDES
-#endif
 
 /* Link Definitions */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
@@ -28,11 +22,15 @@
 /* We need architecture specific misc initializations */
 #define CONFIG_ARCH_MISC_INIT
 
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
+
 /* Link Definitions */
+#ifndef CONFIG_QSPI_BOOT
 #ifdef CONFIG_SPL
 #define CONFIG_SYS_TEXT_BASE		0x80400000
 #else
 #define CONFIG_SYS_TEXT_BASE		0x30100000
+#endif
 #endif
 
 #ifdef CONFIG_EMU
@@ -48,7 +46,6 @@
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
 #endif
 #ifndef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_FSL_DDR3		/* Use DDR3 memory */
 #define CONFIG_SYS_DDR_RAW_TIMING
 #endif
 
@@ -89,7 +86,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
 
 /* I2C */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -139,13 +135,6 @@
 #define CONFIG_SYS_FLASH1_BASE_PHYS		0xC0000000
 #define CONFIG_SYS_FLASH1_BASE_PHYS_EARLY	0x8000000
 
-#ifndef CONFIG_SYS_NO_FLASH
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
-#define CONFIG_SYS_FLASH_QUIET_TEST
-#endif
-
 #ifndef __ASSEMBLY__
 unsigned long long get_qixis_addr(void);
 #endif
@@ -158,11 +147,6 @@ unsigned long long get_qixis_addr(void);
 
 #define CONFIG_SYS_NAND_BASE			0x530000000ULL
 #define CONFIG_SYS_NAND_BASE_PHYS		0x30000000
-
-/* Debug Server firmware */
-#define CONFIG_FSL_DEBUG_SERVER
-/* 2 sec timeout */
-#define CONFIG_SYS_DEBUG_SERVER_TIMEOUT			(2 * 1000 * 1000)
 
 /* MC firmware */
 #define CONFIG_FSL_MC_ENET
@@ -181,17 +165,16 @@ unsigned long long get_qixis_addr(void);
  * It will be used by MC and Debug Server. The MC region must be
  * 512MB aligned, so the min size to hide is 512MB.
  */
-#if defined(CONFIG_FSL_MC_ENET) || defined(CONFIG_FSL_DEBUG_SERVER)
-#define CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE	(254UL * 1024 * 1024)
+#ifdef CONFIG_FSL_MC_ENET
 #define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(512UL * 1024 * 1024)
 #define CONFIG_SYS_MC_RSV_MEM_ALIGN			(512UL * 1024 * 1024)
 #endif
 
 /* PCIe */
-#define CONFIG_PCIE1		/* PCIE controler 1 */
-#define CONFIG_PCIE2		/* PCIE controler 2 */
-#define CONFIG_PCIE3		/* PCIE controler 3 */
-#define CONFIG_PCIE4		/* PCIE controler 4 */
+#define CONFIG_PCIE1		/* PCIE controller 1 */
+#define CONFIG_PCIE2		/* PCIE controller 2 */
+#define CONFIG_PCIE3		/* PCIE controller 3 */
+#define CONFIG_PCIE4		/* PCIE controller 4 */
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 #ifdef CONFIG_LS2080A
 #define FSL_PCIE_COMPAT "fsl,ls2080a-pcie"
@@ -213,12 +196,7 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_PCIE_MEM_SIZE	0x40000000	/* 1G */
 
 /* Command line configuration */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
@@ -232,8 +210,6 @@ unsigned long long get_qixis_addr(void);
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
-
-#define CONFIG_DISPLAY_CPUINFO
 
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -261,14 +237,11 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_BOOTCOMMAND	"fsl_mc apply dpl 0x580700000 &&" \
 				" cp.b $kernel_start $kernel_load" \
 				" $kernel_size && bootm $kernel_load"
-#define CONFIG_BOOTDELAY		10
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING		1
@@ -279,17 +252,9 @@ unsigned long long get_qixis_addr(void);
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_I2C_SUPPORT
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv8/u-boot-spl.lds"
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_MAX_SIZE		0x16000
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-#define CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_STACK		(CONFIG_SYS_FSL_OCRAM_BASE + 0x9ff0)
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_SPL_TEXT_BASE		0x1800a000
@@ -298,9 +263,14 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00100000
 #define CONFIG_SYS_SPL_MALLOC_START	0x80200000
-#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
+#define CONFIG_SYS_MONITOR_LEN		(640 * 1024)
 
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
 
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
+#endif
 
 #endif /* __LS2_COMMON_H */

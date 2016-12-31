@@ -1,5 +1,32 @@
 if ARCH_SUNXI
 
+config IDENT_STRING
+	default " Allwinner Technology"
+
+config PRE_CONSOLE_BUFFER
+	default y
+
+config SPL_GPIO_SUPPORT
+	default y
+
+config SPL_LIBCOMMON_SUPPORT
+	default y
+
+config SPL_LIBDISK_SUPPORT
+	default y
+
+config SPL_LIBGENERIC_SUPPORT
+	default y
+
+config SPL_MMC_SUPPORT
+	default y
+
+config SPL_POWER_SUPPORT
+	default y
+
+config SPL_SERIAL_SUPPORT
+	default y
+
 # Note only one of these may be selected at a time! But hidden choices are
 # not supported by Kconfig
 config SUNXI_GEN_SUN4I
@@ -37,6 +64,7 @@ config MACH_SUN6I
 	select CPU_V7
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
+	select ARCH_SUPPORT_PSCI
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
@@ -46,6 +74,7 @@ config MACH_SUN7I
 	select CPU_V7
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
+	select ARCH_SUPPORT_PSCI
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
@@ -55,6 +84,7 @@ config MACH_SUN8I_A23
 	select CPU_V7
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
+	select ARCH_SUPPORT_PSCI
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
@@ -64,23 +94,10 @@ config MACH_SUN8I_A33
 	select CPU_V7
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
+	select ARCH_SUPPORT_PSCI
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
-
-config MACH_SUN8I_H3
-	bool "sun8i (Allwinner H3)"
-	select CPU_V7
-	select CPU_V7_HAS_NONSEC
-	select CPU_V7_HAS_VIRT
-	select SUNXI_GEN_SUN6I
-	select SUPPORT_SPL
-	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
-
-config MACH_SUN50I
-	bool "sun50i (Allwinner A64)"
-	select ARM64
-	select SUNXI_GEN_SUN6I
 
 config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"
@@ -88,9 +105,25 @@ config MACH_SUN8I_A83T
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
+config MACH_SUN8I_H3
+	bool "sun8i (Allwinner H3)"
+	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select ARCH_SUPPORT_PSCI
+	select SUNXI_GEN_SUN6I
+	select SUPPORT_SPL
+	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+
 config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7
+	select SUNXI_GEN_SUN6I
+	select SUPPORT_SPL
+
+config MACH_SUN50I
+	bool "sun50i (Allwinner A64)"
+	select ARM64
 	select SUNXI_GEN_SUN6I
 
 endchoice
@@ -109,11 +142,13 @@ config DRAM_TYPE
 
 config DRAM_CLK
 	int "sunxi dram clock speed"
+	default 792 if MACH_SUN9I
 	default 312 if MACH_SUN6I || MACH_SUN8I
 	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	---help---
-	Set the dram clock speed, valid range 240 - 480, must be a multiple
-	of 24.
+	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
+	must be a multiple of 24. For the sun9i (A80), the tested values
+	(for DDR3-1600) are 312 to 792.
 
 if MACH_SUN5I || MACH_SUN7I
 config DRAM_MBUS_CLK
@@ -128,6 +163,7 @@ config DRAM_ZQ
 	int "sunxi dram zq value"
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
 	default 127 if MACH_SUN7I
+	default 4145117 if MACH_SUN9I
 	---help---
 	Set the dram zq value.
 
@@ -220,7 +256,7 @@ endif
 config SYS_CLK_FREQ
 	default 816000000 if MACH_SUN50I
 	default 912000000 if MACH_SUN7I
-	default 1008000000 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
+	default 1008000000 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I || MACH_SUN9I
 
 config SYS_CONFIG_NAME
 	default "sun4i" if MACH_SUN4I
@@ -249,7 +285,7 @@ config UART0_PORT_F
 	Only enable this if you really know what you are doing.
 
 config OLD_SUNXI_KERNEL_COMPAT
-	boolean "Enable workarounds for booting old kernels"
+	bool "Enable workarounds for booting old kernels"
 	default n
 	---help---
 	Set this to enable various workarounds for old kernels, this results in
@@ -261,6 +297,7 @@ config MMC
 
 config MMC0_CD_PIN
 	string "Card detect pin for mmc0"
+	default "PF6" if MACH_SUN8I_A83T || MACH_SUN8I_H3 || MACH_SUN50I
 	default ""
 	---help---
 	Set the card detect pin for mmc0, leave empty to not use cd. This
@@ -368,6 +405,7 @@ config I2C0_ENABLE
 	bool "Enable I2C/TWI controller 0"
 	default y if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	default n if MACH_SUN6I || MACH_SUN8I
+	select CMD_I2C
 	---help---
 	This allows enabling I2C/TWI controller 0 by muxing its pins, enabling
 	its clock and setting up the bus. This is especially useful on devices
@@ -377,12 +415,14 @@ config I2C0_ENABLE
 config I2C1_ENABLE
 	bool "Enable I2C/TWI controller 1"
 	default n
+	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
 
 config I2C2_ENABLE
 	bool "Enable I2C/TWI controller 2"
 	default n
+	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
 
@@ -390,6 +430,7 @@ if MACH_SUN6I || MACH_SUN7I
 config I2C3_ENABLE
 	bool "Enable I2C/TWI controller 3"
 	default n
+	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
 endif
@@ -399,6 +440,7 @@ config R_I2C_ENABLE
 	bool "Enable the PRCM I2C/TWI controller"
 	# This is used for the pmic on H3
 	default y if SY8106A_POWER
+	select CMD_I2C
 	---help---
 	Set this to y to enable the I2C controller which is part of the PRCM.
 endif
@@ -407,19 +449,20 @@ if MACH_SUN7I
 config I2C4_ENABLE
 	bool "Enable I2C/TWI controller 4"
 	default n
+	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
 endif
 
 config AXP_GPIO
-	boolean "Enable support for gpio-s on axp PMICs"
+	bool "Enable support for gpio-s on axp PMICs"
 	default n
 	---help---
 	Say Y here to enable support for the gpio pins of the axp PMIC ICs.
 
 config VIDEO
-	boolean "Enable graphical uboot console on HDMI, LCD or VGA"
-	depends on !MACH_SUN8I_A83T
+	bool "Enable graphical uboot console on HDMI, LCD or VGA"
+	depends on !MACH_SUN8I_A83T && !MACH_SUN8I_H3 && !MACH_SUN9I && !MACH_SUN50I
 	default y
 	---help---
 	Say Y here to add support for using a cfb console on the HDMI, LCD
@@ -427,21 +470,21 @@ config VIDEO
 	info on how to select the video output and mode.
 
 config VIDEO_HDMI
-	boolean "HDMI output support"
+	bool "HDMI output support"
 	depends on VIDEO && !MACH_SUN8I
 	default y
 	---help---
 	Say Y here to add support for outputting video over HDMI.
 
 config VIDEO_VGA
-	boolean "VGA output support"
+	bool "VGA output support"
 	depends on VIDEO && (MACH_SUN4I || MACH_SUN7I)
 	default n
 	---help---
 	Say Y here to add support for outputting video over VGA.
 
 config VIDEO_VGA_VIA_LCD
-	boolean "VGA via LCD controller support"
+	bool "VGA via LCD controller support"
 	depends on VIDEO && (MACH_SUN5I || MACH_SUN6I || MACH_SUN8I)
 	default n
 	---help---
@@ -450,7 +493,7 @@ config VIDEO_VGA_VIA_LCD
 	Olimex A13 boards.
 
 config VIDEO_VGA_VIA_LCD_FORCE_SYNC_ACTIVE_HIGH
-	boolean "Force sync active high for VGA via LCD controller support"
+	bool "Force sync active high for VGA via LCD controller support"
 	depends on VIDEO_VGA_VIA_LCD
 	default n
 	---help---
@@ -468,7 +511,7 @@ config VIDEO_VGA_EXTERNAL_DAC_EN
 	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_COMPOSITE
-	boolean "Composite video output support"
+	bool "Composite video output support"
 	depends on VIDEO && (MACH_SUN4I || MACH_SUN5I || MACH_SUN7I)
 	default n
 	---help---
@@ -535,6 +578,7 @@ config VIDEO_LCD_PANEL_I2C
 	bool "LCD panel needs to be configured via i2c"
 	depends on VIDEO
 	default n
+	select CMD_I2C
 	---help---
 	Say y here if the LCD panel needs to be configured via i2c. This
 	will add a bitbang i2c controller using gpios to talk to the LCD.

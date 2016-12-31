@@ -29,10 +29,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
 
-#define CONFIG_DISPLAY_CPUINFO
-
-#define CONFIG_CMD_BOOTZ
-
 #define CONFIG_ATMEL_LEGACY
 #define CONFIG_AT91_GPIO		1
 #define CONFIG_AT91_GPIO_PULLUP		1
@@ -48,7 +44,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* LCD */
-#define CONFIG_LCD			1
 #define LCD_BPP				LCD_COLOR8
 #define CONFIG_LCD_LOGO			1
 #undef LCD_TEST_PATTERN
@@ -59,8 +54,6 @@
 #define CONFIG_ATMEL_LCD_RGB565		1
 /* Let board_init_f handle the framebuffer allocation */
 #undef CONFIG_FB_ADDR
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
-
 
 /* LED */
 #define CONFIG_AT91_LED
@@ -68,12 +61,10 @@
 #define	CONFIG_GREEN_LED	AT91_PIN_PD15	/* this is the user1 led */
 #define	CONFIG_YELLOW_LED	AT91_PIN_PD16	/* this is the user2 led */
 
-#define CONFIG_BOOTDELAY	3
 
 /*
  * Command line configuration.
  */
-#undef CONFIG_CMD_USB
 
 #define CONFIG_CMD_NAND			1
 
@@ -113,13 +104,10 @@
 #endif
 
 /* MMC */
-#define CONFIG_CMD_MMC
 
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_GENERIC_ATMEL_MCI
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
@@ -159,7 +147,7 @@
 #define CONFIG_BOOTARGS		\
 				"console=ttyS0,115200 earlyprintk "				\
 				"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\
-				"256K(env),256k(env_redundent),256k(spare),"			\
+				"256K(env),256k(env_redundant),256k(spare),"			\
 				"512k(dtb),6M(kernel)ro,-(rootfs) "				\
 				"rootfstype=ubifs ubi.mtd=7 root=ubi0:rootfs"
 

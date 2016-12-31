@@ -17,7 +17,6 @@
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		dlvsion-10g
-#define CONFIG_IDENT_STRING	" dlvision-10g 0.06"
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -26,8 +25,6 @@
 #define CONFIG_LAST_STAGE_INIT
 
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll   */
-
-#undef CONFIG_ZERO_BOOTDELAY_CHECK     /* ignore keypress on bootdelay==0 */
 
 /*
  * Configure PLL
@@ -62,10 +59,8 @@
  * Commands additional to the ones defined in amcc-common.h
  */
 #define CONFIG_CMD_DTT
-#undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_DIAG
 #undef CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #undef CONFIG_CMD_IRQ
 
 /*

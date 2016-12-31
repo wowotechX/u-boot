@@ -43,9 +43,20 @@ struct splash_location {
 	enum splash_flags flags;
 	u32 offset;	/* offset from start of storage */
 	char *devpart;  /* Use the load command dev:part conventions */
+	char *mtdpart;	/* MTD partition for ubi part */
+	char *ubivol;	/* UBI volume-name for ubifsmount */
 };
 
+#ifdef CONFIG_SPLASH_SOURCE
 int splash_source_load(struct splash_location *locations, uint size);
+#else
+static inline int splash_source_load(struct splash_location *locations,
+				     uint size)
+{
+	return 0;
+}
+#endif
+
 int splash_screen_prepare(void);
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN

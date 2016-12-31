@@ -9,18 +9,17 @@
 #ifndef __WARP7_CONFIG_H
 #define __WARP7_CONFIG_H
 
-#define CONFIG_BOOTDELAY                1
 #include "mx7_common.h"
 
 #define PHYS_SDRAM_SIZE			SZ_512M
 
 #define CONFIG_MXC_UART_BASE		UART1_IPS_BASE_ADDR
 
-
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
+#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M)
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       USDHC3_BASE_ADDR
@@ -28,11 +27,11 @@
 #define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_CMD_PART
+
 #define CONFIG_DFU_ENV_SETTINGS \
-	"dfu_alt_info=image raw 0 0x800000;"\
-		"u-boot raw 0 0x4000;"\
-		"bootimg part 0 1;"\
-		"rootfs part 0 2\0" \
+	"dfu_alt_info=boot raw 0x2 0x400 mmcpart 1\0" \
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_DFU_ENV_SETTINGS \
@@ -41,15 +40,15 @@
 	"console=ttymxc0\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_file=imx7d-warp.dtb\0" \
+	"fdt_file=imx7s-warp.dtb\0" \
 	"fdt_addr=0x83000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
+	"finduuid=part uuid mmc 0:2 uuid\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=${mmcroot}\0" \
+		"root=PARTUUID=${uuid} rootwait rw\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
@@ -57,6 +56,7 @@
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
+		"run finduuid; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
@@ -84,7 +84,6 @@
 		   "fi; " \
 	   "fi"
 
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
 
@@ -106,6 +105,18 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
+/* I2C configs */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1
+#define CONFIG_SYS_I2C_SPEED		100000
+
+/* PMIC */
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_PFUZE3000
+#define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
+
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_SIZE			SZ_8K
@@ -116,13 +127,8 @@
 
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		0
-#define CONFIG_MMCROOT			"/dev/mmcblk2p2"
 
 /* USB Configs */
-#define CONFIG_CMD_USB
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_MX7
-#define CONFIG_USB_STORAGE
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
@@ -131,24 +137,11 @@
 
 #define CONFIG_IMX_THERMAL
 
-#define CONFIG_CI_UDC
 #define CONFIG_USBD_HS
-#define CONFIG_USB_GADGET_DUALSPEED
 
-#define CONFIG_USB_GADGET
-#define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
-#define CONFIG_USB_GADGET_DOWNLOAD
-#define CONFIG_USB_GADGET_VBUS_DRAW	2
-
-#define CONFIG_G_DNL_VENDOR_NUM		0x0525
-#define CONFIG_G_DNL_PRODUCT_NUM	0xa4a5
-#define CONFIG_G_DNL_MANUFACTURER	"FSL"
 
 /* USB Device Firmware Update support */
-#define CONFIG_CMD_DFU
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_MMC
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_16M
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 

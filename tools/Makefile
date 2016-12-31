@@ -13,6 +13,7 @@ CONFIG_CMD_NET = y
 CONFIG_XWAY_SWAP_BYTES = y
 CONFIG_NETCONSOLE = y
 CONFIG_SHA1_CHECK_UB_IMG = y
+CONFIG_ARCH_SUNXI = y
 endif
 
 subdir-$(HOST_TOOLS_ALL) += easylogo
@@ -76,8 +77,6 @@ dumpimage-mkimage-objs := aisimage.o \
 			lib/fdtdec.o \
 			fit_common.o \
 			fit_image.o \
-			gpimage.o \
-			gpimage-common.o \
 			common/image-fit.o \
 			image-host.o \
 			common/image.o \
@@ -91,6 +90,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			os_support.o \
 			pblimage.o \
 			pbl_crc32.o \
+			vybridimage.o \
 			$(ROCKCHIP_OBS) \
 			socfpgaimage.o \
 			lib/sha1.o \
@@ -98,13 +98,30 @@ dumpimage-mkimage-objs := aisimage.o \
 			common/hash.o \
 			ublimage.o \
 			zynqimage.o \
+			zynqmpimage.o \
 			$(LIBFDT_OBJS) \
+			gpimage.o \
+			gpimage-common.o \
 			$(RSA_OBJS-y)
 
 dumpimage-objs := $(dumpimage-mkimage-objs) dumpimage.o
 mkimage-objs   := $(dumpimage-mkimage-objs) mkimage.o
 fit_info-objs   := $(dumpimage-mkimage-objs) fit_info.o
 fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
+
+# Build a libfdt Python module if swig is available
+# Use 'sudo apt-get install swig libpython-dev' to enable this
+hostprogs-$(CONFIG_SPL_OF_PLATDATA) += \
+	$(if $(shell which swig 2> /dev/null),_libfdt.so)
+_libfdt.so-sharedobjs += $(LIBFDT_OBJS)
+libfdt:
+
+tools/_libfdt.so: $(patsubst %.o,%.c,$(LIBFDT_OBJS)) tools/libfdt_wrap.c
+	python $(srctree)/lib/libfdt/setup.py "$(_hostc_flags)" $^
+	mv _libfdt.so $@
+
+tools/libfdt_wrap.c: $(srctree)/lib/libfdt/libfdt.swig
+	swig -python -o $@ $<
 
 # TODO(sjg@chromium.org): Is this correct on Mac OS?
 
@@ -154,7 +171,7 @@ hostprogs-$(CONFIG_MX23) += mxsboot
 hostprogs-$(CONFIG_MX28) += mxsboot
 HOSTCFLAGS_mxsboot.o := -pedantic
 
-hostprogs-$(CONFIG_SUNXI) += mksunxiboot
+hostprogs-$(CONFIG_ARCH_SUNXI) += mksunxiboot
 
 hostprogs-$(CONFIG_NETCONSOLE) += ncb
 hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1

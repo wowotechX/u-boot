@@ -3,25 +3,48 @@ if ARCH_UNIPHIER
 config SYS_CONFIG_NAME
 	default "uniphier"
 
+config ARCH_UNIPHIER_32BIT
+	bool
+	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select ARMV7_NONSEC
+	select ARCH_SUPPORT_PSCI
+
+config ARCH_UNIPHIER_64BIT
+	bool
+	select ARM64
+	select SPL_SEPARATE_BSS
+	select ARMV8_MULTIENTRY
+	select ARMV8_SPIN_TABLE
+
 choice
         prompt "UniPhier SoC select"
         default ARCH_UNIPHIER_PRO4
 
 config ARCH_UNIPHIER_SLD3
 	bool "UniPhier PH1-sLD3 SoC"
-	select CPU_V7
+	select ARCH_UNIPHIER_32BIT
 
 config ARCH_UNIPHIER_LD4_SLD8
 	bool "UniPhier PH1-LD4/PH1-sLD8 SoC"
-	select CPU_V7
+	select ARCH_UNIPHIER_32BIT
 
 config ARCH_UNIPHIER_PRO4
 	bool "UniPhier PH1-Pro4 SoC"
-	select CPU_V7
+	select ARCH_UNIPHIER_32BIT
 
 config ARCH_UNIPHIER_PRO5_PXS2_LD6B
 	bool "UniPhier PH1-Pro5/ProXstream2/PH1-LD6b SoC"
-	select CPU_V7
+	select ARCH_UNIPHIER_32BIT
+
+config ARCH_UNIPHIER_LD11
+	bool "UniPhier PH1-LD11 SoC"
+	select ARCH_UNIPHIER_64BIT
+
+config ARCH_UNIPHIER_LD20
+	bool "UniPhier PH1-LD20 SoC"
+	select ARCH_UNIPHIER_64BIT
+	select OF_BOARD_SETUP
 
 endchoice
 
@@ -50,6 +73,14 @@ config ARCH_UNIPHIER_LD6B
 	depends on ARCH_UNIPHIER_PRO5_PXS2_LD6B
 	default y
 
+config CACHE_UNIPHIER
+	bool "Enable the UniPhier L2 cache controller"
+	depends on ARCH_UNIPHIER_32BIT
+	select SYS_CACHE_SHIFT_7
+	default y
+	help
+	  This option allows to use the UniPhier System Cache as L2 cache.
+
 config MICRO_SUPPORT_CARD
 	bool "Use Micro Support Card"
 	help
@@ -68,7 +99,8 @@ config CMD_PINMON
 
 config CMD_DDRPHY_DUMP
 	bool "Enable dump command of DDR PHY parameters"
-	depends on ARCH_UNIPHIER_LD4 || ARCH_UNIPHIER_PRO4 || ARCH_UNIPHIER_SLD8
+	depends on ARCH_UNIPHIER_LD4 || ARCH_UNIPHIER_PRO4 || \
+		ARCH_UNIPHIER_SLD8 || ARCH_UNIPHIER_LD11
 	default y
 	help
 	  The command "ddrphy" shows the resulting parameters of DDR PHY

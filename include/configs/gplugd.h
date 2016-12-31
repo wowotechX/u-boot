@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2011
  * eInfochips Ltd. <www.einfochips.com>
- * Written-by: Ajay Bhargav <ajay.bhargav@einfochips.com>
+ * Written-by: Ajay Bhargav <contact@8051projects.net>
  *
  * Based on Aspenite:
  * (C) Copyright 2010
@@ -26,11 +26,6 @@
 #endif
 
 /*
- * Version number information
- */
-#define CONFIG_IDENT_STRING	"\nMarvell-gplugD"
-
-/*
  * High Level Configuration Options
  */
 #define CONFIG_SHEEVA_88SV331xV5	1	/* CPU Core subversion */
@@ -52,21 +47,15 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 
 /* Disable DCACHE */
 #define CONFIG_SYS_DCACHE_OFF
 
 /* Network configuration */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_CMD_PING
 #define CONFIG_ARMADA100_FEC
 
 /* DHCP Support */
-#define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_DHCP_REQUEST_DELAY		50000
 #endif /* CONFIG_CMD_NET */
 
@@ -75,7 +64,6 @@
 
 /* PHY configuration */
 #define CONFIG_MII
-#define CONFIG_CMD_MII
 #define CONFIG_RESET_PHY_R
 /* 88E3015 register definition */
 #define PHY_LED_PAR_SEL_REG		22
@@ -84,13 +72,7 @@
 /* GPIO Configuration for PHY */
 #define CONFIG_SYS_GPIO_PHY_RST		104	/* GPIO104 */
 
-/* SPI Support */
-#define CONFIG_ARMADA100_SPI
-#define CONFIG_ENV_SPI_CS		110
-#define CONFIG_SYS_SSP_PORT		2
-
 /* Flash Support */
-#define CONFIG_CMD_SF
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -108,18 +90,13 @@
 /*
  * Environment variables configurations
  */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SECT_SIZE		0x4000
+#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE			0x4000
-#define CONFIG_ENV_OFFSET		0x07C000
-
-#define CONFIG_CMD_ASKENV
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_ARMADA100
 #define CONFIG_EHCI_IS_TDI
-#define CONFIG_USB_STORAGE
 #endif /* CONFIG_CMD_USB */
 
 #define CONFIG_DOS_PARTITION

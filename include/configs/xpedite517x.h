@@ -14,7 +14,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_XPEDITE5140	1	/* MPC8641HPCN board specific */
 #define CONFIG_SYS_BOARD_NAME	"XPedite5170"
 #define CONFIG_SYS_FORM_3U_VPX	1
@@ -23,19 +22,15 @@
 #define CONFIG_BAT_RW		1	/* Use common BAT rw code */
 #define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
 #define CONFIG_ALTIVEC		1
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff00000
 
-#define CONFIG_PCI		1	/* Enable PCI/PCIE */
-#define CONFIG_PCI_PNP		1	/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup */
-#define CONFIG_PCIE1		1	/* PCIE controler 1 */
-#define CONFIG_PCIE2		1	/* PCIE controler 2 */
+#define CONFIG_PCIE1		1	/* PCIE controller 1 */
+#define CONFIG_PCIE2		1	/* PCIE controller 2 */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 /*
  * DDR config
@@ -80,7 +75,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #define CONFIG_SYS_CCSRBAR		0xef000000	/* relocated CCSRBAR */
 #define CONFIG_SYS_CCSRBAR_PHYS		CONFIG_SYS_CCSRBAR
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
@@ -224,11 +218,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_LOADS_ECHO		1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
-
-/*
- * Use the HUSH parser
- */
-#define CONFIG_SYS_HUSH_PARSER
 
 /*
  * I2C
@@ -516,25 +505,19 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Command configuration.
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DS4510
 #define CONFIG_CMD_DS4510_INFO
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCA953X
 #define CONFIG_CMD_PCA953X_INFO
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PCI_ENUM
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SNTP
 
 /*
  * Miscellaneous configurable options
@@ -547,7 +530,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 #define CONFIG_CMDLINE_EDITING	1		/* Command-line editing */
 #define CONFIG_LOADADDR		0x1000000	/* default location for tftp and bootm */
-#define CONFIG_BOOTDELAY	3		/* -1 disables auto-boot */
 #define CONFIG_PANIC_HANG			/* do not reset board on panic */
 #define CONFIG_PREBOOT				/* enable preboot variable */
 #define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */
@@ -711,7 +693,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 	"osfile=/home/user/board.uImage\0"				\
 	"fdtfile=/home/user/board.dtb\0"				\
 	"ubootfile=/home/user/u-boot.bin\0"				\
-	"fdtaddr=c00000\0"						\
+	"fdtaddr=0x1e00000\0"						\
 	"osaddr=0x1000000\0"						\
 	"loadaddr=0x1000000\0"						\
 	"prog_uboot1="CONFIG_PROG_UBOOT1"\0"				\

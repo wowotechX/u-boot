@@ -11,16 +11,14 @@
 #define CONFIG_NAND
 
 #include <configs/ti_omap3_common.h>
-#undef CONFIG_SPL_MAX_SIZE
-#define CONFIG_SPL_MAX_SIZE	(64*1024)
+/*
+ * We are only ever GP parts and will utilize all of the "downloaded image"
+ * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB).
+ */
 #undef CONFIG_SPL_TEXT_BASE
-#define CONFIG_SPL_TEXT_BASE	0x40200000
+#define CONFIG_SPL_TEXT_BASE		0x40200000
 
 #define CONFIG_BCH
-
-/* Display CPU and Board information */
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 /* call misc_init_r */
 #define CONFIG_MISC_INIT_R
@@ -44,7 +42,6 @@
 /* USB EHCI */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
-#define CONFIG_USB_STORAGE
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	183
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
 
@@ -56,11 +53,8 @@
 #define CONFIG_OMAP3_GPIO_6	/* GPIO160..191 is in GPIO Bank 6 */
 
 /* commands to include */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_USB
 
 #ifdef CONFIG_NAND
-#define CONFIG_CMD_UBI		/* UBI-formated MTD partition support */
 #define CONFIG_CMD_UBIFS	/* Read-only UBI volume operations */
 
 #define CONFIG_RBTREE		/* required by CONFIG_CMD_UBI */
@@ -217,7 +211,6 @@
 /* Initial RAM setup */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
 #define CONFIG_SYS_INIT_RAM_SIZE	0x800
-#define CONFIG_SYS_CACHELINE_SIZE	64
 
 /* NAND boot config */
 #define CONFIG_SYS_NAND_BUSWIDTH_16BIT

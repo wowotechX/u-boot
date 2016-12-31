@@ -11,18 +11,18 @@
 
 #undef DEBUG
 #define CONFIG_R8A7791
-#define CONFIG_RMOBILE_BOARD_STRING "Koelsch"
+#define CONFIG_ARCH_RMOBILE_BOARD_STRING "Koelsch"
 
 #include "rcar-gen2-common.h"
 
-#if defined(CONFIG_RMOBILE_EXTRAM_BOOT)
+#if defined(CONFIG_ARCH_RMOBILE_EXTRAM_BOOT)
 #define CONFIG_SYS_TEXT_BASE	0x70000000
 #else
 #define CONFIG_SYS_TEXT_BASE	0xE6304000
 #endif
 
 /* STACK */
-#if defined(CONFIG_RMOBILE_EXTRAM_BOOT)
+#if defined(CONFIG_ARCH_RMOBILE_EXTRAM_BOOT)
 #define CONFIG_SYS_INIT_SP_ADDR		0x7003FFFC
 #else
 #define CONFIG_SYS_INIT_SP_ADDR		0xE633fffC
@@ -65,7 +65,6 @@
 #define CONFIG_SYS_TMU_CLK_DIV	4
 
 /* i2c */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SH
 #define CONFIG_SYS_I2C_SLAVE	0x7F
@@ -83,7 +82,6 @@
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_RMOBILE
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
-#define CONFIG_USB_STORAGE
 
 /* Module stop status bits */
 /* INTC-RT */
@@ -96,8 +94,6 @@
 #define CONFIG_SMSTP7_ENA	0x00200000
 
 /* SD */
-#define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_SH_SDHI_FREQ	97500000
 

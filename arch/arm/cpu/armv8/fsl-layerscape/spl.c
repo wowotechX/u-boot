@@ -8,7 +8,6 @@
 #include <spl.h>
 #include <asm/io.h>
 #include <fsl_ifc.h>
-#include <fsl_csu.h>
 #include <i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -24,12 +23,12 @@ u32 spl_boot_device(void)
 	return 0;
 }
 
-u32 spl_boot_mode(void)
+u32 spl_boot_mode(const u32 boot_device)
 {
 	switch (spl_boot_device()) {
 	case BOOT_DEVICE_MMC1:
 #ifdef CONFIG_SPL_FAT_SUPPORT
-		return MMCSD_MODE_FAT;
+		return MMCSD_MODE_FS;
 #else
 		return MMCSD_MODE_RAW;
 #endif
@@ -49,9 +48,6 @@ void board_init_f(ulong dummy)
 #ifdef CONFIG_LS2080A
 	arch_cpu_init();
 #endif
-#ifdef CONFIG_FSL_IFC
-	init_early_memctl_regs();
-#endif
 	board_early_init_f();
 	timer_init();
 #ifdef CONFIG_LS2080A
@@ -65,13 +61,5 @@ void board_init_f(ulong dummy)
 	i2c_init_all();
 #endif
 	dram_init();
-
-	/* Clear the BSS */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
-#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
-#endif
-	board_init_r(NULL, 0);
 }
 #endif

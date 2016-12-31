@@ -9,19 +9,15 @@
 
 #define CONFIG_LS102XA
 
-#define CONFIG_ARMV7_PSCI
+#define CONFIG_ARMV7_PSCI_1_0
+
+#define CONFIG_ARMV7_SECURE_BASE	OCRAM_BASE_S_ADDR
 
 #define CONFIG_SYS_FSL_CLK
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_DEEP_SLEEP
-#ifdef CONFIG_DEEP_SLEEP
-#define CONFIG_SILENT_CONSOLE
-#endif
 
 /*
  * Size of malloc() pool
@@ -57,16 +53,8 @@
 
 #ifdef CONFIG_HAS_FSL_XHCI_USB
 #define CONFIG_USB_XHCI_FSL
-#define CONFIG_USB_XHCI_DWC3
-#define CONFIG_USB_XHCI
 #define CONFIG_USB_MAX_CONTROLLER_COUNT        1
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS     2
-#endif
-
-#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_XHCI_USB)
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
-#define CONFIG_CMD_EXT2
 #endif
 
 /*
@@ -118,16 +106,14 @@
 #endif
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_WATCHDOG_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0xe8
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		0x400
+
+#ifdef CONFIG_SECURE_BOOT
+/*
+ * HDR would be appended at end of image and copied to DDR along
+ * with U-Boot image.
+ */
+#define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
+#endif /* ifdef CONFIG_SECURE_BOOT */
 
 #define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x1a000
@@ -140,7 +126,18 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
+
+#ifdef CONFIG_U_BOOT_HDR_SIZE
+/*
+ * HDR would be appended at end of image and copied to DDR along
+ * with U-Boot image. Here u-boot max. size is 512K. So if binary
+ * size increases then increase this size in case of secure boot as
+ * it uses raw u-boot image instead of fit image.
+ */
+#define CONFIG_SYS_MONITOR_LEN		(0x80000 + CONFIG_U_BOOT_HDR_SIZE)
+#else
 #define CONFIG_SYS_MONITOR_LEN		0x80000
+#endif /* ifdef CONFIG_U_BOOT_HDR_SIZE */
 #endif
 
 #ifdef CONFIG_QSPI_BOOT
@@ -161,8 +158,6 @@
 
 #define CONFIG_SYS_DDR_SDRAM_BASE      0x80000000UL
 #define CONFIG_SYS_SDRAM_BASE          CONFIG_SYS_DDR_SDRAM_BASE
-
-#define CONFIG_SYS_HAS_SERDES
 
 #define CONFIG_FSL_CAAM			/* Enable CAAM */
 
@@ -281,7 +276,6 @@
 /*
  * I2C
  */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -300,12 +294,9 @@
 /*
  * MMC
  */
-#define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_GENERIC_MMC
 
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
 /* SPI */
@@ -320,7 +311,6 @@
 
 /* DM SPI */
 #if defined(CONFIG_FSL_DSPI) || defined(CONFIG_FSL_QSPI)
-#define CONFIG_CMD_SF
 #define CONFIG_DM_SPI_FLASH
 #endif
 
@@ -330,13 +320,9 @@
 #define CONFIG_FSL_DCU_FB
 
 #ifdef CONFIG_FSL_DCU_FB
-#define CONFIG_VIDEO
 #define CONFIG_CMD_BMP
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #define CONFIG_FSL_DCU_SII9022A
 #define CONFIG_SYS_I2C_DVI_BUS_NUM	1
@@ -382,9 +368,8 @@
 #endif
 
 /* PCIe */
-#define CONFIG_PCI		/* Enable PCI/PCIE */
-#define CONFIG_PCIE1		/* PCIE controler 1 */
-#define CONFIG_PCIE2		/* PCIE controler 2 */
+#define CONFIG_PCIE1		/* PCIE controller 1 */
+#define CONFIG_PCIE2		/* PCIE controller 2 */
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 #define FSL_PCIE_COMPAT "fsl,ls1021a-pcie"
 
@@ -404,24 +389,13 @@
 #define CONFIG_SYS_PCIE_MEM_SIZE	0x08000000	/* 128M */
 
 #ifdef CONFIG_PCI
-#define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_CMD_PCI
 #endif
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
-
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING
 
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#undef CONFIG_CMD_IMLS
-#endif
-
-#define CONFIG_ARMV7_NONSEC
-#define CONFIG_ARMV7_VIRT
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200
@@ -432,7 +406,6 @@
 
 #define CONFIG_FSL_DEVICE_DISABLE
 
-#define CONFIG_BOOTDELAY		3
 
 #ifdef CONFIG_LPUART
 #define CONFIG_EXTRA_ENV_SETTINGS       \
@@ -450,8 +423,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		\
@@ -459,9 +430,6 @@
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_MEMINFO
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
@@ -509,8 +477,6 @@
 #define CONFIG_ENV_SIZE			0x20000
 #define CONFIG_ENV_SECT_SIZE		0x20000 /* 128K (one sector) */
 #endif
-
-#define CONFIG_CMD_BOOTZ
 
 #define CONFIG_MISC_INIT_R
 

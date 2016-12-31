@@ -26,8 +26,6 @@
 #define MV88F78X60 /* for the DDR training bin_hdr code */
 #endif
 
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
 #define CONFIG_SYS_L2_PL310
 
 #ifdef CONFIG_SPL_BUILD
@@ -77,7 +75,6 @@
  * Ethernet Driver configuration
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_CMD_MII
 #define CONFIG_MII		/* expose smi ove miiphy interface */
 #if !defined(CONFIG_ARMADA_375)
 #define CONFIG_MVNETA		/* Enable Marvell Gbe Controller Driver */

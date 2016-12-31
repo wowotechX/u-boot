@@ -133,6 +133,9 @@ int last_stage_init(void)
 	unsigned char mclink_controllers_dp[] = { 0x24, 0x25, 0x26 };
 #endif
 	bool hw_type_cat = pca9698_get_value(0x20, 18);
+#ifdef CONFIG_STRIDER_CON_DP
+	bool is_dh = pca9698_get_value(0x20, 25);
+#endif
 	bool ch0_sgmii2_present = false;
 
 	/* Turn on Analog Devices ADV7611 */
@@ -140,6 +143,7 @@ int last_stage_init(void)
 
 	/* Turn on Parade DP501 */
 	pca9698_direction_output(0x20, 10, 1);
+	pca9698_direction_output(0x20, 11, 1);
 
 	ch0_sgmii2_present = !pca9698_get_value(0x20, 37);
 
@@ -175,8 +179,17 @@ int last_stage_init(void)
 	}
 
 	if (hw_type_cat) {
-		miiphy_register(bb_miiphy_buses[0].name, bb_miiphy_read,
-				bb_miiphy_write);
+		int retval;
+		struct mii_dev *mdiodev = mdio_alloc();
+		if (!mdiodev)
+			return -ENOMEM;
+		strncpy(mdiodev->name, bb_miiphy_buses[0].name, MDIO_NAME_LEN);
+		mdiodev->read = bb_miiphy_read;
+		mdiodev->write = bb_miiphy_write;
+
+		retval = mdio_register(mdiodev);
+		if (retval < 0)
+			return retval;
 		for (mux_ch = 0; mux_ch < MAX_MUX_CHANNELS; ++mux_ch) {
 			if ((mux_ch == 1) && !ch0_sgmii2_present)
 				continue;
@@ -200,6 +213,14 @@ int last_stage_init(void)
 #ifdef CONFIG_STRIDER_CON
 	if (ioep_fpga_has_osd(0))
 		osd_probe(0);
+#endif
+
+#ifdef CONFIG_STRIDER_CON_DP
+	if (ioep_fpga_has_osd(0)) {
+		osd_probe(0);
+		if (is_dh)
+			osd_probe(4);
+	}
 #endif
 
 #ifdef CONFIG_STRIDER_CPU
@@ -226,6 +247,13 @@ int last_stage_init(void)
 		if (ioep_fpga_has_osd(k))
 			osd_probe(k);
 #endif
+#ifdef CONFIG_STRIDER_CON_DP
+		if (ioep_fpga_has_osd(k)) {
+			osd_probe(k);
+			if (is_dh)
+				osd_probe(k + 4);
+		}
+#endif
 #ifdef CONFIG_STRIDER_CPU
 		if (!adv7611_probe(k))
 			printf("       Advantiv ADV7611 HDMI Receiver\n");
@@ -233,8 +261,18 @@ int last_stage_init(void)
 		dp501_probe(k, false);
 #endif
 		if (hw_type_cat) {
-			miiphy_register(bb_miiphy_buses[k].name,
-					bb_miiphy_read, bb_miiphy_write);
+			int retval;
+			struct mii_dev *mdiodev = mdio_alloc();
+			if (!mdiodev)
+				return -ENOMEM;
+			strncpy(mdiodev->name, bb_miiphy_buses[k].name,
+				MDIO_NAME_LEN);
+			mdiodev->read = bb_miiphy_read;
+			mdiodev->write = bb_miiphy_write;
+
+			retval = mdio_register(mdiodev);
+			if (retval < 0)
+				return retval;
 			setup_88e1514(bb_miiphy_buses[k].name, 0);
 		}
 	}
@@ -269,6 +307,24 @@ int fpga_gpio_get(unsigned int bus, int pin)
 
 	return val & pin;
 }
+
+#ifdef CONFIG_STRIDER_CON_DP
+void fpga_control_set(unsigned int bus, int pin)
+{
+	u16 val;
+
+	FPGA_GET_REG(bus, control, &val);
+	FPGA_SET_REG(bus, control, val | pin);
+}
+
+void fpga_control_clear(unsigned int bus, int pin)
+{
+	u16 val;
+
+	FPGA_GET_REG(bus, control, &val);
+	FPGA_SET_REG(bus, control, val & ~pin);
+}
+#endif
 
 void mpc8308_init(void)
 {
@@ -357,7 +413,7 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
-	fdt_fixup_dr_usb(blob, bd);
+	fsl_fdt_fixup_dr_usb(blob, bd);
 	fdt_fixup_esdhc(blob, bd);
 
 	return 0;

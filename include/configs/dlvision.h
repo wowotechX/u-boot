@@ -17,7 +17,6 @@
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		dlvision
-#define CONFIG_IDENT_STRING	" dlvision 0.02"
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F	/* call board_early_init_f */
@@ -58,10 +57,8 @@
  * Commands additional to the ones defined in amcc-common.h
  */
 #define CONFIG_CMD_DTT
-#undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_DIAG
 #undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_IRQ
 
 /*

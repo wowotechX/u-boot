@@ -5,12 +5,19 @@
  */
 
 #include <common.h>
+#include <smbios.h>
 #include <asm/sfi.h>
 #include <asm/mpspec.h>
-#include <asm/smbios.h>
 #include <asm/tables.h>
 #include <asm/acpi_table.h>
 #include <asm/coreboot_tables.h>
+
+#ifdef CONFIG_GENERATE_SMBIOS_TABLE
+static u32 write_smbios_table_wrapper(u32 addr)
+{
+	return write_smbios_table(addr);
+}
+#endif
 
 /**
  * Function prototype to write a specific configuration table
@@ -34,21 +41,9 @@ static table_write table_write_funcs[] = {
 	write_acpi_tables,
 #endif
 #ifdef CONFIG_GENERATE_SMBIOS_TABLE
-	write_smbios_table,
+	write_smbios_table_wrapper,
 #endif
 };
-
-u8 table_compute_checksum(void *v, int len)
-{
-	u8 *bytes = v;
-	u8 checksum = 0;
-	int i;
-
-	for (i = 0; i < len; i++)
-		checksum -= bytes[i];
-
-	return checksum;
-}
 
 void table_fill_string(char *dest, const char *src, size_t n, char pad)
 {
@@ -80,9 +75,8 @@ void write_tables(void)
 
 #ifdef CONFIG_SEABIOS
 		table_size = rom_table_end - rom_table_start;
-		high_table = (u32)memalign(ROM_TABLE_ALIGN, table_size);
+		high_table = (u32)high_table_malloc(table_size);
 		if (high_table) {
-			memset((void *)high_table, 0, table_size);
 			table_write_funcs[i](high_table);
 
 			cfg_tables[i].start = high_table;

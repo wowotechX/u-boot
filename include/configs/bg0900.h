@@ -11,18 +11,10 @@
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
@@ -62,7 +54,6 @@
 #endif
 
 /* Boot Linux */
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_BOOTARGS		"console=ttyAMA0,115200"
 #define CONFIG_BOOTCOMMAND	"bootm"

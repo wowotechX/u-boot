@@ -26,11 +26,8 @@
 #define CONFIG_SYS_OSCIN_FREQ		24000000
 #define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
-#define CONFIG_SYS_DA850_PLL_INIT
-#define CONFIG_SYS_DA850_DDR_INIT
 
 #define CONFIG_SYS_TEXT_BASE		0xc1080000
-
 
 /*
  * Memory Info
@@ -128,7 +125,6 @@
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
 
 #define CONFIG_SPI
-#define CONFIG_CMD_SF
 #define CONFIG_DAVINCI_SPI
 #define CONFIG_SYS_SPI_BASE		DAVINCI_SPI0_BASE
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI0_CLKID)
@@ -153,9 +149,7 @@
 #define CONFIG_SYS_MAXARGS	16 /* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 #define CONFIG_SYS_LOAD_ADDR	(PHYS_SDRAM_1 + 0x700000)
-#define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CRC32_VERIFY
@@ -171,8 +165,6 @@
 #define CONFIG_SERIAL_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_SETUP_INITRD_TAG
-#define CONFIG_BOOTDELAY	0
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan; then " \
 		"if run loadbootscr; then " \
@@ -211,25 +203,18 @@
 /*
  * U-Boot commands
  */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
 #endif
 
-#define CONFIG_CMD_SPI
-
 #define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_SIZE		(16 << 10)
 
 /* SD/MMC configuration */
-#define CONFIG_MMC
 #define CONFIG_DAVINCI_MMC_SD1
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DAVINCI_MMC
@@ -240,9 +225,6 @@
  */
 #ifdef CONFIG_MMC
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_MMC
 #endif
 
 /* additions for new relocation code, must added to all boards */

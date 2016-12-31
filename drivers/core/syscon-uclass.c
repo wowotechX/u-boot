@@ -29,7 +29,20 @@ static int syscon_pre_probe(struct udevice *dev)
 {
 	struct syscon_uc_info *priv = dev_get_uclass_priv(dev);
 
+	/*
+	 * With OF_PLATDATA we really have no way of knowing the format of
+	 * the device-specific platform data. So we assume that it starts with
+	 * a 'reg' member, and this holds a single address and size. Drivers
+	 * using OF_PLATDATA will need to ensure that this is true.
+	 */
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct syscon_base_platdata *plat = dev_get_platdata(dev);
+
+	return regmap_init_mem_platdata(dev, plat->reg, ARRAY_SIZE(plat->reg),
+					&priv->regmap);
+#else
 	return regmap_init_mem(dev, &priv->regmap);
+#endif
 }
 
 int syscon_get_by_driver_data(ulong driver_data, struct udevice **devp)
@@ -81,4 +94,15 @@ UCLASS_DRIVER(syscon) = {
 	.name		= "syscon",
 	.per_device_auto_alloc_size = sizeof(struct syscon_uc_info),
 	.pre_probe = syscon_pre_probe,
+};
+
+static const struct udevice_id generic_syscon_ids[] = {
+	{ .compatible = "syscon" },
+	{ }
+};
+
+U_BOOT_DRIVER(generic_syscon) = {
+	.name	= "syscon",
+	.id	= UCLASS_SYSCON,
+	.of_match = generic_syscon_ids,
 };

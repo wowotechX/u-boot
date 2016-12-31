@@ -11,8 +11,6 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"
 
 #define MACH_TYPE_UDOO		4800
@@ -41,9 +39,6 @@
 
 /* Network support */
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE                    ENET_BASE_ADDR

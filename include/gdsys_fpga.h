@@ -17,7 +17,6 @@ enum {
 };
 
 int get_fpga_state(unsigned dev);
-void print_fpga_state(unsigned dev);
 
 int fpga_set_reg(u32 fpga, u16 *reg, off_t regoff, u16 data);
 int fpga_get_reg(u32 fpga, u16 *reg, off_t regoff, u16 *data);
@@ -163,7 +162,7 @@ struct ihs_fpga {
 };
 #endif
 
-#ifdef CONFIG_HRCON
+#if defined(CONFIG_HRCON) || defined(CONFIG_STRIDER_CON_DP)
 struct ihs_fpga {
 	u16 reflection_low;	/* 0x0000 */
 	u16 versions;		/* 0x0002 */

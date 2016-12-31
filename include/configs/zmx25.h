@@ -15,7 +15,6 @@
 #define CONFIG_MX25
 #define CONFIG_SYS_TEXT_BASE		0xA0000000
 
-
 #define CONFIG_SYS_TIMER_RATE		32768
 #define CONFIG_SYS_TIMER_COUNTER	\
 	(&((struct gpt_regs *)IMX_GPT1_BASE)->counter)
@@ -76,17 +75,10 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
 
 /*
  * Additional command
  */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_USB
-
-#define CONFIG_SYS_HUSH_PARSER
 
 /*
  * USB
@@ -99,7 +91,6 @@
 #define CONFIG_MXC_USB_PORTSC	MXC_EHCI_MODE_SERIAL
 #define CONFIG_MXC_USB_FLAGS	(MXC_EHCI_INTERNAL_PHY | MXC_EHCI_IPPUE_DOWN)
 #define CONFIG_EHCI_IS_TDI
-#define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
 #define CONFIG_SUPPORT_VFAT
 #endif /* CONFIG_CMD_USB */
@@ -145,7 +136,6 @@
 
 #define CONFIG_PREBOOT  ""
 
-#define CONFIG_BOOTDELAY	5
 
 /*
  * Size of malloc() pool

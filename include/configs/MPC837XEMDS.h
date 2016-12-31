@@ -8,8 +8,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * High Level Configuration Options
  */
@@ -200,7 +198,7 @@
 #endif
 
 /* CONFIG_SYS_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
-#define CONFIG_SYS_MONITOR_LEN	(384 * 1024) /* Reserve 384 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN	(512 * 1024) /* Reserve 512 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN	(512 * 1024) /* Reserved for malloc */
 
 /*
@@ -318,9 +316,6 @@
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR+0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL
@@ -382,13 +377,9 @@ extern int board_pci_host_broken(void);
 #define CONFIG_PQ_MDS_PIB	1 /* PQ MDS Platform IO Board */
 
 #define CONFIG_HAS_FSL_DR_USB	1 /* fixup device tree for the DR USB */
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
@@ -449,7 +440,6 @@ extern int board_pci_host_broken(void);
 #define CONFIG_LBA48
 #define CONFIG_CMD_SATA
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
 #endif
 
 /*
@@ -479,13 +469,9 @@ extern int board_pci_host_broken(void);
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
 
 #if defined(CONFIG_PCI)
@@ -497,16 +483,11 @@ extern int board_pci_host_broken(void);
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
-#define CONFIG_MMC     1
-
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_ESDHC_PIN_MUX
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
@@ -534,6 +515,7 @@ extern int board_pci_host_broken(void);
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(256 << 20) /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
 /*
  * Core HID Setup
@@ -671,7 +653,6 @@ extern int board_pci_host_broken(void);
 
 #define CONFIG_LOADADDR 800000	/* default location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY 6	/* -1 disables auto-boot */
 #undef CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
@@ -700,7 +681,6 @@ extern int board_pci_host_broken(void);
 	"tftp $loadaddr $bootfile;"					\
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
 
 #define CONFIG_BOOTCOMMAND CONFIG_NFSBOOTCOMMAND
 

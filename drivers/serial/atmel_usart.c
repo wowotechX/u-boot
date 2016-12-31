@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <watchdog.h>
 #include <serial.h>
+#include <debug_uart.h>
 #include <linux/compiler.h>
 
 #include <asm/io.h>
@@ -191,19 +192,59 @@ static int atmel_serial_probe(struct udevice *dev)
 {
 	struct atmel_serial_platdata *plat = dev->platdata;
 	struct atmel_serial_priv *priv = dev_get_priv(dev);
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	fdt_addr_t addr_base;
 
+	addr_base = dev_get_addr(dev);
+	if (addr_base == FDT_ADDR_T_NONE)
+		return -ENODEV;
+
+	plat->base_addr = (uint32_t)addr_base;
+#endif
 	priv->usart = (atmel_usart3_t *)plat->base_addr;
 	atmel_serial_init_internal(priv->usart);
 
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static const struct udevice_id atmel_serial_ids[] = {
+	{ .compatible = "atmel,at91sam9260-usart" },
+	{ }
+};
+#endif
+
 U_BOOT_DRIVER(serial_atmel) = {
 	.name	= "serial_atmel",
 	.id	= UCLASS_SERIAL,
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	.of_match = atmel_serial_ids,
+	.platdata_auto_alloc_size = sizeof(struct atmel_serial_platdata),
+#endif
 	.probe = atmel_serial_probe,
 	.ops	= &atmel_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 	.priv_auto_alloc_size	= sizeof(struct atmel_serial_priv),
 };
+#endif
+
+#ifdef CONFIG_DEBUG_UART_ATMEL
+static inline void _debug_uart_init(void)
+{
+	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_DEBUG_UART_BASE;
+
+	atmel_serial_setbrg_internal(usart, 0, CONFIG_BAUDRATE);
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_DEBUG_UART_BASE;
+
+	while (!(readl(&usart->csr) & USART3_BIT(TXRDY)))
+		;
+
+	writel(ch, &usart->thr);
+}
+
+DEBUG_UART_FUNCS
 #endif

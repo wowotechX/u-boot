@@ -15,31 +15,16 @@
 
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 
-/*
- * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
- * 64 bytes before this address should be set aside for u-boot.img's
- * header. That is 0x800FFFC0--0x80100000 should not be used for any
- * other needs.  We use this rather than the inherited defines from
- * ti_armv7_common.h for backwards compatibility.
- */
-#define CONFIG_SYS_TEXT_BASE		0x80100000
-#define CONFIG_SPL_BSS_START_ADDR	0x80000000
-#define CONFIG_SPL_BSS_MAX_SIZE		(512 << 10)	/* 512 KB */
-#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
-
 #include <configs/ti_omap3_common.h>
 
-/* Override default SPL info to minimize empty space and allow BCH8 in SPL */
+/*
+ * We are only ever GP parts and will utilize all of the "downloaded image"
+ * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB) in
+ * order to allow for BCH8 to fit in.
+ */
 #undef CONFIG_SPL_TEXT_BASE
-#undef CONFIG_SPL_MAX_SIZE
-#define CONFIG_SPL_TEXT_BASE   0x40200000
-#define CONFIG_SPL_MAX_SIZE    (64 * 1024)
+#define CONFIG_SPL_TEXT_BASE		0x40200000
 
-/* Display CPU and Board information */
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MISC_INIT_R		/* misc_init_r dumps the die id */
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
@@ -47,7 +32,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_CMDLINE_EDITING		/* cmd line edit/history */
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check keypress w/no delay */
 
 /* Hardware drivers */
 
@@ -64,13 +48,8 @@
 
 /* commands to include */
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 
 /* I2C */
 #define CONFIG_SYS_I2C_OMAP34XX
@@ -88,7 +67,6 @@
 #define CONFIG_ANDROID_BOOT_IMAGE
 #define CONFIG_FASTBOOT_BUF_ADDR	CONFIG_SYS_LOAD_ADDR
 #define CONFIG_FASTBOOT_BUF_SIZE	0x07000000
-#define CONFIG_SYS_CACHELINE_SIZE	64
 
 /* TWL4030 */
 #define CONFIG_TWL4030_PWM
@@ -98,7 +76,6 @@
 #ifdef CONFIG_NAND
 #define CONFIG_NAND_OMAP_GPMC
 
-#define CONFIG_CMD_UBI			/* UBI-formated MTD partition support */
 #define CONFIG_CMD_UBIFS		/* Read-only UBI volume operations */
 #define CONFIG_RBTREE			/* required by CONFIG_CMD_UBI */
 #define CONFIG_LZO			/* required by CONFIG_CMD_UBIFS */
@@ -131,34 +108,17 @@
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:512k(MLO),"\
-					"1920k(u-boot),128k(u-boot-env),"\
-					"4m(kernel),-(fs)"
+#define MTDPARTS_DEFAULT	"mtdparts=omap2-nand.0:"\
+							"512k(MLO),"\
+							"1792k(u-boot),"\
+							"128k(spl-os)," \
+							"128k(u-boot-env),"\
+							"6m(kernel),-(fs)"
 #endif
 
 /* Environment information */
 
-/*
- * PREBOOT assumes the 4.3" display is attached.  User can interrupt
- * and modify display variable to suit their needs.
- */
 #define CONFIG_PREBOOT \
-	"echo ======================NOTICE============================;"\
-	"echo \"The u-boot environment is not set.\";"			\
-	"echo \"If using a display a valid display varible for your panel\";" \
-	"echo \"needs to be set.\";"					\
-	"echo \"Valid display options are:\";"				\
-	"echo \"  2 == LQ121S1DG31     TFT SVGA    (12.1)  Sharp\";"	\
-	"echo \"  3 == LQ036Q1DA01     TFT QVGA    (3.6)   Sharp w/ASIC\";" \
-	"echo \"  5 == LQ064D343       TFT VGA     (6.4)   Sharp\";"	\
-	"echo \"  7 == LQ10D368        TFT VGA     (10.4)  Sharp\";"	\
-	"echo \" 15 == LQ043T1DG01     TFT WQVGA   (4.3)   Sharp (DEFAULT)\";" \
-	"echo \" vga[-dvi or -hdmi]    LCD VGA     640x480\";"          \
-	"echo \" svga[-dvi or -hdmi]   LCD SVGA    800x600\";"          \
-	"echo \" xga[-dvi or -hdmi]    LCD XGA     1024x768\";"         \
-	"echo \" 720p[-dvi or -hdmi]   LCD 720P    1280x720\";"         \
-	"echo \"Defaulting to 4.3 LCD panel (display=15).\";"		\
-	"setenv display 15;"						\
 	"setenv preboot;"						\
 	"nand unlock;"							\
 	"saveenv;"
@@ -219,6 +179,12 @@
 		"${optargs} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
+	"nfsargs=run setconsole; setenv serverip ${tftpserver}; " \
+		"setenv bootargs console=${console} root=/dev/nfs " \
+		"nfsroot=${nfsrootpath} " \
+		"ip=${ipaddr}:${tftpserver}:${gatewayip}:${netmask}::eth0:off\0" \
+	"nfsrootpath=/opt/nfs-exports/omap\0" \
+	"autoload=no\0" \
 	"fdtaddr=0x86000000\0" \
 	"loadfdtimage=mmc rescan; " \
 		"fatload mmc ${mmcdev} ${fdtaddr} ${fdtimage}\0" \
@@ -243,14 +209,21 @@
 		"run loadzimage; " \
 		"run loadramdisk; " \
 		"run loadfdtimage; " \
-		"bootz ${loadaddr} ${ramdiskaddr} ${fdtaddr}\0; " \
+		"bootz ${loadaddr} ${ramdiskaddr} ${fdtaddr};\0" \
 	"tftpboot=echo 'Booting kernel/ramdisk rootfs from tftp...'; " \
 		"run ramargs; " \
 		"run common_bootargs; " \
 		"run dump_bootargs; " \
-		"tftpboot ${loadaddr} ${uimage}; " \
+		"tftpboot ${loadaddr} ${zimage}; " \
 		"tftpboot ${ramdiskaddr} ${ramdiskimage}; " \
-		"bootm ${loadaddr} ${ramdiskaddr}\0"
+		"bootm ${loadaddr} ${ramdiskaddr}\0" \
+	"tftpbootz=echo 'Booting kernel NFS rootfs...'; " \
+		"dhcp;" \
+		"run nfsargs;" \
+		"run common_bootargs;" \
+		"run dump_bootargs;" \
+		"tftpboot $loadaddr zImage;" \
+		"bootz $loadaddr\0"
 
 #define CONFIG_BOOTCOMMAND \
 	"run autoboot"
@@ -283,7 +256,6 @@
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 #define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
-
 
 /* SMSC922x Ethernet */
 #if defined(CONFIG_CMD_NET)

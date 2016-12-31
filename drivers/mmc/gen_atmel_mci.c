@@ -14,7 +14,7 @@
 #include <part.h>
 #include <malloc.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/byteorder.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
@@ -213,7 +213,7 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	if (!priv->initialized) {
 		puts ("MCI not initialized!\n");
-		return COMM_ERR;
+		return -ECOMM;
 	}
 
 	/* Figure out the transfer arguments */
@@ -238,10 +238,10 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	if ((status & error_flags) & MMCI_BIT(RTOE)) {
 		dump_cmd(cmdr, cmd->cmdarg, status, "Command Time Out");
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	} else if (status & error_flags) {
 		dump_cmd(cmdr, cmd->cmdarg, status, "Command Failed");
-		return COMM_ERR;
+		return -ECOMM;
 	}
 
 	/* Copy the response to the response buffer */
@@ -303,7 +303,7 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 			if (status) {
 				dump_cmd(cmdr, cmd->cmdarg, status,
 					"Data Transfer Failed");
-				return COMM_ERR;
+				return -ECOMM;
 			}
 		}
 
@@ -315,7 +315,7 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 			if (status & error_flags) {
 				dump_cmd(cmdr, cmd->cmdarg, status,
 					"DTIP Wait Failed");
-				return COMM_ERR;
+				return -ECOMM;
 			}
 			i++;
 		} while ((status & MMCI_BIT(DTIP)) && i < 10000);

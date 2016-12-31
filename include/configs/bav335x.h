@@ -350,18 +350,14 @@ DEFAULT_LINUX_BOOT_ENV \
 
 /* SPL */
 #ifndef CONFIG_NOR_BOOT
-#define CONFIG_SPL_POWER_SUPPORT
-#define CONFIG_SPL_YMODEM_SUPPORT
-
 /* Bootcount using the RTC block */
 #define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_BOOTCOUNT_AM33XX
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* USB gadget RNDIS */
-#define CONFIG_SPL_MUSB_NEW_SUPPORT
 
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 #endif
 
 #ifdef CONFIG_NAND
@@ -438,7 +434,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #define CONFIG_ARCH_MISC_INIT
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
-#define CONFIG_USB_MUSB_HOST
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
 #define CONFIG_AM335X_USB1
@@ -452,38 +447,22 @@ DEFAULT_LINUX_BOOT_ENV \
 #define CONFIG_FASTBOOT_BUF_ADDR	CONFIG_SYS_LOAD_ADDR
 #define CONFIG_FASTBOOT_BUF_SIZE	0x07000000
 
-/* To support eMMC booting */
-#define CONFIG_STORAGE_EMMC
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
 #endif
 
-#ifdef CONFIG_USB_MUSB_HOST
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
-#endif
-
 #ifdef CONFIG_USB_MUSB_GADGET
-#define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 #endif /* CONFIG_USB_MUSB_GADGET */
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
 /* disable host part of MUSB in SPL */
-#undef CONFIG_USB_MUSB_HOST
 /* disable EFI partitions and partition UUID support */
 #undef CONFIG_PARTITION_UUIDS
 #undef CONFIG_EFI_PARTITION
-/* General network SPL  */
-#define CONFIG_SPL_NET_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_NET_VCI_STRING	"BAV335x U-Boot SPL"
 #endif
 
 /* USB Device Firmware Update support */
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_MMC
-#define CONFIG_CMD_DFU
 #define DFU_ALT_INFO_MMC \
 	"dfu_alt_info_mmc=" \
 	"boot part 0 1;" \
@@ -498,7 +477,6 @@ DEFAULT_LINUX_BOOT_ENV \
 	"u-boot.img fat 0 1;" \
 	"uEnv.txt fat 0 1\0"
 #ifdef CONFIG_NAND
-#define CONFIG_DFU_NAND
 #define DFU_ALT_INFO_NAND \
 	"dfu_alt_info_nand=" \
 	"SPL part 0 1;" \
@@ -512,7 +490,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #else
 #define DFU_ALT_INFO_NAND ""
 #endif
-#define CONFIG_DFU_RAM
 #define DFU_ALT_INFO_RAM \
 	"dfu_alt_info_ram=" \
 	"kernel ram 0x80200000 0xD80000;" \
@@ -536,9 +513,6 @@ DEFAULT_LINUX_BOOT_ENV \
  */
 #if defined(CONFIG_SPI_BOOT)
 /* SPL related */
-#undef CONFIG_SPL_OS_BOOT		/* Not supported by existing map */
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 
@@ -556,7 +530,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #elif defined(CONFIG_EMMC_BOOT)
 #undef CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		0x0
@@ -565,7 +538,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #endif
 
 /* SPI flash. */
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
 /* Network. */

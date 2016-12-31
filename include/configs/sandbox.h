@@ -16,40 +16,37 @@
 
 #endif
 
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_IO_TRACE
 #define CONFIG_CMD_IOTRACE
+#endif
 
 #ifndef CONFIG_TIMER
 #define CONFIG_SYS_TIMER_RATE		1000000
 #endif
 
-#define CONFIG_SYS_STDIO_DEREGISTER
-
-/* Number of bits in a C 'long' on this architecture */
+/*
+ * Number of bits in a C 'long' on this architecture. Set this to 32 when
+ * building on a 32-bit machine.
+ */
 #define CONFIG_SANDBOX_BITS_PER_LONG	64
 
 #define CONFIG_LMB
 #define CONFIG_ANDROID_BOOT_IMAGE
 
 #define CONFIG_CMD_PCI
-#define CONFIG_PCI_PNP
 #define CONFIG_CMD_IO
 
 #define CONFIG_FS_FAT
 #define CONFIG_FAT_WRITE
 #define CONFIG_FS_EXT4
 #define CONFIG_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_CBFS
 #define CONFIG_CMD_CRAMFS
 #define CONFIG_CMD_PART
 #define CONFIG_DOS_PARTITION
 #define CONFIG_HOST_MAX_DEVICES 4
-#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_MD5SUM
-
 
 #define CONFIG_CMD_GPT
 #define CONFIG_PARTITION_UUIDS
@@ -65,10 +62,8 @@
 #define CONFIG_MALLOC_F_ADDR		0x0010000
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)	/* 32MB  */
 
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_LONGHELP			/* #undef to save memory */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-#define CONFIG_SILENT_CONSOLE
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -83,13 +78,9 @@
 #define CONFIG_ENV_IS_NOWHERE
 
 /* SPI - enable all SPI flash types for testing purposes */
-#define CONFIG_CMD_SF
 #define CONFIG_CMD_SF_TEST
-#define CONFIG_CMD_SPI
 
-#define CONFIG_CMD_I2C
 #define CONFIG_I2C_EDID
-#define CONFIG_I2C_EEPROM
 
 /* Memory things - we don't really want a memory test */
 #define CONFIG_SYS_LOAD_ADDR		0x00000000
@@ -125,12 +116,7 @@
 
 #define CONFIG_KEEP_SERVERADDR
 #define CONFIG_UDP_CHECKSUM
-#define CONFIG_CMD_LINK_LOCAL
-#define CONFIG_CMD_CDP
-#define CONFIG_CMD_DNS
-#define CONFIG_CMD_SNTP
 #define CONFIG_TIMESTAMP
-#define CONFIG_CMD_RARP
 #define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
@@ -148,8 +134,6 @@
 
 #define CONFIG_CMD_ENV_FLAGS
 #define CONFIG_CMD_ENV_CALLBACK
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_ASKENV
 
 #define CONFIG_BOOTARGS ""
 
@@ -162,8 +146,6 @@
 /* LCD and keyboard require SDL support */
 #ifdef CONFIG_SANDBOX_SDL
 #define CONFIG_CMD_BMP
-#define CONFIG_CONSOLE_MUX
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define LCD_BPP			LCD_COLOR16
 #define CONFIG_LCD_BMP_RLE8
 #define CONFIG_VIDEO_BMP_RLE8
@@ -206,7 +188,33 @@
 #define CONFIG_LZMA
 
 #define CONFIG_CMD_LZMADEC
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_DATE
+
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_CMD_IDE
+#define CONFIG_SYS_IDE_MAXBUS		1
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0
+#define CONFIG_SYS_IDE_MAXDEVICE	2
+#define CONFIG_SYS_ATA_BASE_ADDR	0x100
+#define CONFIG_SYS_ATA_DATA_OFFSET	0
+#define CONFIG_SYS_ATA_REG_OFFSET	1
+#define CONFIG_SYS_ATA_ALT_OFFSET	2
+#define CONFIG_SYS_ATA_STRIDE		4
+#endif
+
+#define CONFIG_SCSI
+#define CONFIG_SCSI_AHCI_PLAT
+#define CONFIG_SYS_SCSI_MAX_DEVICE	2
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID	8
+#define CONFIG_SYS_SCSI_MAX_LUN		4
+
+#define CONFIG_CMD_SATA
+#define CONFIG_SYS_SATA_MAX_DEVICE	2
+
+#define CONFIG_SYSTEMACE
+#define CONFIG_SYS_SYSTEMACE_WIDTH	16
+#define CONFIG_SYS_SYSTEMACE_BASE	0
+
+#define CONFIG_GENERIC_MMC
 
 #endif

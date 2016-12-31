@@ -11,11 +11,6 @@
 #define __CONFIG_ASPENITE_H
 
 /*
- * Version number information
- */
-#define CONFIG_IDENT_STRING	"\nMarvell-Aspenite DB"
-
-/*
  * High Level Configuration Options
  */
 #define CONFIG_SHEEVA_88SV331xV5	1	/* CPU Core subversion */
@@ -35,7 +30,6 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_I2C
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros

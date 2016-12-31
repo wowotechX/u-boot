@@ -80,12 +80,13 @@
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
 #define CONFIG_PHY_ADDR		0	/* PHY address */
 #define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
+#define CONFIG_PHY_MICREL
+#define CONFIG_PHY_MICREL_KSZ9031
 
 #define CONFIG_SPEAR_GPIO
 
 /* I2C config options */
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_DW
 #define CONFIG_SYS_I2C_BASE			0xD0200000
 #define CONFIG_SYS_I2C_SPEED			400000
 #define CONFIG_SYS_I2C_SLAVE			0x02
@@ -103,38 +104,24 @@
 /* USB EHCI options */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_SPEAR
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 
 /*
  * Command support defines
  */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_FPGA_LOADMK
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_USB
 #define CONFIG_LZO
 
 /* Filesystem support (for USB key) */
 #define CONFIG_SUPPORT_VFAT
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_BOOTDELAY			3
-
-#define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser	*/
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /*
  * U-Boot Environment placing definitions.
@@ -149,20 +136,16 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_ARCH_CPU_INIT
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_BOOT_PARAMS_ADDR			0x00000100
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_LATE_INIT
-#define CONFIG_LOOPW			/* enable loopw command         */
 #define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #define CONFIG_SYS_MEMTEST_START		0x00800000
 #define CONFIG_SYS_MEMTEST_END			0x04000000
 #define CONFIG_SYS_MALLOC_LEN			(8 << 20)
-#define CONFIG_IDENT_STRING			"-SPEAr"
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
@@ -172,7 +155,6 @@
 #define CONFIG_SYS_MAXARGS			16
 #define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 
 /* Use last 2 lwords in internal SRAM for bootcounter */
 #define CONFIG_BOOTCOUNT_LIMIT
@@ -281,10 +263,6 @@
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/spear/u-boot-spl.lds"
 
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_NOR_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT	/* image.c */
-#define CONFIG_SPL_LIBGENERIC_SUPPORT	/* string.c */
 
 /*
  * Please select/define only one of the following

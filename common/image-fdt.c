@@ -285,7 +285,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			fdt_noffset = fit_get_node_from_config(images,
 							       FIT_FDT_PROP,
 							       fdt_addr);
-			if (fdt_noffset == -ENOLINK)
+			if (fdt_noffset == -ENOENT)
 				return 0;
 			else if (fdt_noffset < 0)
 				return 1;
@@ -458,11 +458,6 @@ __weak int ft_verify_fdt(void *fdt)
 	return 1;
 }
 
-__weak int arch_fixup_fdt(void *blob)
-{
-	return 0;
-}
-
 int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		       int of_size, struct lmb *lmb)
 {
@@ -506,7 +501,7 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		lmb_free(lmb, (phys_addr_t)(u32)(uintptr_t)blob,
 			 (phys_size_t)fdt_totalsize(blob));
 
-	ret = fdt_shrink_to_minimum(blob);
+	ret = fdt_shrink_to_minimum(blob, 0);
 	if (ret < 0)
 		goto err;
 	of_size = ret;

@@ -13,6 +13,7 @@
 #include <sata.h>
 #include <usb.h>
 #include <asm/omap_common.h>
+#include <asm/omap_sec_common.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
 #include <asm/arch/gpio.h>
@@ -34,8 +35,14 @@
 #include "mux_data.h"
 
 #define board_is_x15()		board_ti_is("BBRDX15_")
+#define board_is_x15_revb1()	(board_ti_is("BBRDX15_") && \
+				 (strncmp("B.10", board_ti_get_rev(), 3) <= 0))
 #define board_is_am572x_evm()	board_ti_is("AM572PM_")
+#define board_is_am572x_evm_reva3()	\
+				(board_ti_is("AM572PM_") && \
+				 (strncmp("A.30", board_ti_get_rev(), 3) <= 0))
 #define board_is_am572x_idk()	board_ti_is("AM572IDK")
+#define board_is_am571x_idk()	board_ti_is("AM571IDK")
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 #include <cpsw.h>
@@ -48,6 +55,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define SYSINFO_BOARD_NAME_MAX_LEN	45
 
+#define TPS65903X_PRIMARY_SECONDARY_PAD2	0xFB
+#define TPS65903X_PAD2_POWERHOLD_MASK		0x20
+
 const struct omap_sysinfo sysinfo = {
 	"Board: UNKNOWN(BeagleBoard X15?) REV UNKNOWN\n"
 };
@@ -57,34 +67,42 @@ static const struct dmm_lisa_map_regs beagle_x15_lisa_regs = {
 	.is_ma_present  = 0x1
 };
 
+static const struct dmm_lisa_map_regs am571x_idk_lisa_regs = {
+	.dmm_lisa_map_3 = 0x80640100,
+	.is_ma_present  = 0x1
+};
+
 void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 {
-	*dmm_lisa_regs = &beagle_x15_lisa_regs;
+	if (board_is_am571x_idk())
+		*dmm_lisa_regs = &am571x_idk_lisa_regs;
+	else
+		*dmm_lisa_regs = &beagle_x15_lisa_regs;
 }
 
 static const struct emif_regs beagle_x15_emif1_ddr3_532mhz_emif_regs = {
-	.sdram_config_init	= 0x61851b32,
-	.sdram_config		= 0x61851b32,
-	.sdram_config2		= 0x08000000,
-	.ref_ctrl		= 0x000040F1,
-	.ref_ctrl_final		= 0x00001035,
-	.sdram_tim1		= 0xcccf36ab,
-	.sdram_tim2		= 0x308f7fda,
-	.sdram_tim3		= 0x409f88a8,
-	.read_idle_ctrl		= 0x00050000,
-	.zq_config		= 0x5007190b,
-	.temp_alert_config	= 0x00000000,
-	.emif_ddr_phy_ctlr_1_init = 0x0024400b,
-	.emif_ddr_phy_ctlr_1	= 0x0e24400b,
-	.emif_ddr_ext_phy_ctrl_1 = 0x10040100,
-	.emif_ddr_ext_phy_ctrl_2 = 0x00910091,
-	.emif_ddr_ext_phy_ctrl_3 = 0x00950095,
-	.emif_ddr_ext_phy_ctrl_4 = 0x009b009b,
-	.emif_ddr_ext_phy_ctrl_5 = 0x009e009e,
-	.emif_rd_wr_lvl_rmp_win	= 0x00000000,
-	.emif_rd_wr_lvl_rmp_ctl	= 0x80000000,
-	.emif_rd_wr_lvl_ctl	= 0x00000000,
-	.emif_rd_wr_exec_thresh	= 0x00000305
+	.sdram_config_init		= 0x61851b32,
+	.sdram_config			= 0x61851b32,
+	.sdram_config2			= 0x08000000,
+	.ref_ctrl			= 0x000040F1,
+	.ref_ctrl_final			= 0x00001035,
+	.sdram_tim1			= 0xcccf36ab,
+	.sdram_tim2			= 0x308f7fda,
+	.sdram_tim3			= 0x409f88a8,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x5007190b,
+	.temp_alert_config		= 0x00000000,
+	.emif_ddr_phy_ctlr_1_init 	= 0x0024400b,
+	.emif_ddr_phy_ctlr_1		= 0x0e24400b,
+	.emif_ddr_ext_phy_ctrl_1 	= 0x10040100,
+	.emif_ddr_ext_phy_ctrl_2 	= 0x00910091,
+	.emif_ddr_ext_phy_ctrl_3 	= 0x00950095,
+	.emif_ddr_ext_phy_ctrl_4 	= 0x009b009b,
+	.emif_ddr_ext_phy_ctrl_5 	= 0x009e009e,
+	.emif_rd_wr_lvl_rmp_win		= 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl		= 0x80000000,
+	.emif_rd_wr_lvl_ctl		= 0x00000000,
+	.emif_rd_wr_exec_thresh		= 0x00000305
 };
 
 /* Ext phy ctrl regs 1-35 */
@@ -127,28 +145,28 @@ static const u32 beagle_x15_emif1_ddr3_ext_phy_ctrl_const_regs[] = {
 };
 
 static const struct emif_regs beagle_x15_emif2_ddr3_532mhz_emif_regs = {
-	.sdram_config_init	= 0x61851b32,
-	.sdram_config		= 0x61851b32,
-	.sdram_config2		= 0x08000000,
-	.ref_ctrl		= 0x000040F1,
-	.ref_ctrl_final		= 0x00001035,
-	.sdram_tim1		= 0xcccf36b3,
-	.sdram_tim2		= 0x308f7fda,
-	.sdram_tim3		= 0x407f88a8,
-	.read_idle_ctrl		= 0x00050000,
-	.zq_config		= 0x5007190b,
-	.temp_alert_config	= 0x00000000,
-	.emif_ddr_phy_ctlr_1_init = 0x0024400b,
-	.emif_ddr_phy_ctlr_1	= 0x0e24400b,
-	.emif_ddr_ext_phy_ctrl_1 = 0x10040100,
-	.emif_ddr_ext_phy_ctrl_2 = 0x00910091,
-	.emif_ddr_ext_phy_ctrl_3 = 0x00950095,
-	.emif_ddr_ext_phy_ctrl_4 = 0x009b009b,
-	.emif_ddr_ext_phy_ctrl_5 = 0x009e009e,
-	.emif_rd_wr_lvl_rmp_win	= 0x00000000,
-	.emif_rd_wr_lvl_rmp_ctl	= 0x80000000,
-	.emif_rd_wr_lvl_ctl	= 0x00000000,
-	.emif_rd_wr_exec_thresh	= 0x00000305
+	.sdram_config_init		= 0x61851b32,
+	.sdram_config			= 0x61851b32,
+	.sdram_config2			= 0x08000000,
+	.ref_ctrl			= 0x000040F1,
+	.ref_ctrl_final			= 0x00001035,
+	.sdram_tim1			= 0xcccf36b3,
+	.sdram_tim2			= 0x308f7fda,
+	.sdram_tim3			= 0x407f88a8,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x5007190b,
+	.temp_alert_config		= 0x00000000,
+	.emif_ddr_phy_ctlr_1_init 	= 0x0024400b,
+	.emif_ddr_phy_ctlr_1		= 0x0e24400b,
+	.emif_ddr_ext_phy_ctrl_1 	= 0x10040100,
+	.emif_ddr_ext_phy_ctrl_2 	= 0x00910091,
+	.emif_ddr_ext_phy_ctrl_3 	= 0x00950095,
+	.emif_ddr_ext_phy_ctrl_4 	= 0x009b009b,
+	.emif_ddr_ext_phy_ctrl_5 	= 0x009e009e,
+	.emif_rd_wr_lvl_rmp_win		= 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl		= 0x80000000,
+	.emif_rd_wr_lvl_ctl		= 0x00000000,
+	.emif_rd_wr_exec_thresh		= 0x00000305
 };
 
 static const u32 beagle_x15_emif2_ddr3_ext_phy_ctrl_const_regs[] = {
@@ -216,36 +234,128 @@ void emif_get_ext_phy_ctrl_const_regs(u32 emif_nr, const u32 **regs, u32 *size)
 }
 
 struct vcores_data beagle_x15_volts = {
-	.mpu.value		= VDD_MPU_DRA752,
-	.mpu.efuse.reg		= STD_FUSE_OPP_VMIN_MPU_NOM,
+	.mpu.value[OPP_NOM]	= VDD_MPU_DRA7_NOM,
+	.mpu.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_MPU_NOM,
 	.mpu.efuse.reg_bits     = DRA752_EFUSE_REGBITS,
 	.mpu.addr		= TPS659038_REG_ADDR_SMPS12,
 	.mpu.pmic		= &tps659038,
+	.mpu.abb_tx_done_mask	= OMAP_ABB_MPU_TXDONE_MASK,
 
-	.eve.value		= VDD_EVE_DRA752,
-	.eve.efuse.reg		= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.value[OPP_NOM]	= VDD_EVE_DRA7_NOM,
+	.eve.value[OPP_OD]	= VDD_EVE_DRA7_OD,
+	.eve.value[OPP_HIGH]	= VDD_EVE_DRA7_HIGH,
+	.eve.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_DSPEVE_OD,
+	.eve.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_DSPEVE_HIGH,
 	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.eve.addr		= TPS659038_REG_ADDR_SMPS45,
 	.eve.pmic		= &tps659038,
+	.eve.abb_tx_done_mask	= OMAP_ABB_EVE_TXDONE_MASK,
 
-	.gpu.value		= VDD_GPU_DRA752,
-	.gpu.efuse.reg		= STD_FUSE_OPP_VMIN_GPU_NOM,
+	.gpu.value[OPP_NOM]	= VDD_GPU_DRA7_NOM,
+	.gpu.value[OPP_OD]	= VDD_GPU_DRA7_OD,
+	.gpu.value[OPP_HIGH]	= VDD_GPU_DRA7_HIGH,
+	.gpu.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_GPU_NOM,
+	.gpu.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_GPU_OD,
+	.gpu.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_GPU_HIGH,
 	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.gpu.addr		= TPS659038_REG_ADDR_SMPS45,
 	.gpu.pmic		= &tps659038,
+	.gpu.abb_tx_done_mask	= OMAP_ABB_GPU_TXDONE_MASK,
 
-	.core.value		= VDD_CORE_DRA752,
-	.core.efuse.reg		= STD_FUSE_OPP_VMIN_CORE_NOM,
+	.core.value[OPP_NOM]	= VDD_CORE_DRA7_NOM,
+	.core.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_CORE_NOM,
 	.core.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.core.addr		= TPS659038_REG_ADDR_SMPS6,
 	.core.pmic		= &tps659038,
 
-	.iva.value		= VDD_IVA_DRA752,
-	.iva.efuse.reg		= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.value[OPP_NOM]	= VDD_IVA_DRA7_NOM,
+	.iva.value[OPP_OD]	= VDD_IVA_DRA7_OD,
+	.iva.value[OPP_HIGH]	= VDD_IVA_DRA7_HIGH,
+	.iva.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_IVA_OD,
+	.iva.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_IVA_HIGH,
 	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.iva.addr		= TPS659038_REG_ADDR_SMPS45,
 	.iva.pmic		= &tps659038,
+	.iva.abb_tx_done_mask	= OMAP_ABB_IVA_TXDONE_MASK,
 };
+
+struct vcores_data am572x_idk_volts = {
+	.mpu.value[OPP_NOM]	= VDD_MPU_DRA7_NOM,
+	.mpu.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_MPU_NOM,
+	.mpu.efuse.reg_bits     = DRA752_EFUSE_REGBITS,
+	.mpu.addr		= TPS659038_REG_ADDR_SMPS12,
+	.mpu.pmic		= &tps659038,
+	.mpu.abb_tx_done_mask	= OMAP_ABB_MPU_TXDONE_MASK,
+
+	.eve.value[OPP_NOM]	= VDD_EVE_DRA7_NOM,
+	.eve.value[OPP_OD]	= VDD_EVE_DRA7_OD,
+	.eve.value[OPP_HIGH]	= VDD_EVE_DRA7_HIGH,
+	.eve.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_DSPEVE_OD,
+	.eve.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_DSPEVE_HIGH,
+	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.eve.addr		= TPS659038_REG_ADDR_SMPS45,
+	.eve.pmic		= &tps659038,
+	.eve.abb_tx_done_mask	= OMAP_ABB_EVE_TXDONE_MASK,
+
+	.gpu.value[OPP_NOM]	= VDD_GPU_DRA7_NOM,
+	.gpu.value[OPP_OD]	= VDD_GPU_DRA7_OD,
+	.gpu.value[OPP_HIGH]	= VDD_GPU_DRA7_HIGH,
+	.gpu.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_GPU_NOM,
+	.gpu.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_GPU_OD,
+	.gpu.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_GPU_HIGH,
+	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.gpu.addr		= TPS659038_REG_ADDR_SMPS6,
+	.gpu.pmic		= &tps659038,
+	.gpu.abb_tx_done_mask	= OMAP_ABB_GPU_TXDONE_MASK,
+
+	.core.value[OPP_NOM]	= VDD_CORE_DRA7_NOM,
+	.core.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_CORE_NOM,
+	.core.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.core.addr		= TPS659038_REG_ADDR_SMPS7,
+	.core.pmic		= &tps659038,
+
+	.iva.value[OPP_NOM]	= VDD_IVA_DRA7_NOM,
+	.iva.value[OPP_OD]	= VDD_IVA_DRA7_OD,
+	.iva.value[OPP_HIGH]	= VDD_IVA_DRA7_HIGH,
+	.iva.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_IVA_OD,
+	.iva.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_IVA_HIGH,
+	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.iva.addr		= TPS659038_REG_ADDR_SMPS8,
+	.iva.pmic		= &tps659038,
+	.iva.abb_tx_done_mask	= OMAP_ABB_IVA_TXDONE_MASK,
+};
+
+int get_voltrail_opp(int rail_offset)
+{
+	int opp;
+
+	switch (rail_offset) {
+	case VOLT_MPU:
+		opp = DRA7_MPU_OPP;
+		break;
+	case VOLT_CORE:
+		opp = DRA7_CORE_OPP;
+		break;
+	case VOLT_GPU:
+		opp = DRA7_GPU_OPP;
+		break;
+	case VOLT_EVE:
+		opp = DRA7_DSPEVE_OPP;
+		break;
+	case VOLT_IVA:
+		opp = DRA7_IVA_OPP;
+		break;
+	default:
+		opp = OPP_NOM;
+	}
+
+	return opp;
+}
+
 
 #ifdef CONFIG_SPL_BUILD
 /* No env to setup for SPL */
@@ -281,6 +391,8 @@ void do_board_detect(void)
 		bname = "AM572x EVM";
 	else if (board_is_am572x_idk())
 		bname = "AM572x IDK";
+	else if (board_is_am571x_idk())
+		bname = "AM571x IDK";
 
 	if (bname)
 		snprintf(sysinfo.board_string, SYSINFO_BOARD_NAME_MAX_LEN,
@@ -297,13 +409,24 @@ static void setup_board_eeprom_env(void)
 	if (rc)
 		goto invalid_eeprom;
 
-	if (board_is_am572x_evm())
-		name = "am57xx_evm";
-	else if (board_is_am572x_idk())
+	if (board_is_x15()) {
+		if (board_is_x15_revb1())
+			name = "beagle_x15_revb1";
+		else
+			name = "beagle_x15";
+	} else if (board_is_am572x_evm()) {
+		if (board_is_am572x_evm_reva3())
+			name = "am57xx_evm_reva3";
+		else
+			name = "am57xx_evm";
+	} else if (board_is_am572x_idk()) {
 		name = "am572x_idk";
-	else
+	} else if (board_is_am571x_idk()) {
+		name = "am571x_idk";
+	} else {
 		printf("Unidentified board claims %s in eeprom header\n",
 		       board_ti_get_name());
+	}
 
 invalid_eeprom:
 	set_board_info_env(name);
@@ -311,11 +434,18 @@ invalid_eeprom:
 
 #endif	/* CONFIG_SPL_BUILD */
 
+void vcores_init(void)
+{
+	if (board_is_am572x_idk())
+		*omap_vcores = &am572x_idk_volts;
+	else
+		*omap_vcores = &beagle_x15_volts;
+}
+
 void hw_data_init(void)
 {
 	*prcm = &dra7xx_prcm;
 	*dplls_data = &dra7xx_dplls;
-	*omap_vcores = &beagle_x15_volts;
 	*ctrl = &dra7xx_ctrl;
 }
 
@@ -330,12 +460,33 @@ int board_init(void)
 int board_late_init(void)
 {
 	setup_board_eeprom_env();
+	u8 val;
 
 	/*
 	 * DEV_CTRL.DEV_ON = 1 please - else palmas switches off in 8 seconds
 	 * This is the POWERHOLD-in-Low behavior.
 	 */
 	palmas_i2c_write_u8(TPS65903X_CHIP_P1, 0xA0, 0x1);
+
+	/*
+	 * Default FIT boot on HS devices. Non FIT images are not allowed
+	 * on HS devices.
+	 */
+	if (get_device_type() == HS_DEVICE)
+		setenv("boot_fit", "1");
+
+	/*
+	 * Set the GPIO7 Pad to POWERHOLD. This has higher priority
+	 * over DEV_CTRL.DEV_ON bit. This can be reset in case of
+	 * PMIC Power off. So to be on the safer side set it back
+	 * to POWERHOLD mode irrespective of the current state.
+	 */
+	palmas_i2c_read_u8(TPS65903X_CHIP_P1, TPS65903X_PRIMARY_SECONDARY_PAD2,
+			   &val);
+	val = val | TPS65903X_PAD2_POWERHOLD_MASK;
+	palmas_i2c_write_u8(TPS65903X_CHIP_P1, TPS65903X_PRIMARY_SECONDARY_PAD2,
+			    val);
+
 	return 0;
 }
 
@@ -351,21 +502,58 @@ void recalibrate_iodelay(void)
 	const struct pad_conf_entry *pconf;
 	const struct iodelay_cfg_entry *iod;
 	int pconf_sz, iod_sz;
+	int ret;
 
 	if (board_is_am572x_idk()) {
 		pconf = core_padconf_array_essential_am572x_idk;
 		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_am572x_idk);
 		iod = iodelay_cfg_array_am572x_idk;
 		iod_sz = ARRAY_SIZE(iodelay_cfg_array_am572x_idk);
+	} else if (board_is_am571x_idk()) {
+		pconf = core_padconf_array_essential_am571x_idk;
+		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_am571x_idk);
+		iod = iodelay_cfg_array_am571x_idk;
+		iod_sz = ARRAY_SIZE(iodelay_cfg_array_am571x_idk);
 	} else {
 		/* Common for X15/GPEVM */
 		pconf = core_padconf_array_essential_x15;
 		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_x15);
-		iod = iodelay_cfg_array_x15;
-		iod_sz = ARRAY_SIZE(iodelay_cfg_array_x15);
+		/* There never was an SR1.0 X15.. So.. */
+		if (omap_revision() == DRA752_ES1_1) {
+			iod = iodelay_cfg_array_x15_sr1_1;
+			iod_sz = ARRAY_SIZE(iodelay_cfg_array_x15_sr1_1);
+		} else {
+			/* Since full production should switch to SR2.0  */
+			iod = iodelay_cfg_array_x15_sr2_0;
+			iod_sz = ARRAY_SIZE(iodelay_cfg_array_x15_sr2_0);
+		}
 	}
 
-	__recalibrate_iodelay(pconf, pconf_sz, iod, iod_sz);
+	/* Setup I/O isolation */
+	ret = __recalibrate_iodelay_start();
+	if (ret)
+		goto err;
+
+	/* Do the muxing here */
+	do_set_mux32((*ctrl)->control_padconf_core_base, pconf, pconf_sz);
+
+	/* Now do the weird minor deltas that should be safe */
+	if (board_is_x15() || board_is_am572x_evm()) {
+		if (board_is_x15_revb1() || board_is_am572x_evm_reva3()) {
+			pconf = core_padconf_array_delta_x15_sr2_0;
+			pconf_sz = ARRAY_SIZE(core_padconf_array_delta_x15_sr2_0);
+		} else {
+			pconf = core_padconf_array_delta_x15_sr1_1;
+			pconf_sz = ARRAY_SIZE(core_padconf_array_delta_x15_sr1_1);
+		}
+		do_set_mux32((*ctrl)->control_padconf_core_base, pconf, pconf_sz);
+	}
+
+	/* Setup IOdelay configuration */
+	ret = do_set_iodelay((*ctrl)->iodelay_config_base, iod, iod_sz);
+err:
+	/* Closeup.. remove isolation */
+	__recalibrate_iodelay_end(ret);
 }
 #endif
 
@@ -397,26 +585,6 @@ int spl_start_uboot(void)
 #endif
 
 #ifdef CONFIG_USB_DWC3
-static struct dwc3_device usb_otg_ss1 = {
-	.maximum_speed = USB_SPEED_SUPER,
-	.base = DRA7_USB_OTG_SS1_BASE,
-	.tx_fifo_resize = false,
-	.index = 0,
-};
-
-static struct dwc3_omap_device usb_otg_ss1_glue = {
-	.base = (void *)DRA7_USB_OTG_SS1_GLUE_BASE,
-	.utmi_mode = DWC3_OMAP_UTMI_MODE_SW,
-	.index = 0,
-};
-
-static struct ti_usb_phy_device usb_phy1_device = {
-	.pll_ctrl_base = (void *)DRA7_USB3_PHY1_PLL_CTRL,
-	.usb2_phy_power = (void *)DRA7_USB2_PHY1_POWER,
-	.usb3_phy_power = (void *)DRA7_USB3_PHY1_POWER,
-	.index = 0,
-};
-
 static struct dwc3_device usb_otg_ss2 = {
 	.maximum_speed = USB_SPEED_HIGH,
 	.base = DRA7_USB_OTG_SS2_BASE,
@@ -435,64 +603,6 @@ static struct ti_usb_phy_device usb_phy2_device = {
 	.index = 1,
 };
 
-int board_usb_init(int index, enum usb_init_type init)
-{
-	enable_usb_clocks(index);
-	switch (index) {
-	case 0:
-		if (init == USB_INIT_DEVICE) {
-			printf("port %d can't be used as device\n", index);
-			disable_usb_clocks(index);
-			return -EINVAL;
-		} else {
-			usb_otg_ss1.dr_mode = USB_DR_MODE_HOST;
-			usb_otg_ss1_glue.vbus_id_status = OMAP_DWC3_ID_GROUND;
-			setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
-				     OTG_SS_CLKCTRL_MODULEMODE_HW |
-				     OPTFCLKEN_REFCLK960M);
-		}
-
-		ti_usb_phy_uboot_init(&usb_phy1_device);
-		dwc3_omap_uboot_init(&usb_otg_ss1_glue);
-		dwc3_uboot_init(&usb_otg_ss1);
-		break;
-	case 1:
-		if (init == USB_INIT_DEVICE) {
-			usb_otg_ss2.dr_mode = USB_DR_MODE_PERIPHERAL;
-			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
-		} else {
-			printf("port %d can't be used as host\n", index);
-			disable_usb_clocks(index);
-			return -EINVAL;
-		}
-
-		ti_usb_phy_uboot_init(&usb_phy2_device);
-		dwc3_omap_uboot_init(&usb_otg_ss2_glue);
-		dwc3_uboot_init(&usb_otg_ss2);
-		break;
-	default:
-		printf("Invalid Controller Index\n");
-	}
-
-	return 0;
-}
-
-int board_usb_cleanup(int index, enum usb_init_type init)
-{
-	switch (index) {
-	case 0:
-	case 1:
-		ti_usb_phy_uboot_exit(index);
-		dwc3_uboot_exit(index);
-		dwc3_omap_uboot_exit(index);
-		break;
-	default:
-		printf("Invalid Controller Index\n");
-	}
-	disable_usb_clocks(index);
-	return 0;
-}
-
 int usb_gadget_handle_interrupts(int index)
 {
 	u32 status;
@@ -503,7 +613,63 @@ int usb_gadget_handle_interrupts(int index)
 
 	return 0;
 }
+#endif /* CONFIG_USB_DWC3 */
+
+#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
+int board_usb_init(int index, enum usb_init_type init)
+{
+	enable_usb_clocks(index);
+	switch (index) {
+	case 0:
+		if (init == USB_INIT_DEVICE) {
+			printf("port %d can't be used as device\n", index);
+			disable_usb_clocks(index);
+			return -EINVAL;
+		}
+		break;
+	case 1:
+		if (init == USB_INIT_DEVICE) {
+#ifdef CONFIG_USB_DWC3
+			usb_otg_ss2.dr_mode = USB_DR_MODE_PERIPHERAL;
+			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
+			ti_usb_phy_uboot_init(&usb_phy2_device);
+			dwc3_omap_uboot_init(&usb_otg_ss2_glue);
+			dwc3_uboot_init(&usb_otg_ss2);
 #endif
+		} else {
+			printf("port %d can't be used as host\n", index);
+			disable_usb_clocks(index);
+			return -EINVAL;
+		}
+
+		break;
+	default:
+		printf("Invalid Controller Index\n");
+	}
+
+	return 0;
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+#ifdef CONFIG_USB_DWC3
+	switch (index) {
+	case 0:
+	case 1:
+		if (init == USB_INIT_DEVICE) {
+			ti_usb_phy_uboot_exit(index);
+			dwc3_uboot_exit(index);
+			dwc3_omap_uboot_exit(index);
+		}
+		break;
+	default:
+		printf("Invalid Controller Index\n");
+	}
+#endif
+	disable_usb_clocks(index);
+	return 0;
+}
+#endif /* defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP) */
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 
@@ -625,8 +791,8 @@ int board_eth_init(bd_t *bis)
 	ctrl_val |= 0x22;
 	writel(ctrl_val, (*ctrl)->control_core_control_io1);
 
-	/* The phy address for the AM572x IDK are different than x15 */
-	if (board_is_am572x_idk()) {
+	/* The phy address for the AM57xx IDK are different than x15 */
+	if (board_is_am572x_idk() || board_is_am571x_idk()) {
 		cpsw_data.slave_data[0].phy_addr = 0;
 		cpsw_data.slave_data[1].phy_addr = 1;
 	}
@@ -681,4 +847,50 @@ int board_early_init_f(void)
 	vtt_regulator_enable();
 	return 0;
 }
+#endif
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (board_is_x15()) {
+		if (board_is_x15_revb1()) {
+			if (!strcmp(name, "am57xx-beagle-x15-revb1"))
+				return 0;
+		} else if (!strcmp(name, "am57xx-beagle-x15")) {
+			return 0;
+		}
+	} else if (board_is_am572x_evm() &&
+		   !strcmp(name, "am57xx-beagle-x15")) {
+		return 0;
+	} else if (board_is_am572x_idk() && !strcmp(name, "am572x-idk")) {
+		return 0;
+	} else if (board_is_am571x_idk() && !strcmp(name, "am571x-idk")) {
+		return 0;
+	}
+
+	return -1;
+}
+#endif
+
+#ifdef CONFIG_TI_SECURE_DEVICE
+void board_fit_image_post_process(void **p_image, size_t *p_size)
+{
+	secure_boot_verify_image(p_image, p_size);
+}
+
+void board_tee_image_process(ulong tee_image, size_t tee_size)
+{
+	secure_tee_install((u32)tee_image);
+}
+
+U_BOOT_FIT_LOADABLE_HANDLER(IH_TYPE_TEE, board_tee_image_process);
 #endif

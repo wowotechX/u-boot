@@ -6,8 +6,6 @@
  *  SPDX-License-Identifier:     GPL-2.0+
  */
 
-/* #define DEBUG_EFI */
-
 #include <common.h>
 #include <efi_loader.h>
 #include <malloc.h>
@@ -24,8 +22,29 @@ struct efi_mem_list {
 	struct efi_mem_desc desc;
 };
 
+#define EFI_CARVE_NO_OVERLAP		-1
+#define EFI_CARVE_LOOP_AGAIN		-2
+#define EFI_CARVE_OVERLAPS_NONRAM	-3
+
 /* This list contains all memory map items */
 LIST_HEAD(efi_mem);
+
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+void *efi_bounce_buffer;
+#endif
+
+/*
+ * U-Boot services each EFI AllocatePool request as a separate
+ * (multiple) page allocation.  We have to track the number of pages
+ * to be able to free the correct amount later.
+ * EFI requires 8 byte alignment for pool allocations, so we can
+ * prepend each allocation with an 64 bit header tracking the
+ * allocation size, and hand out the remainder to the caller.
+ */
+struct efi_pool_allocation {
+	u64 num_pages;
+	char data[];
+};
 
 /*
  * Sorts the memory list from highest address to lowest address
@@ -56,9 +75,17 @@ static void efi_mem_sort(void)
  * Unmaps all memory occupied by the carve_desc region from the
  * list entry pointed to by map.
  *
- * Returns 1 if carving was performed or 0 if the regions don't overlap.
- * Returns -1 if it would affect non-RAM regions but overlap_only_ram is set.
- * Carving is only guaranteed to complete when all regions return 0.
+ * Returns EFI_CARVE_NO_OVERLAP if the regions don't overlap.
+ * Returns EFI_CARVE_OVERLAPS_NONRAM if the carve and map overlap,
+ *    and the map contains anything but free ram.
+ *    (only when overlap_only_ram is true)
+ * Returns EFI_CARVE_LOOP_AGAIN if the mapping list should be traversed
+ *    again, as it has been altered
+ * Returns the number of overlapping pages. The pages are removed from
+ *     the mapping list.
+ *
+ * In case of EFI_CARVE_OVERLAPS_NONRAM it is the callers responsibility
+ * to readd the already carved out pages to the mapping.
  */
 static int efi_mem_carve_out(struct efi_mem_list *map,
 			     struct efi_mem_desc *carve_desc,
@@ -74,11 +101,11 @@ static int efi_mem_carve_out(struct efi_mem_list *map,
 
 	/* check whether we're overlapping */
 	if ((carve_end <= map_start) || (carve_start >= map_end))
-		return 0;
+		return EFI_CARVE_NO_OVERLAP;
 
 	/* We're overlapping with non-RAM, warn the caller if desired */
 	if (overlap_only_ram && (map_desc->type != EFI_CONVENTIONAL_MEMORY))
-		return -1;
+		return EFI_CARVE_OVERLAPS_NONRAM;
 
 	/* Sanitize carve_start and carve_end to lie within our bounds */
 	carve_start = max(carve_start, map_start);
@@ -89,11 +116,14 @@ static int efi_mem_carve_out(struct efi_mem_list *map,
 		if (map_end == carve_end) {
 			/* Full overlap, just remove map */
 			list_del(&map->link);
+			free(map);
+		} else {
+			map->desc.physical_start = carve_end;
+			map->desc.num_pages = (map_end - carve_end)
+					      >> EFI_PAGE_SHIFT;
 		}
 
-		map_desc->physical_start = carve_end;
-		map_desc->num_pages = (map_end - carve_end) >> EFI_PAGE_SHIFT;
-		return 1;
+		return (carve_end - carve_start) >> EFI_PAGE_SHIFT;
 	}
 
 	/*
@@ -108,12 +138,13 @@ static int efi_mem_carve_out(struct efi_mem_list *map,
 	newmap->desc = map->desc;
 	newmap->desc.physical_start = carve_start;
 	newmap->desc.num_pages = (map_end - carve_start) >> EFI_PAGE_SHIFT;
-        list_add_tail(&newmap->link, &efi_mem);
+	/* Insert before current entry (descending address order) */
+	list_add_tail(&newmap->link, &map->link);
 
 	/* Shrink the map to [ map_start ... carve_start ] */
 	map_desc->num_pages = (carve_start - map_start) >> EFI_PAGE_SHIFT;
 
-	return 1;
+	return EFI_CARVE_LOOP_AGAIN;
 }
 
 uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
@@ -121,7 +152,11 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 {
 	struct list_head *lhandle;
 	struct efi_mem_list *newlist;
-	bool do_carving;
+	bool carve_again;
+	uint64_t carved_pages = 0;
+
+	debug("%s: 0x%" PRIx64 " 0x%" PRIx64 " %d %s\n", __func__,
+	      start, pages, memory_type, overlap_only_ram ? "yes" : "no");
 
 	if (!pages)
 		return start;
@@ -148,7 +183,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 
 	/* Add our new map */
 	do {
-		do_carving = false;
+		carve_again = false;
 		list_for_each(lhandle, &efi_mem) {
 			struct efi_mem_list *lmem;
 			int r;
@@ -156,14 +191,44 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 			lmem = list_entry(lhandle, struct efi_mem_list, link);
 			r = efi_mem_carve_out(lmem, &newlist->desc,
 					      overlap_only_ram);
-			if (r < 0) {
+			switch (r) {
+			case EFI_CARVE_OVERLAPS_NONRAM:
+				/*
+				 * The user requested to only have RAM overlaps,
+				 * but we hit a non-RAM region. Error out.
+				 */
 				return 0;
-			} else if (r) {
-				do_carving = true;
+			case EFI_CARVE_NO_OVERLAP:
+				/* Just ignore this list entry */
+				break;
+			case EFI_CARVE_LOOP_AGAIN:
+				/*
+				 * We split an entry, but need to loop through
+				 * the list again to actually carve it.
+				 */
+				carve_again = true;
+				break;
+			default:
+				/* We carved a number of pages */
+				carved_pages += r;
+				carve_again = true;
+				break;
+			}
+
+			if (carve_again) {
+				/* The list changed, we need to start over */
 				break;
 			}
 		}
-	} while (do_carving);
+	} while (carve_again);
+
+	if (overlap_only_ram && (carved_pages != pages)) {
+		/*
+		 * The payload wanted to have RAM overlaps, but we overlapped
+		 * with an unallocated region. Error out.
+		 */
+		return 0;
+	}
 
 	/* Add our new map */
         list_add_tail(&newlist->link, &efi_mem);
@@ -275,8 +340,52 @@ void *efi_alloc(uint64_t len, int memory_type)
 
 efi_status_t efi_free_pages(uint64_t memory, unsigned long pages)
 {
-	/* We don't free, let's cross our fingers we have plenty RAM */
-	return EFI_SUCCESS;
+	uint64_t r = 0;
+
+	r = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
+	/* Merging of adjacent free regions is missing */
+
+	if (r == memory)
+		return EFI_SUCCESS;
+
+	return EFI_NOT_FOUND;
+}
+
+efi_status_t efi_allocate_pool(int pool_type, unsigned long size,
+			       void **buffer)
+{
+	efi_status_t r;
+	efi_physical_addr_t t;
+	u64 num_pages = (size + sizeof(u64) + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+
+	if (size == 0) {
+		*buffer = NULL;
+		return EFI_SUCCESS;
+	}
+
+	r = efi_allocate_pages(0, pool_type, num_pages, &t);
+
+	if (r == EFI_SUCCESS) {
+		struct efi_pool_allocation *alloc = (void *)(uintptr_t)t;
+		alloc->num_pages = num_pages;
+		*buffer = alloc->data;
+	}
+
+	return r;
+}
+
+efi_status_t efi_free_pool(void *buffer)
+{
+	efi_status_t r;
+	struct efi_pool_allocation *alloc;
+
+	alloc = container_of(buffer, struct efi_pool_allocation, data);
+	/* Sanity check, was the supplied address returned by allocate_pool */
+	assert(((uintptr_t)alloc & EFI_PAGE_MASK) == 0);
+
+	r = efi_free_pages((uintptr_t)alloc, alloc->num_pages);
+
+	return r;
 }
 
 efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
@@ -288,6 +397,7 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 	ulong map_size = 0;
 	int map_entries = 0;
 	struct list_head *lhandle;
+	unsigned long provided_map_size = *memory_map_size;
 
 	list_for_each(lhandle, &efi_mem)
 		map_entries++;
@@ -299,7 +409,10 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 	if (descriptor_size)
 		*descriptor_size = sizeof(struct efi_mem_desc);
 
-	if (*memory_map_size < map_size)
+	if (descriptor_version)
+		*descriptor_version = EFI_MEMORY_DESCRIPTOR_VERSION;
+
+	if (provided_map_size < map_size)
 		return EFI_BUFFER_TOO_SMALL;
 
 	/* Copy list into array */
@@ -348,6 +461,18 @@ int efi_memory_init(void)
 	runtime_pages = (runtime_end - runtime_start) >> EFI_PAGE_SHIFT;
 	efi_add_memory_map(runtime_start, runtime_pages,
 			   EFI_RUNTIME_SERVICES_CODE, false);
+
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+	/* Request a 32bit 64MB bounce buffer region */
+	uint64_t efi_bounce_buffer_addr = 0xffffffff;
+
+	if (efi_allocate_pages(1, EFI_LOADER_DATA,
+			       (64 * 1024 * 1024) >> EFI_PAGE_SHIFT,
+			       &efi_bounce_buffer_addr) != EFI_SUCCESS)
+		return -1;
+
+	efi_bounce_buffer = (void*)(uintptr_t)efi_bounce_buffer_addr;
+#endif
 
 	return 0;
 }

@@ -8,12 +8,15 @@
  * Copyright (c) 2012-2013 Xilinx, Michal Simek
  *
  * SPDX-License-Identifier:	GPL-2.0+
+ *
+ * NOTE: This driver should be converted to driver model before June 2017.
+ * Please see doc/driver-model/i2c-howto.txt for instructions.
  */
 
 #include <common.h>
 #include <asm/io.h>
 #include <i2c.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/arch/hardware.h>
 
 /* i2c register set */

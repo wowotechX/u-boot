@@ -12,16 +12,9 @@
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_LED
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_USB
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
@@ -53,7 +46,6 @@
 #ifdef CONFIG_CMD_USB
 #define CONFIG_EHCI_MXS_PORT0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
-#define CONFIG_USB_STORAGE
 #endif
 
 /* Ethernet */
@@ -63,7 +55,6 @@
 #endif
 
 /* Booting Linux */
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_LOADADDR		0x42000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR

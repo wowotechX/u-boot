@@ -10,9 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_T4240QDS
-#define CONFIG_PHYS_64BIT
-
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE4
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
@@ -21,21 +18,12 @@
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t4qds/t4_pbi.cfg
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t4qds/t4_rcw.cfg
 #if !defined(CONFIG_NAND) && !defined(CONFIG_SDCARD)
 #define CONFIG_RAMBOOT_TEXT_BASE        CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS     0xfffffffc
 #else
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
-#define CONFIG_FSL_LAW                 /* Use common FSL init code */
 #define CONFIG_SYS_TEXT_BASE		0x00201000
 #define CONFIG_SPL_TEXT_BASE		0xFFFD8000
 #define CONFIG_SPL_PAD_TO		0x40000
@@ -44,18 +32,17 @@
 #define BOOT_PAGE_OFFSET		0x27000
 
 #ifdef	CONFIG_NAND
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t4qds/t4_nand_rcw.cfg
 #define CONFIG_SPL_NAND_BOOT
 #endif
 
 #ifdef	CONFIG_SDCARD
 #define	CONFIG_RESET_VECTOR_ADDRESS	0x200FFC
-#define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_MMC_MINIMAL
 #define CONFIG_SYS_MMC_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_MMC_U_BOOT_DST	0x00200000
@@ -65,6 +52,7 @@
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t4qds/t4_sd_rcw.cfg
 #define CONFIG_SPL_MMC_BOOT
 #endif
 
@@ -343,7 +331,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-
 /* I2C */
 #define CONFIG_SYS_FSL_I2C_SPEED	100000	/* I2C speed */
 #define CONFIG_SYS_FSL_I2C2_SPEED	100000	/* I2C2 speed */
@@ -401,10 +388,8 @@ unsigned long get_board_ddr_clk(void);
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED         10000000
 #define CONFIG_SF_DEFAULT_MODE          0
-
 
 /* Qman/Bman */
 #ifndef CONFIG_NOBQFMAN
@@ -493,7 +478,6 @@ unsigned long get_board_ddr_clk(void);
 #define FM2_10GEC2_PHY_ADDR	0x3
 #endif
 
-
 /* SATA */
 #ifdef CONFIG_FSL_SATA_V2
 #define CONFIG_LIBATA
@@ -510,7 +494,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_LBA48
 #define CONFIG_CMD_SATA
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
 #endif
 
 #ifdef CONFIG_FMAN_ENET
@@ -528,24 +511,16 @@ unsigned long get_board_ddr_clk(void);
 /*
 * USB
 */
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_CMD_EXT2
 #define CONFIG_HAS_FSL_DR_USB
-
-#define CONFIG_MMC
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #define CONFIG_SYS_FSL_ESDHC_BROKEN_TIMEOUT
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #define CONFIG_ESDHC_DETECT_QUIRK \
@@ -555,7 +530,6 @@ unsigned long get_board_ddr_clk(void);
 	(!(readb(QIXIS_BASE + QIXIS_BRDCFG5) & QIXIS_MUX_SDHC_WIDTH8))
 #endif
 
-#define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
 
 #define __USB_PHY_TYPE	utmi
 
@@ -565,7 +539,7 @@ unsigned long get_board_ddr_clk(void);
  * interleaving. It can be cacheline, page, bank, superbank.
  * See doc/README.fsl-ddr for details.
  */
-#ifdef CONFIG_PPC_T4240
+#ifdef CONFIG_ARCH_T4240
 #define CTRL_INTLV_PREFERED 3way_4KB
 #else
 #define CTRL_INTLV_PREFERED cacheline
@@ -588,7 +562,7 @@ unsigned long get_board_ddr_clk(void);
 	"consoledev=ttyS0\0"					\
 	"ramdiskaddr=2000000\0"					\
 	"ramdiskfile=t4240qds/ramdisk.uboot\0"			\
-	"fdtaddr=c00000\0"					\
+	"fdtaddr=1e00000\0"					\
 	"fdtfile=t4240qds/t4240qds.dtb\0"				\
 	"bdev=sda3\0"
 

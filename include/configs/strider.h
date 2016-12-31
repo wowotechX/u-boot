@@ -20,27 +20,17 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
-#ifdef CONFIG_STRIDER_CPU
-#define CONFIG_IDENT_STRING	" strider cpu 0.01"
-#else
-#define CONFIG_IDENT_STRING	" strider con 0.01"
-#endif
-
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 
-#define CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
 #define CONFIG_SYS_FSL_ERRATUM_ESDHC111
 
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
 
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_ALT_MEMTEST
 
 #define CONFIG_CMD_FPGAD
@@ -228,15 +218,11 @@
 /*
  * FLASH on the Local Bus
  */
-#if 1
 #define CONFIG_SYS_FLASH_CFI		/* use the Common Flash Interface */
 #define CONFIG_FLASH_CFI_DRIVER		/* use the CFI driver */
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_FLASH_CFI_LEGACY
 #define CONFIG_SYS_FLASH_LEGACY_512Kx16
-#else
-#define CONFIG_SYS_NO_FLASH
-#endif
 
 #define CONFIG_SYS_FLASH_BASE		0xFE000000 /* FLASH base address */
 #define CONFIG_SYS_FLASH_SIZE		8 /* FLASH size is up to 8M */
@@ -313,9 +299,6 @@
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR + 0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR + 0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
 /* Pass open firmware flat tree */
 
 /* I2C */
@@ -347,6 +330,22 @@
 #define CONFIG_SYS_I2C_IHS_SPEED_3		50000
 #define CONFIG_SYS_I2C_IHS_SLAVE_3		0x7F
 
+#ifdef CONFIG_STRIDER_CON_DP
+#define CONFIG_SYS_I2C_IHS_DUAL
+#define CONFIG_SYS_I2C_IHS_CH0_1
+#define CONFIG_SYS_I2C_IHS_SPEED_0_1		50000
+#define CONFIG_SYS_I2C_IHS_SLAVE_0_1		0x7F
+#define CONFIG_SYS_I2C_IHS_CH1_1
+#define CONFIG_SYS_I2C_IHS_SPEED_1_1		50000
+#define CONFIG_SYS_I2C_IHS_SLAVE_1_1		0x7F
+#define CONFIG_SYS_I2C_IHS_CH2_1
+#define CONFIG_SYS_I2C_IHS_SPEED_2_1		50000
+#define CONFIG_SYS_I2C_IHS_SLAVE_2_1		0x7F
+#define CONFIG_SYS_I2C_IHS_CH3_1
+#define CONFIG_SYS_I2C_IHS_SPEED_3_1		50000
+#define CONFIG_SYS_I2C_IHS_SLAVE_3_1		0x7F
+#endif
+
 /*
  * Software (bit-bang) I2C driver configuration
  */
@@ -363,7 +362,7 @@
 #define I2C_SOFT_DECLARATIONS4
 #define CONFIG_SYS_I2C_SOFT_SPEED_4		50000
 #define CONFIG_SYS_I2C_SOFT_SLAVE_4		0x7F
-#ifdef CONFIG_STRIDER_CON
+#if defined(CONFIG_STRIDER_CON) || defined(CONFIG_STRIDER_CON_DP)
 #define I2C_SOFT_DECLARATIONS5
 #define CONFIG_SYS_I2C_SOFT_SPEED_5		50000
 #define CONFIG_SYS_I2C_SOFT_SLAVE_5		0x7F
@@ -377,6 +376,20 @@
 #define CONFIG_SYS_I2C_SOFT_SPEED_8		50000
 #define CONFIG_SYS_I2C_SOFT_SLAVE_8		0x7F
 #endif
+#ifdef CONFIG_STRIDER_CON_DP
+#define I2C_SOFT_DECLARATIONS9
+#define CONFIG_SYS_I2C_SOFT_SPEED_9		50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE_9		0x7F
+#define I2C_SOFT_DECLARATIONS10
+#define CONFIG_SYS_I2C_SOFT_SPEED_10		50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE_10		0x7F
+#define I2C_SOFT_DECLARATIONS11
+#define CONFIG_SYS_I2C_SOFT_SPEED_11		50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE_11		0x7F
+#define I2C_SOFT_DECLARATIONS12
+#define CONFIG_SYS_I2C_SOFT_SPEED_12		50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE_12		0x7F
+#endif
 
 #ifdef CONFIG_STRIDER_CON
 #define CONFIG_SYS_ICS8N3QV01_I2C		{5, 6, 7, 8}
@@ -385,6 +398,19 @@
 #define CONFIG_SYS_DP501_I2C			{1, 2, 3, 4}
 #define CONFIG_STRIDER_FANS			{ {10, 0x4c}, {11, 0x4c}, \
 						  {12, 0x4c} }
+#elif defined(CONFIG_STRIDER_CON_DP)
+#define CONFIG_SYS_ICS8N3QV01_I2C		{13, 14, 15, 16, 17, 18, 19, 20}
+#define CONFIG_SYS_CH7301_I2C			{1, 3, 5, 7}
+#define CONFIG_SYS_ADV7611_I2C			{1, 3, 5, 7}
+#define CONFIG_SYS_DP501_I2C			{1, 3, 5, 7, 2, 4, 6, 8}
+#define CONFIG_STRIDER_FANS			{ {10, 0x4c}, {11, 0x4c}, \
+						  {12, 0x4c} }
+#elif defined(CONFIG_STRIDER_CPU_DP)
+#define CONFIG_SYS_CH7301_I2C			{1, 2, 3, 4}
+#define CONFIG_SYS_ADV7611_I2C			{1, 2, 3, 4}
+#define CONFIG_SYS_DP501_I2C			{1, 2, 3, 4}
+#define CONFIG_STRIDER_FANS			{ {6, 0x4c}, {7, 0x4c}, \
+						  {8, 0x4c} }
 #else
 #define CONFIG_SYS_CH7301_I2C			{1, 2, 3, 4}
 #define CONFIG_SYS_ADV7611_I2C			{1, 2, 3, 4}
@@ -397,6 +423,8 @@
 void fpga_gpio_set(unsigned int bus, int pin);
 void fpga_gpio_clear(unsigned int bus, int pin);
 int fpga_gpio_get(unsigned int bus, int pin);
+void fpga_control_set(unsigned int bus, int pin);
+void fpga_control_clear(unsigned int bus, int pin);
 #endif
 
 #ifdef CONFIG_STRIDER_CON
@@ -404,12 +432,28 @@ int fpga_gpio_get(unsigned int bus, int pin);
 #define I2C_SCL_GPIO	((I2C_ADAP_HWNR > 3) ? 0x0100 : 0x0020)
 #define I2C_FPGA_IDX	((I2C_ADAP_HWNR > 3) ? \
 			 (I2C_ADAP_HWNR - 4) : I2C_ADAP_HWNR)
+#elif defined(CONFIG_STRIDER_CON_DP)
+#define I2C_SDA_GPIO	((I2C_ADAP_HWNR > 3) ? 0x0040 : 0x0200)
+#define I2C_SCL_GPIO	((I2C_ADAP_HWNR > 3) ? 0x0020 : 0x0100)
+#define I2C_FPGA_IDX	(I2C_ADAP_HWNR % 4)
 #else
 #define I2C_SDA_GPIO	0x0040
 #define I2C_SCL_GPIO	0x0020
 #define I2C_FPGA_IDX	I2C_ADAP_HWNR
 #endif
+
+#ifdef CONFIG_STRIDER_CON_DP
+#define I2C_ACTIVE \
+	do { \
+		if (I2C_ADAP_HWNR > 7) \
+			fpga_control_set(I2C_FPGA_IDX, 0x0004); \
+		else \
+			fpga_control_clear(I2C_FPGA_IDX, 0x0004); \
+	} while (0)
+#else
 #define I2C_ACTIVE	{ }
+#endif
+
 #define I2C_TRISTATE	{ }
 #define I2C_READ \
 	(fpga_gpio_get(I2C_FPGA_IDX, I2C_SDA_GPIO) ? 1 : 0)
@@ -442,6 +486,10 @@ int fpga_gpio_get(unsigned int bus, int pin);
 #define CONFIG_SYS_DP501_DIFFERENTIAL
 #define CONFIG_SYS_DP501_VCAPCTRL0	0x01 /* DDR mode 0, DE for H/VSYNC */
 
+#ifdef CONFIG_STRIDER_CON_DP
+#define CONFIG_SYS_OSD_DH
+#endif
+
 /*
  * General PCI
  * Addresses are mapped 1-1.
@@ -459,11 +507,8 @@ int fpga_gpio_get(unsigned int bus, int pin);
 /* enable PCIE clock */
 #define CONFIG_SYS_SCCR_PCIEXP1CM	1
 
-#define CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCIE
-
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 #define CONFIG_83XX_GENERIC_PCIE_REGISTER_HOSES 1
@@ -510,10 +555,7 @@ int fpga_gpio_get(unsigned int bus, int pin);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
@@ -525,11 +567,7 @@ int fpga_gpio_get(unsigned int bus, int pin);
 #define CONFIG_SYS_LOAD_ADDR		0x2000000 /* default load address */
 #define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms ticks */
 
-#undef CONFIG_ZERO_BOOTDELAY_CHECK	/* ignore keypress on bootdelay==0 */
-
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size */
-
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -603,7 +641,6 @@ int fpga_gpio_get(unsigned int bus, int pin);
 
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY	5	/* -1 disables auto-boot */
 
 #define CONFIG_HOSTNAME		hrcon
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
@@ -642,6 +679,5 @@ int fpga_gpio_get(unsigned int bus, int pin);
 	"bootm ${kernel_addr} - ${fdt_addr}"
 
 #define CONFIG_BOOTCOMMAND		CONFIG_MMCBOOTCOMMAND
-
 
 #endif	/* __CONFIG_H */

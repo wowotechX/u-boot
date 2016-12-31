@@ -18,7 +18,7 @@
 #define CONFIG_MACH_TYPE		4273
 
 /* CMD */
-#define CONFIG_CMD_GREPENV
+#define CONFIG_CMD_MTDPARTS
 
 /* MMC */
 #define CONFIG_SYS_FSL_USDHC_NUM	3
@@ -54,6 +54,19 @@
 #define CONFIG_SF_DEFAULT_SPEED		25000000
 #define CONFIG_SF_DEFAULT_MODE		(SPI_MODE_0)
 
+/* MTD support */
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_SPI_FLASH_MTD
+#endif
+
+#define MTDIDS_DEFAULT		"nor0=spi0.0"
+#define MTDPARTS_DEFAULT	"mtdparts=spi0.0:" \
+				"768k(uboot)," \
+				"256k(uboot-environment)," \
+				"-(reserved)"
+
 /* Environment */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
@@ -70,6 +83,8 @@
 	"stderr=serial,vga\0" \
 	"panel=HDMI\0" \
 	"autoload=no\0" \
+	"uImage=uImage-cm-fx6\0" \
+	"zImage=zImage-cm-fx6\0" \
 	"kernel=uImage-cm-fx6\0" \
 	"script=boot.scr\0" \
 	"dtb=cm-fx6.dtb\0" \
@@ -82,10 +97,12 @@
 	"video_dvi=mxcfb0:dev=dvi,1280x800M-32@50,if=RGB32\0" \
 	"doboot=bootm ${loadaddr}\0" \
 	"doloadfdt=false\0" \
-	"setboottypez=setenv kernel zImage-cm-fx6;" \
+	"mtdids=" MTDIDS_DEFAULT "\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"setboottypez=setenv kernel ${zImage};" \
 		"setenv doboot bootz ${loadaddr} - ${fdtaddr};" \
 		"setenv doloadfdt true;\0" \
-	"setboottypem=setenv kernel uImage-cm-fx6;" \
+	"setboottypem=setenv kernel ${uImage};" \
 		"setenv doboot bootm ${loadaddr};" \
 		"setenv doloadfdt false;\0"\
 	"mmcroot=/dev/mmcblk0p2 rw rootwait\0" \
@@ -93,13 +110,13 @@
 	"nandroot=/dev/mtdblock4 rw\0" \
 	"nandrootfstype=ubifs\0" \
 	"mmcargs=setenv bootargs console=${console} root=${mmcroot} " \
-		"${video}\0" \
+		"${video} ${extrabootargs}\0" \
 	"sataargs=setenv bootargs console=${console} root=${sataroot} " \
-		"${video}\0" \
+		"${video} ${extrabootargs}\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype} " \
-		"${video}\0" \
+		"${video} ${extrabootargs}\0" \
 	"nandboot=if run nandloadkernel; then " \
 			"run nandloadfdt;" \
 			"run setboottypem;" \
@@ -156,7 +173,7 @@
 	"run setupnandboot;" \
 	"run nandboot;"
 
-#define CONFIG_PREBOOT		"usb start"
+#define CONFIG_PREBOOT		"usb start;sf probe"
 
 /* SPI */
 #define CONFIG_SPI
@@ -193,7 +210,6 @@
 #define CONFIG_MXC_USB_FLAGS		0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
-#define CONFIG_SYS_STDIO_DEREGISTER
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -224,29 +240,17 @@
 /* misc */
 #define CONFIG_STACKSIZE			(128 * 1024)
 #define CONFIG_SYS_MALLOC_LEN			(10 * 1024 * 1024)
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	800 /* 400 KB */
 #define CONFIG_MISC_INIT_R
 
 /* SPL */
 #include "imx6_spl.h"
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x80 /* offset 64 kb */
-#define CONFIG_SYS_MONITOR_LEN	(CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS / 2 * 1024)
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
 #define CONFIG_SPL_SPI_LOAD
 
 /* Display */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_IPUV3_CLK          260000000
 #define CONFIG_IMX_HDMI
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_CONSOLE_MUX
-#define CONFIG_VIDEO_SW_CURSOR
 
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SOURCE
@@ -255,5 +259,16 @@
 
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
+
+/* EEPROM */
+#define CONFIG_CMD_EEPROM
+#define CONFIG_ENV_EEPROM_IS_ON_I2C
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
+#define CONFIG_SYS_EEPROM_SIZE			256
+
+#define CONFIG_CMD_EEPROM_LAYOUT
+#define CONFIG_EEPROM_LAYOUT_HELP_STRING "v2, v3"
 
 #endif	/* __CONFIG_CM_FX6_H */

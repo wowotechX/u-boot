@@ -42,8 +42,10 @@ int cpu_common_init(void)
 	enable_lapic();
 
 	ret = microcode_update_intel();
-	if (ret && ret != -EEXIST)
+	if (ret && ret != -EEXIST) {
+		debug("%s: Microcode update failure (err=%d)\n", __func__, ret);
 		return ret;
+	}
 
 	/* Enable upper 128bytes of CMOS */
 	writel(1 << 2, RCB_REG(RC));
@@ -58,7 +60,7 @@ int cpu_common_init(void)
 		return -ENODEV;
 
 	/* Cause the SATA device to do its early init */
-	uclass_first_device(UCLASS_DISK, &dev);
+	uclass_first_device(UCLASS_AHCI, &dev);
 
 	return 0;
 }

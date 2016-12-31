@@ -18,13 +18,18 @@
 
 #define ARASAN_NAND_BASEADDR	0xFF100000
 
-#define ZYNQMP_SATA_BASEADDR	0xFD0C0000
-
 #define ZYNQMP_USB0_XHCI_BASEADDR	0xFE200000
 #define ZYNQMP_USB1_XHCI_BASEADDR	0xFE300000
 
 #define ZYNQMP_CRL_APB_BASEADDR	0xFF5E0000
 #define ZYNQMP_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT	0x1000000
+#define ZYNQMP_CRL_APB_BOOT_PIN_CTRL_OUT_EN_SHIFT	0
+#define ZYNQMP_CRL_APB_BOOT_PIN_CTRL_OUT_VAL_SHIFT	8
+
+#define PS_MODE0	BIT(0)
+#define PS_MODE1	BIT(1)
+#define PS_MODE2	BIT(2)
+#define PS_MODE3	BIT(3)
 
 struct crlapb_regs {
 	u32 reserved0[36];
@@ -35,7 +40,9 @@ struct crlapb_regs {
 	u32 boot_mode; /* 0x200 */
 	u32 reserved3[14];
 	u32 rst_lpd_top; /* 0x23C */
-	u32 reserved4[26];
+	u32 reserved4[4];
+	u32 boot_pin_ctrl; /* 0x250 */
+	u32 reserved5[21];
 };
 
 #define crlapb_base ((struct crlapb_regs *)ZYNQMP_CRL_APB_BASEADDR)
@@ -69,7 +76,14 @@ struct iou_scntr_secure {
 #define SD_MODE1	0x00000005 /* sd 1 */
 #define NAND_MODE	0x00000004
 #define EMMC_MODE	0x00000006
+#define USB_MODE	0x00000007
+#define SD1_LSHFT_MODE	0x0000000E /* SD1 Level shifter */
 #define JTAG_MODE	0x00000000
+#define BOOT_MODE_USE_ALT	0x100
+#define BOOT_MODE_ALT_SHIFT	12
+/* SW secondary boot modes 0xa - 0xd */
+#define SW_USBHOST_MODE	0x0000000A
+#define SW_SATA_MODE	0x0000000B
 
 #define ZYNQMP_IOU_SLCR_BASEADDR	0xFF180000
 

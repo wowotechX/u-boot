@@ -28,7 +28,7 @@
 #include <asm/mach-types.h>
 #include <linux/mtd/nand.h>
 #include <asm/omap_musb.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/musb.h>
@@ -144,20 +144,8 @@ static struct musb_hdrc_platform_data musb_plat = {
  */
 int misc_init_r(void)
 {
-	t2_t *t2_base = (t2_t *)T2_BASE;
-	u32 pbias_lite;
-	/* set up dual-voltage GPIOs to 1.8V */
-	pbias_lite = readl(&t2_base->pbias_lite);
-	pbias_lite &= ~PBIASLITEVMODE1;
-	pbias_lite |= PBIASLITEPWRDNZ1;
-	writel(pbias_lite, &t2_base->pbias_lite);
-	if (get_cpu_family() == CPU_OMAP36XX)
-		writel(readl(CONTROL_WKUP_CTRL) | GPIO_IO_PWRDNZ,
-				CONTROL_WKUP_CTRL);
 	twl4030_power_init();
-
 	omap_die_id_display();
-	putc('\n');
 
 #ifdef CONFIG_USB_MUSB_OMAP2PLUS
 	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
@@ -231,6 +219,10 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+	/* If we do not have an fdtimage, let's autodetect it*/
+	if (getenv("fdtimage"))
+		return 0;
+
 	switch (gd->bd->bi_arch_number) {
 	case MACH_TYPE_DM3730_TORPEDO:
 		setenv("fdtimage", "logicpd-torpedo-37xx-devkit.dtb");

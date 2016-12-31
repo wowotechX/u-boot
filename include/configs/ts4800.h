@@ -16,9 +16,6 @@
 /* High Level Configuration Options */
 #define CONFIG_MX51
 
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_SYS_NO_FLASH		/* No NOR Flash */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is a 2nd stage bootloader */
 
@@ -55,7 +52,6 @@
  * */
 #define CONFIG_HARD_SPI /* puts SPI: ready */
 #define CONFIG_MXC_SPI /* driver for the SPI controllers*/
-#define CONFIG_CMD_SPI /* SPI serial bus support */
 
 /*
  * MMC Configs
@@ -63,11 +59,9 @@
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	MMC_SDHC1_BASE_ADDR
 
-#define CONFIG_MMC
+#define CONFIG_SYS_FSL_ERRATUM_ESDHC_A001
 
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
 /*
@@ -82,10 +76,6 @@
 #define CONFIG_ETHPRIME		"FEC"
 #define CONFIG_FEC_MXC_PHYADDR	0
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
-
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE		/* disable vendor parameters protection (serial#, ethaddr) */
 #define CONFIG_CONS_INDEX		1 /* use UART0 : used by serial driver */
@@ -95,30 +85,35 @@
  * Command definition
  ***********************************************************/
 
-#define CONFIG_CMD_BOOTZ
-#undef CONFIG_CMD_IMLS
-
 /* Environment variables */
 
-#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_LOADADDR		0x91000000	/* loadaddr env var */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
-	"image=uImage\0" \
+	"image=zImage\0" \
+	"fdt_file=imx51-ts4800.dtb\0" \
+	"fdt_addr=0x90fe0000\0" \
 	"mmcdev=0\0" \
-	"mmcpart=1\0" \
-	"mmcargs=setenv bootargs root=/dev/mmcblk0p2 rootwait rw\0" \
+	"mmcpart=2\0" \
+	"mmcroot=/dev/mmcblk0p3 rootwait rw\0" \
+	"mmcargs=setenv bootargs root=${mmcroot}\0" \
 	"addtty=setenv bootargs ${bootargs} console=ttymxc0,${baudrate}\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image};\0" \
+	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs addtty; " \
-                "bootm; "
+		"if run loadfdt; then " \
+			"bootz ${loadaddr} - ${fdt_addr}; " \
+		"else " \
+			"echo ERR: cannot load FDT; " \
+		"fi; "
+
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
@@ -135,7 +130,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 /* Print Buffer Size */

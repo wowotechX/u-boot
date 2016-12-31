@@ -1522,11 +1522,10 @@ e1000_initialize_hardware_bits(struct e1000_hw *hw)
 		reg_txdctl1 |= E1000_TXDCTL_COUNT_DESC;
 		E1000_WRITE_REG(hw, TXDCTL1, reg_txdctl1);
 
-	/* IGB is cool */
-	if (hw->mac_type == e1000_igb)
-		return;
 
 		switch (hw->mac_type) {
+		case e1000_igb:			/* IGB is cool */
+			return;
 		case e1000_82571:
 		case e1000_82572:
 			/* Clear PHY TX compatible mode bits */
@@ -5513,7 +5512,8 @@ static int do_e1000(cmd_tbl_t *cmdtp, int flag,
 	struct udevice *dev;
 	char name[30];
 	int ret;
-#else
+#endif
+#if !defined(CONFIG_DM_ETH) || defined(CONFIG_E1000_SPI)
 	struct e1000_hw *hw;
 #endif
 	int cardnum;
@@ -5549,6 +5549,9 @@ static int do_e1000(cmd_tbl_t *cmdtp, int flag,
 	}
 
 #ifdef CONFIG_E1000_SPI
+#ifdef CONFIG_DM_ETH
+	hw = dev_get_priv(dev);
+#endif
 	/* Handle the "SPI" subcommand */
 	if (!strcmp(argv[2], "spi"))
 		return do_e1000_spi(cmdtp, hw, argc - 3, argv + 3);

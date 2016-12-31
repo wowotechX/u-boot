@@ -33,7 +33,7 @@
 #define PRINTF(fmt,args...)
 #endif
 
-#if defined(CONFIG_CMD_SCSI) && defined(CONFIG_SCSI_SYM53C8XX)
+#if defined(CONFIG_SCSI) && defined(CONFIG_SCSI_SYM53C8XX)
 
 #undef SCSI_SINGLE_STEP
 /*
@@ -284,9 +284,8 @@ void scsi_low_level_init(int busdevfunc)
  */
 unsigned long swap_script(unsigned long val)
 {
-	unsigned long tmp;
-	tmp = ((val>>24)&0xff) | ((val>>8)&0xff00) | ((val<<8)&0xff0000) | ((val<<24)&0xff000000);
-	return tmp;
+	return ((val >> 24) & 0xff) | ((val >> 8) & 0xff00) |
+		((val << 8) & 0xff0000) | ((val << 24) & 0xff000000);
 }
 
 

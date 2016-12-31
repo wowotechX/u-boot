@@ -41,6 +41,13 @@ struct udevice *dm_root(void)
 	return gd->dm_root;
 }
 
+void dm_fixup_for_gd_move(struct global_data *new_gd)
+{
+	/* The sentinel node has moved, so update things that point to it */
+	new_gd->uclass_root.next->prev = &new_gd->uclass_root;
+	new_gd->uclass_root.prev->next = &new_gd->uclass_root;
+}
+
 fdt_addr_t dm_get_translation_offset(void)
 {
 	struct udevice *root = dm_root();
@@ -122,6 +129,20 @@ void fix_uclass(void)
 			entry->ops += gd->reloc_off;
 	}
 }
+
+void fix_devices(void)
+{
+	struct driver_info *dev =
+		ll_entry_start(struct driver_info, driver_info);
+	const int n_ents = ll_entry_count(struct driver_info, driver_info);
+	struct driver_info *entry;
+
+	for (entry = dev; entry != dev + n_ents; entry++) {
+		if (entry->platdata)
+			entry->platdata += gd->reloc_off;
+	}
+}
+
 #endif
 
 int dm_init(void)
@@ -137,6 +158,7 @@ int dm_init(void)
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	fix_drivers();
 	fix_uclass();
+	fix_devices();
 #endif
 
 	ret = device_bind_by_name(NULL, false, &root_info, &DM_ROOT_NON_CONST);
@@ -173,7 +195,7 @@ int dm_scan_platdata(bool pre_reloc_only)
 	return ret;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 int dm_scan_fdt_node(struct udevice *parent, const void *blob, int offset,
 		     bool pre_reloc_only)
 {
@@ -203,6 +225,15 @@ int dm_scan_fdt_node(struct udevice *parent, const void *blob, int offset,
 	return ret;
 }
 
+int dm_scan_fdt_dev(struct udevice *dev)
+{
+	if (dev->of_offset == -1)
+		return 0;
+
+	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset,
+				gd->flags & GD_FLG_RELOC ? false : true);
+}
+
 int dm_scan_fdt(const void *blob, bool pre_reloc_only)
 {
 	return dm_scan_fdt_node(gd->dm_root, blob, 0, pre_reloc_only);
@@ -229,7 +260,7 @@ int dm_init_and_scan(bool pre_reloc_only)
 		return ret;
 	}
 
-	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = dm_scan_fdt(gd->fdt_blob, pre_reloc_only);
 		if (ret) {
 			debug("dm_scan_fdt() failed: %d\n", ret);

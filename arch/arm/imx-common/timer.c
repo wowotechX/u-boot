@@ -43,10 +43,9 @@ DECLARE_GLOBAL_DATA_PTR;
 static inline int gpt_has_clk_source_osc(void)
 {
 #if defined(CONFIG_MX6)
-	if (((is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D)) &&
-	    (soc_rev() > CHIP_REV_1_0)) || is_cpu_type(MXC_CPU_MX6DL) ||
-	     is_cpu_type(MXC_CPU_MX6SOLO) || is_cpu_type(MXC_CPU_MX6SX) ||
-	     is_cpu_type(MXC_CPU_MX6UL))
+	if (((is_mx6dq()) && (soc_rev() > CHIP_REV_1_0)) ||
+	    is_mx6dqp() || is_mx6sdl() || is_mx6sx() || is_mx6ul() ||
+	    is_mx6ull() || is_mx6sll())
 		return 1;
 
 	return 0;
@@ -85,11 +84,12 @@ int timer_init(void)
 	if (gpt_has_clk_source_osc()) {
 		i |= GPTCR_CLKSOURCE_OSC | GPTCR_TEN;
 
-		/* For DL/S, SX, UL, set 24Mhz OSC Enable bit and prescaler */
-		if (is_cpu_type(MXC_CPU_MX6DL) ||
-		    is_cpu_type(MXC_CPU_MX6SOLO) ||
-		    is_cpu_type(MXC_CPU_MX6SX) ||
-		    is_cpu_type(MXC_CPU_MX6UL)) {
+		/*
+		 * For DL/S, SX, UL, ULL, SLL set 24Mhz OSC
+		 * Enable bit and prescaler
+		 */
+		if (is_mx6sdl() || is_mx6sx() || is_mx6ul() || is_mx6ull() ||
+		    is_mx6sll()) {
 			i |= GPTCR_24MEN;
 
 			/* Produce 3Mhz clock */
@@ -123,4 +123,20 @@ unsigned long timer_read_counter(void)
 ulong get_tbclk(void)
 {
 	return gpt_get_clk();
+}
+
+/*
+ * This function is intended for SHORT delays only.
+ * It will overflow at around 10 seconds @ 400MHz,
+ * or 20 seconds @ 200MHz.
+ */
+unsigned long usec2ticks(unsigned long _usec)
+{
+	unsigned long long usec = _usec;
+
+	usec *= get_tbclk();
+	usec += 999999;
+	do_div(usec, 1000000);
+
+	return usec;
 }

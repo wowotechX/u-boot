@@ -11,9 +11,6 @@
 
 #define CONFIG_MX53
 
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX53_SMD
 
 #include <asm/arch/imx-regs.h>
@@ -35,7 +32,6 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -47,10 +43,7 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
 
-#define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
 /* Eth Configs */
@@ -61,17 +54,12 @@
 #define IMX_FEC_BASE	FEC_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR	0x1F
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
-
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_ETHPRIME		"FEC0"
 
@@ -118,7 +106,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 

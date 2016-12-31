@@ -44,6 +44,9 @@ Note:
       make sandbox_defconfig all NO_SDL=1
       ./u-boot
 
+   If you are building on a 32-bit machine you may get errors from __ffs.h
+   about shifting more than the machine word size. Edit the config file
+   include/configs/sandbox.h and change CONFIG_SANDBOX_BITS_PER_LONG to 32.
 
 U-Boot will start on your computer, showing a sandbox emulation of the serial
 console:
@@ -186,8 +189,7 @@ U-Boot sandbox supports these emulations:
 A wide range of commands is implemented. Filesystems which use a block
 device are supported.
 
-Also sandbox uses generic board (CONFIG_SYS_GENERIC_BOARD) and supports
-driver model (CONFIG_DM) and associated commands.
+Also sandbox supports driver model (CONFIG_DM) and associated commands.
 
 
 Linux RAW Networking Bridge
@@ -316,6 +318,25 @@ CONFIG_SANDBOX_SPI_MAX_CS
 
 CONFIG_SPI_IDLE_VAL
 	The idle value on the SPI bus
+
+
+Block Device Emulation
+----------------------
+
+U-Boot can use raw disk images for block device emulation. To e.g. list
+the contents of the root directory on the second partion of the image
+"disk.raw", you can use the following commands:
+
+=>host bind 0 ./disk.raw
+=>ls host 0:2
+
+A disk image can be created using the following commands:
+
+$> truncate -s 1200M ./disk.raw
+$> echo -e "label: gpt\n,64M,U\n,,L" | /usr/sbin/sfdisk  ./disk.raw
+$> lodev=`sudo losetup -P -f --show ./disk.raw`
+$> sudo mkfs.vfat -n EFI -v ${lodev}p1
+$> sudo mkfs.ext4 -L ROOT -v ${lodev}p2
 
 
 Writing Sandbox Drivers

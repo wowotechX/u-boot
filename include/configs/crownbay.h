@@ -19,21 +19,14 @@
 
 #define CONFIG_SMSC_LPC47M
 
-#define CONFIG_PCI_PNP
-
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,i8042-kbd,usbkbd\0" \
-					"stdout=serial,vga\0" \
-					"stderr=serial,vga\0"
+					"stdout=serial,vidconsole\0" \
+					"stderr=serial,vidconsole\0"
 
 #define CONFIG_SCSI_DEV_LIST		\
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TCF_SATA}
 
-
-#define CONFIG_MMC
-#define CONFIG_SDHCI
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MMC_SDMA
-#define CONFIG_CMD_MMC
 
 /* Environment configuration */
 #define CONFIG_ENV_SECT_SIZE		0x1000

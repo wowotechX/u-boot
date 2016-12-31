@@ -132,14 +132,14 @@ void setup_ventana_i2c(void)
 
 /* common to add baseboards */
 static iomux_v3_cfg_t const gw_gpio_pads[] = {
-	/* MSATA_EN */
-	IOMUX_PADS(PAD_SD4_DAT0__GPIO2_IO08 | DIO_PAD_CFG),
-	/* RS232_EN# */
-	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
+	/* SD3_VSELECT */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
 };
 
 /* prototype */
 static iomux_v3_cfg_t const gwproto_gpio_pads[] = {
+	/* RS232_EN# */
+	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
 	/* PANLEDG# */
 	IOMUX_PADS(PAD_KEY_COL0__GPIO4_IO06 | DIO_PAD_CFG),
 	/* PANLEDR# */
@@ -183,6 +183,10 @@ static iomux_v3_cfg_t const gw51xx_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw52xx_gpio_pads[] = {
+	/* RS232_EN# */
+	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
+	/* MSATA_EN */
+	IOMUX_PADS(PAD_SD4_DAT0__GPIO2_IO08 | DIO_PAD_CFG),
 	/* PANLEDG# */
 	IOMUX_PADS(PAD_KEY_COL0__GPIO4_IO06 | DIO_PAD_CFG),
 	/* PANLEDR# */
@@ -212,6 +216,10 @@ static iomux_v3_cfg_t const gw52xx_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw53xx_gpio_pads[] = {
+	/* RS232_EN# */
+	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
+	/* MSATA_EN */
+	IOMUX_PADS(PAD_SD4_DAT0__GPIO2_IO08 | DIO_PAD_CFG),
 	/* CAN_STBY */
 	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
 	/* USB_HUBRST# */
@@ -241,6 +249,10 @@ static iomux_v3_cfg_t const gw53xx_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw54xx_gpio_pads[] = {
+	/* RS232_EN# */
+	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
+	/* MSATA_EN */
+	IOMUX_PADS(PAD_SD4_DAT0__GPIO2_IO08 | DIO_PAD_CFG),
 	/* CAN_STBY */
 	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
 	/* PANLEDG# */
@@ -283,6 +295,8 @@ static iomux_v3_cfg_t const gw551x_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw552x_gpio_pads[] = {
+	/* MSATA_EN */
+	IOMUX_PADS(PAD_SD4_DAT0__GPIO2_IO08 | DIO_PAD_CFG),
 	/* USBOTG_SEL */
 	IOMUX_PADS(PAD_GPIO_7__GPIO1_IO07 | DIO_PAD_CFG),
 	/* USB_HUBRST# */
@@ -310,6 +324,233 @@ static iomux_v3_cfg_t const gw552x_gpio_pads[] = {
 	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
 
+static iomux_v3_cfg_t const gw553x_gpio_pads[] = {
+	/* PANLEDG# */
+	IOMUX_PADS(PAD_KEY_COL2__GPIO4_IO10 | DIO_PAD_CFG),
+	/* PANLEDR# */
+	IOMUX_PADS(PAD_KEY_ROW2__GPIO4_IO11 | DIO_PAD_CFG),
+
+	/* VID_PWR */
+	IOMUX_PADS(PAD_CSI0_DATA_EN__GPIO5_IO20 | DIO_PAD_CFG),
+	/* PCI_RST# */
+	IOMUX_PADS(PAD_GPIO_0__GPIO1_IO00 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
+};
+
+/* Digital I/O */
+struct dio_cfg gw51xx_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_CMD__GPIO1_IO18) },
+		IMX_GPIO_NR(1, 18),
+		{ IOMUX_PADS(PAD_SD1_CMD__PWM4_OUT) },
+		4
+	},
+};
+
+struct dio_cfg gw52xx_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
+		IMX_GPIO_NR(1, 20),
+		{ 0, 0 },
+		0
+	},
+};
+
+struct dio_cfg gw53xx_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
+		IMX_GPIO_NR(1, 20),
+		{ 0, 0 },
+		0
+	},
+};
+
+struct dio_cfg gw54xx_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09) },
+		IMX_GPIO_NR(1, 9),
+		{ IOMUX_PADS(PAD_GPIO_9__PWM1_OUT) },
+		1
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD4_DAT1__GPIO2_IO09) },
+		IMX_GPIO_NR(2, 9),
+		{ IOMUX_PADS(PAD_SD4_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{ IOMUX_PADS(PAD_SD4_DAT2__GPIO2_IO10) },
+		IMX_GPIO_NR(2, 10),
+		{ IOMUX_PADS(PAD_SD4_DAT2__PWM4_OUT) },
+		4
+	},
+};
+
+struct dio_cfg gw551x_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+};
+
+struct dio_cfg gw552x_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
+		IMX_GPIO_NR(1, 20),
+		{ 0, 0 },
+		0
+	},
+	{
+		{IOMUX_PADS(PAD_CSI0_PIXCLK__GPIO5_IO18) },
+		IMX_GPIO_NR(5, 18),
+		{ 0, 0 },
+		0
+	},
+	{
+		{IOMUX_PADS(PAD_CSI0_DATA_EN__GPIO5_IO20) },
+		IMX_GPIO_NR(5, 20),
+		{ 0, 0 },
+		0
+	},
+	{
+		{IOMUX_PADS(PAD_CSI0_VSYNC__GPIO5_IO21) },
+		IMX_GPIO_NR(5, 21),
+		{ 0, 0 },
+		0
+	},
+	{
+		{IOMUX_PADS(PAD_CSI0_DAT4__GPIO5_IO22) },
+		IMX_GPIO_NR(5, 22),
+		{ 0, 0 },
+		0
+	},
+	{
+		{IOMUX_PADS(PAD_CSI0_DAT5__GPIO5_IO23) },
+		IMX_GPIO_NR(5, 23),
+		{ 0, 0 },
+		0
+	},
+	{
+		{IOMUX_PADS(PAD_CSI0_DAT7__GPIO5_IO25) },
+		IMX_GPIO_NR(5, 25),
+		{ 0, 0 },
+		0
+	},
+};
+
+struct dio_cfg gw553x_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_CMD__GPIO1_IO18) },
+		IMX_GPIO_NR(1, 18),
+		{ IOMUX_PADS(PAD_SD1_CMD__PWM4_OUT) },
+		4
+	},
+};
 
 /*
  * Board Specific GPIO
@@ -319,33 +560,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 	{
 		.gpio_pads = gw54xx_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw54xx_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09) },
-				IMX_GPIO_NR(1, 9),
-				{ IOMUX_PADS(PAD_GPIO_9__PWM1_OUT) },
-				1
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD4_DAT1__GPIO2_IO09) },
-				IMX_GPIO_NR(2, 9),
-				{ IOMUX_PADS(PAD_SD4_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{ IOMUX_PADS(PAD_SD4_DAT2__GPIO2_IO10) },
-				IMX_GPIO_NR(2, 10),
-				{ IOMUX_PADS(PAD_SD4_DAT2__PWM4_OUT) },
-				4
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw54xx_dio,
+		.dio_num = ARRAY_SIZE(gw54xx_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 10),
@@ -363,33 +579,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 	{
 		.gpio_pads = gw51xx_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw51xx_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
-				IMX_GPIO_NR(1, 16),
-				{ 0, 0 },
-				0
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
-				IMX_GPIO_NR(1, 17),
-				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_CMD__GPIO1_IO18) },
-				IMX_GPIO_NR(1, 18),
-				{ IOMUX_PADS(PAD_SD1_CMD__PWM4_OUT) },
-				4
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw51xx_dio,
+		.dio_num = ARRAY_SIZE(gw51xx_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 10),
@@ -406,33 +597,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 	{
 		.gpio_pads = gw52xx_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw52xx_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
-				IMX_GPIO_NR(1, 16),
-				{ 0, 0 },
-				0
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
-				IMX_GPIO_NR(1, 17),
-				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
-				IMX_GPIO_NR(1, 20),
-				{ 0, 0 },
-				0
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw52xx_dio,
+		.dio_num = ARRAY_SIZE(gw52xx_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -445,39 +611,16 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.vidin_en = IMX_GPIO_NR(3, 31),
 		.usb_sel = IMX_GPIO_NR(1, 2),
 		.wdis = IMX_GPIO_NR(7, 12),
+		.msata_en = GP_MSATA_SEL,
+		.rs232_en = GP_RS232_EN,
 	},
 
 	/* GW53xx */
 	{
 		.gpio_pads = gw53xx_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw53xx_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
-				IMX_GPIO_NR(1, 16),
-				{ 0, 0 },
-				0
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
-				IMX_GPIO_NR(1, 17),
-				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
-				IMX_GPIO_NR(1, 20),
-				{ 0, 0 },
-				0
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw53xx_dio,
+		.dio_num = ARRAY_SIZE(gw53xx_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -489,39 +632,16 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.gps_shdn = IMX_GPIO_NR(1, 27),
 		.vidin_en = IMX_GPIO_NR(3, 31),
 		.wdis = IMX_GPIO_NR(7, 12),
+		.msata_en = GP_MSATA_SEL,
+		.rs232_en = GP_RS232_EN,
 	},
 
 	/* GW54xx */
 	{
 		.gpio_pads = gw54xx_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw54xx_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09) },
-				IMX_GPIO_NR(1, 9),
-				{ IOMUX_PADS(PAD_GPIO_9__PWM1_OUT) },
-				1
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD4_DAT1__GPIO2_IO09) },
-				IMX_GPIO_NR(2, 9),
-				{ IOMUX_PADS(PAD_SD4_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{ IOMUX_PADS(PAD_SD4_DAT2__GPIO2_IO10) },
-				IMX_GPIO_NR(2, 10),
-				{ IOMUX_PADS(PAD_SD4_DAT2__PWM4_OUT) },
-				4
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw54xx_dio,
+		.dio_num = ARRAY_SIZE(gw54xx_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -535,27 +655,16 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.dioi2c_en = IMX_GPIO_NR(4,  5),
 		.pcie_sson = IMX_GPIO_NR(1, 20),
 		.wdis = IMX_GPIO_NR(5, 17),
+		.msata_en = GP_MSATA_SEL,
+		.rs232_en = GP_RS232_EN,
 	},
 
 	/* GW551x */
 	{
 		.gpio_pads = gw551x_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw551x_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
-				IMX_GPIO_NR(1, 17),
-				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
-				3
-			},
-		},
-		.num_gpios = 2,
+		.dio_cfg = gw551x_dio,
+		.dio_num = ARRAY_SIZE(gw551x_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 7),
 		},
@@ -567,33 +676,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 	{
 		.gpio_pads = gw552x_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw552x_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
-				IMX_GPIO_NR(1, 16),
-				{ 0, 0 },
-				0
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
-				IMX_GPIO_NR(1, 17),
-				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
-				IMX_GPIO_NR(1, 20),
-				{ 0, 0 },
-				0
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw552x_dio,
+		.dio_num = ARRAY_SIZE(gw552x_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -601,6 +685,22 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		},
 		.pcie_rst = IMX_GPIO_NR(1, 29),
 		.usb_sel = IMX_GPIO_NR(1, 7),
+		.wdis = IMX_GPIO_NR(7, 12),
+		.msata_en = GP_MSATA_SEL,
+	},
+
+	/* GW553x */
+	{
+		.gpio_pads = gw553x_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw553x_gpio_pads)/2,
+		.dio_cfg = gw553x_dio,
+		.dio_num = ARRAY_SIZE(gw553x_dio),
+		.leds = {
+			IMX_GPIO_NR(4, 10),
+			IMX_GPIO_NR(4, 11),
+		},
+		.pcie_rst = IMX_GPIO_NR(1, 0),
+		.vidin_en = IMX_GPIO_NR(5, 20),
 		.wdis = IMX_GPIO_NR(7, 12),
 	},
 };
@@ -616,20 +716,18 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 	gpio_request(GP_USB_OTG_PWR, "usbotg_pwr");
 	gpio_direction_output(GP_USB_OTG_PWR, 0);
 
-	/* MSATA Enable - default to PCI */
-	gpio_request(GP_MSATA_SEL, "msata_en");
-	gpio_direction_output(GP_MSATA_SEL, 0);
-
-	/* RS232_EN# */
-	gpio_request(GP_RS232_EN, "rs232_en");
-	gpio_direction_output(GP_RS232_EN, 0);
-
 	if (board >= GW_UNKNOWN)
 		return;
 
 	/* board specific iomux */
 	imx_iomux_v3_setup_multiple_pads(gpio_cfg[board].gpio_pads,
 					 gpio_cfg[board].num_pads);
+
+	/* RS232_EN# */
+	if (gpio_cfg[board].rs232_en) {
+		gpio_request(gpio_cfg[board].rs232_en, "rs232_en");
+		gpio_direction_output(gpio_cfg[board].rs232_en, 0);
+	}
 
 	/* GW522x Uses GPIO3_IO23 for PCIE_RST# */
 	if (board == GW52xx && info->model[4] == '2')
@@ -647,6 +745,12 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 			gpio_request(gpio_cfg[board].leds[i], name);
 			gpio_direction_output(gpio_cfg[board].leds[i], 1);
 		}
+	}
+
+	/* MSATA Enable - default to PCI */
+	if (gpio_cfg[board].msata_en) {
+		gpio_request(gpio_cfg[board].msata_en, "msata_en");
+		gpio_direction_output(gpio_cfg[board].msata_en, 0);
 	}
 
 	/* Expansion Mezzanine IO */
@@ -700,6 +804,11 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 		gpio_request(gpio_cfg[board].wdis, "wlan_dis");
 		gpio_direction_output(gpio_cfg[board].wdis, 1);
 	}
+
+	/* sense vselect pin to see if we support uhs-i */
+	gpio_request(GP_SD3_VSELECT, "sd3_vselect");
+	gpio_direction_input(GP_SD3_VSELECT);
+	gpio_cfg[board].usd_vsel = !gpio_get_value(GP_SD3_VSELECT);
 }
 
 /* setup GPIO pinmux and default configuration per baseboard and env */
@@ -715,13 +824,15 @@ void setup_board_gpio(int board, struct ventana_board_info *info)
 		return;
 
 	/* RS232_EN# */
-	gpio_direction_output(GP_RS232_EN, (hwconfig("rs232")) ? 0 : 1);
+	if (gpio_cfg[board].rs232_en) {
+		gpio_direction_output(gpio_cfg[board].rs232_en,
+				      (hwconfig("rs232")) ? 0 : 1);
+	}
 
 	/* MSATA Enable */
-	if (is_cpu_type(MXC_CPU_MX6Q) &&
-	    test_bit(EECONFIG_SATA, info->config)) {
+	if (gpio_cfg[board].msata_en && is_cpu_type(MXC_CPU_MX6Q)) {
 		gpio_direction_output(GP_MSATA_SEL,
-				      (hwconfig("msata")) ?  1 : 0);
+				      (hwconfig("msata")) ? 1 : 0);
 	}
 
 	/* USBOTG Select (PCISKT or FrontPanel) */
@@ -734,7 +845,7 @@ void setup_board_gpio(int board, struct ventana_board_info *info)
 	 * Configure DIO pinmux/padctl registers
 	 * see IMX6DQRM/IMX6SDLRM IOMUXC_SW_PAD_CTL_PAD_* register definitions
 	 */
-	for (i = 0; i < gpio_cfg[board].num_gpios; i++) {
+	for (i = 0; i < gpio_cfg[board].dio_num; i++) {
 		struct dio_cfg *cfg = &gpio_cfg[board].dio_cfg[i];
 		iomux_v3_cfg_t ctrl = DIO_PAD_CFG;
 		unsigned cputype = is_cpu_type(MXC_CPU_MX6Q) ? 0 : 1;
@@ -760,8 +871,13 @@ void setup_board_gpio(int board, struct ventana_board_info *info)
 					       ctrl);
 			gpio_requestf(cfg->gpio_param, "dio%d", i);
 			gpio_direction_input(cfg->gpio_param);
-		} else if (hwconfig_subarg_cmp("dio2", "mode", "pwm") &&
+		} else if (hwconfig_subarg_cmp(arg, "mode", "pwm") &&
 			   cfg->pwm_padmux) {
+			if (!cfg->pwm_param) {
+				printf("DIO%d:  Error: pwm config invalid\n",
+					i);
+				continue;
+			}
 			if (!quiet)
 				printf("DIO%d:  pwm%d\n", i, cfg->pwm_param);
 			imx_iomux_v3_setup_pad(cfg->pwm_padmux[cputype] |
@@ -770,13 +886,14 @@ void setup_board_gpio(int board, struct ventana_board_info *info)
 	}
 
 	if (!quiet) {
-		if (is_cpu_type(MXC_CPU_MX6Q) &&
-		    (test_bit(EECONFIG_SATA, info->config))) {
+		if (gpio_cfg[board].msata_en && is_cpu_type(MXC_CPU_MX6Q)) {
 			printf("MSATA: %s\n", (hwconfig("msata") ?
 			       "enabled" : "disabled"));
 		}
-		printf("RS232: %s\n", (hwconfig("rs232")) ?
-		       "enabled" : "disabled");
+		if (gpio_cfg[board].rs232_en) {
+			printf("RS232: %s\n", (hwconfig("rs232")) ?
+			       "enabled" : "disabled");
+		}
 	}
 }
 

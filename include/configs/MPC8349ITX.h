@@ -40,8 +40,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #if (CONFIG_SYS_TEXT_BASE == 0xFE000000)
 #define CONFIG_SYS_LOWBOOT
 #endif
@@ -73,7 +71,6 @@
 #define CONFIG_SYS_USB_HOST	/* use the EHCI USB controller */
 #endif
 
-#define CONFIG_PCI
 #define CONFIG_RTC_DS1337
 #define CONFIG_SYS_I2C
 #define CONFIG_TSEC_ENET		/* TSEC Ethernet support */
@@ -151,8 +148,6 @@
 /*
  * Support USB
  */
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 
@@ -331,7 +326,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /* CONFIG_SYS_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
-#define CONFIG_SYS_MONITOR_LEN	(384 * 1024) /* Reserve 384 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN	(512 * 1024) /* Reserve 512 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN	(256 * 1024) /* Reserved for malloc */
 
 /*
@@ -360,7 +355,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_BAUDRATE_TABLE  \
 		{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
-#define CONFIG_CONSOLE		ttyS0
+#define CONSOLE			ttyS0
 #define CONFIG_BAUDRATE		115200
 
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR + 0x4500)
@@ -403,8 +398,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 			(CONFIG_SYS_PCI1_IO_PHYS + CONFIG_SYS_PCI1_IO_SIZE)
 #define CONFIG_SYS_PCI2_IO_SIZE		0x01000000	/* 16M */
 #endif
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #ifndef CONFIG_PCI_PNP
     #define PCI_ENET0_IOADDR	0x00000000
@@ -485,21 +478,16 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_SDRAM
 
 #if defined(CONFIG_COMPACT_FLASH) || defined(CONFIG_SATA_SIL3114) \
 				|| defined(CONFIG_USB_STORAGE)
 	#define CONFIG_DOS_PARTITION
-	#define CONFIG_CMD_FAT
 	#define CONFIG_SUPPORT_VFAT
 #endif
 
@@ -512,15 +500,10 @@ boards, we say we have two, but don't display a message if we find only one. */
 #endif
 
 #if defined(CONFIG_SATA_SIL3114) || defined(CONFIG_USB_STORAGE)
-	#define CONFIG_CMD_EXT2
 #endif
 
 #ifdef CONFIG_PCI
 	#define CONFIG_CMD_PCI
-#endif
-
-#ifdef CONFIG_SYS_I2C
-	#define CONFIG_CMD_I2C
 #endif
 
 /* Watchdog */
@@ -532,7 +515,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_CMDLINE_EDITING		/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
-#define CONFIG_SYS_HUSH_PARSER		/* Use the HUSH parser */
 
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
@@ -556,6 +538,7 @@ boards, we say we have two, but don't display a message if we find only one. */
  */
 				/* Initial Memory map for Linux*/
 #define CONFIG_SYS_BOOTMAPSZ	(256 << 20)
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
 #define CONFIG_SYS_HRCW_LOW (\
 	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 |\
@@ -718,7 +701,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
 #endif
 
-
 /*
  * Environment Configuration
  */
@@ -744,7 +726,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_FDTFILE		"mpc8349emitxgp.dtb"
 #endif
 
-#define CONFIG_BOOTDELAY	6
 
 #define CONFIG_BOOTARGS \
 	"root=/dev/nfs rw" \
@@ -754,10 +735,10 @@ boards, we say we have two, but don't display a message if we find only one. */
 		__stringify(CONFIG_GATEWAYIP) ":"	\
 		__stringify(CONFIG_NETMASK) ":"		\
 		CONFIG_HOSTNAME ":" CONFIG_NETDEV ":off"		\
-	" console=" __stringify(CONFIG_CONSOLE) "," __stringify(CONFIG_BAUDRATE)
+	" console=" __stringify(CONSOLE) "," __stringify(CONFIG_BAUDRATE)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"console=" __stringify(CONFIG_CONSOLE) "\0"			\
+	"console=" __stringify(CONSOLE) "\0"			\
 	"netdev=" CONFIG_NETDEV "\0"					\
 	"uboot=" CONFIG_UBOOTPATH "\0"					\
 	"tftpflash=tftpboot $loadaddr $uboot; "				\

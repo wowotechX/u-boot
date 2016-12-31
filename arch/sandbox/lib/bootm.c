@@ -50,13 +50,18 @@ int bootz_setup(ulong image, ulong *start, ulong *end)
 	return ret;
 }
 
+int arch_fixup_fdt(void *blob)
+{
+	return 0;
+}
+
 int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
 	if (flag & (BOOTM_STATE_OS_GO | BOOTM_STATE_OS_FAKE_GO)) {
 		bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 		printf("## Transferring control to Linux (at address %08lx)...\n",
 		       images->ep);
-		reset_cpu(0);
+		printf("sandbox: continuing, as we cannot run Linux\n");
 	}
 
 	return 0;

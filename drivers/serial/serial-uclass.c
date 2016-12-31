@@ -33,7 +33,13 @@ static void serial_find_console_or_panic(void)
 	struct udevice *dev;
 	int node;
 
-	if (CONFIG_IS_ENABLED(OF_CONTROL) && blob) {
+	if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
+		uclass_first_device(UCLASS_SERIAL, &dev);
+		if (dev) {
+			gd->cur_serial_dev = dev;
+			return;
+		}
+	} else if (CONFIG_IS_ENABLED(OF_CONTROL) && blob) {
 		/* Check for a chosen console */
 		node = fdtdec_get_chosen_node(blob, "stdout-path");
 		if (node < 0) {
@@ -340,7 +346,7 @@ static int serial_post_probe(struct udevice *dev)
 
 static int serial_pre_remove(struct udevice *dev)
 {
-#ifdef CONFIG_SYS_STDIO_DEREGISTER
+#if CONFIG_IS_ENABLED(SYS_STDIO_DEREGISTER)
 	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
 
 	if (stdio_deregister_dev(upriv->sdev, 0))

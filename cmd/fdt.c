@@ -87,7 +87,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/*
 	 * Set the address of the fdt
 	 */
-	if (argv[1][0] == 'a') {
+	if (strncmp(argv[1], "ad", 2) == 0) {
 		unsigned long addr;
 		int control = 0;
 		struct fdt_header *blob;
@@ -206,7 +206,17 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return 1;
 		}
 		working_fdt = newaddr;
+#ifdef CONFIG_OF_SYSTEM_SETUP
+	/* Call the board-specific fixup routine */
+	} else if (strncmp(argv[1], "sys", 3) == 0) {
+		int err = ft_system_setup(working_fdt, gd->bd);
 
+		if (err) {
+			printf("Failed to add system information to FDT: %s\n",
+			       fdt_strerror(err));
+			return CMD_RET_FAILURE;
+		}
+#endif
 	/*
 	 * Make a new node
 	 */
@@ -577,18 +587,6 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 	}
 #endif
-#ifdef CONFIG_OF_SYSTEM_SETUP
-	/* Call the board-specific fixup routine */
-	else if (strncmp(argv[1], "sys", 3) == 0) {
-		int err = ft_system_setup(working_fdt, gd->bd);
-
-		if (err) {
-			printf("Failed to add system information to FDT: %s\n",
-			       fdt_strerror(err));
-			return CMD_RET_FAILURE;
-		}
-	}
-#endif
 	/* Create a chosen node */
 	else if (strncmp(argv[1], "cho", 3) == 0) {
 		unsigned long initrd_start = 0, initrd_end = 0;
@@ -639,9 +637,35 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 	}
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+	/* apply an overlay */
+	else if (strncmp(argv[1], "ap", 2) == 0) {
+		unsigned long addr;
+		struct fdt_header *blob;
+
+		if (argc != 3)
+			return CMD_RET_USAGE;
+
+		if (!working_fdt)
+			return CMD_RET_FAILURE;
+
+		addr = simple_strtoul(argv[2], NULL, 16);
+		blob = map_sysmem(addr, 0);
+		if (!fdt_valid(&blob))
+			return CMD_RET_FAILURE;
+
+		if (fdt_overlay_apply(working_fdt, blob))
+			return CMD_RET_FAILURE;
+	}
+#endif
 	/* resize the fdt */
 	else if (strncmp(argv[1], "re", 2) == 0) {
-		fdt_shrink_to_minimum(working_fdt);
+		uint extrasize;
+		if (argc > 2)
+			extrasize = simple_strtoul(argv[2], NULL, 16);
+		else
+			extrasize = 0;
+		fdt_shrink_to_minimum(working_fdt, extrasize);
 	}
 	else {
 		/* Unrecognized command */
@@ -1025,6 +1049,9 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 #ifdef CONFIG_SYS_LONGHELP
 static char fdt_help_text[] =
 	"addr [-c]  <addr> [<length>]   - Set the [control] fdt location to <addr>\n"
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+	"fdt apply <addr>                    - Apply overlay to the DT\n"
+#endif
 #ifdef CONFIG_OF_BOARD_SETUP
 	"fdt boardsetup                      - Do board-specific set up\n"
 #endif
@@ -1032,7 +1059,7 @@ static char fdt_help_text[] =
 	"fdt systemsetup                     - Do system-specific set up\n"
 #endif
 	"fdt move   <fdt> <newaddr> <length> - Copy the fdt to <addr> and make it active\n"
-	"fdt resize                          - Resize fdt to size + padding to 4k addr\n"
+	"fdt resize [<extrasize>]            - Resize fdt to size + padding to 4k addr + some optional <extrasize> if needed\n"
 	"fdt print  <path> [<prop>]          - Recursive print starting at <path>\n"
 	"fdt list   <path> [<prop>]          - Print one level starting at <path>\n"
 	"fdt get value <var> <path> <prop>   - Get <property> and store in <var>\n"
@@ -1055,7 +1082,7 @@ static char fdt_help_text[] =
 	"                                        <start> - addr of key blob\n"
 	"                                                  default gd->fdt_blob\n"
 #endif
-	"NOTE: Dereference aliases by omiting the leading '/', "
+	"NOTE: Dereference aliases by omitting the leading '/', "
 		"e.g. fdt print ethernet0.";
 #endif
 

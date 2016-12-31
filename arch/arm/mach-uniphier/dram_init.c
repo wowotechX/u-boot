@@ -6,7 +6,11 @@
 
 #include <common.h>
 #include <libfdt.h>
+#include <fdtdec.h>
 #include <linux/err.h>
+
+#include "init.h"
+#include "soc-info.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,8 +44,7 @@ int dram_init(void)
 
 	val += ac;
 
-	gd->ram_size = sc == 2 ? fdt64_to_cpu(*(fdt64_t *)val) :
-							fdt32_to_cpu(*val);
+	gd->ram_size = fdtdec_get_number(val, sc);
 
 	debug("DRAM size = %08lx\n", (unsigned long)gd->ram_size);
 
@@ -71,11 +74,9 @@ void dram_init_banksize(void)
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS && len >= cells;
 	     i++, len -= cells) {
-		gd->bd->bi_dram[i].start = ac == 2 ?
-			fdt64_to_cpu(*(fdt64_t *)val) : fdt32_to_cpu(*val);
+		gd->bd->bi_dram[i].start = fdtdec_get_number(val, ac);
 		val += ac;
-		gd->bd->bi_dram[i].size = sc == 2 ?
-			fdt64_to_cpu(*(fdt64_t *)val) : fdt32_to_cpu(*val);
+		gd->bd->bi_dram[i].size = fdtdec_get_number(val, sc);
 		val += sc;
 
 		debug("DRAM bank %d: start = %08lx, size = %08lx\n",
@@ -83,3 +84,40 @@ void dram_init_banksize(void)
 		      (unsigned long)gd->bd->bi_dram[i].size);
 	}
 }
+
+#ifdef CONFIG_OF_BOARD_SETUP
+/*
+ * The DRAM PHY requires 64 byte scratch area in each DRAM channel
+ * for its dynamic PHY training feature.
+ */
+int ft_board_setup(void *fdt, bd_t *bd)
+{
+	const struct uniphier_board_data *param;
+	unsigned long rsv_addr;
+	const unsigned long rsv_size = 64;
+	int ch, ret;
+
+	if (uniphier_get_soc_type() != SOC_UNIPHIER_LD20)
+		return 0;
+
+	param = uniphier_get_board_param();
+	if (!param) {
+		printf("failed to get board parameter\n");
+		return -ENODEV;
+	}
+
+	for (ch = 0; ch < param->dram_nr_ch; ch++) {
+		rsv_addr = param->dram_ch[ch].base + param->dram_ch[ch].size;
+		rsv_addr -= rsv_size;
+
+		ret = fdt_add_mem_rsv(fdt, rsv_addr, rsv_size);
+		if (ret)
+			return -ENOSPC;
+
+		printf("   Reserved memory region for DRAM PHY training: addr=%lx size=%lx\n",
+		       rsv_addr, rsv_size);
+	}
+
+	return 0;
+}
+#endif

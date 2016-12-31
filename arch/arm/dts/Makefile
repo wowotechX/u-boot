@@ -2,6 +2,11 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+dtb-$(CONFIG_AT91FAMILY) += at91sam9260-smartweb.dtb \
+	at91sam9g20-taurus.dtb \
+	at91sam9g45-corvus.dtb \
+	at91sam9g45-gurnard.dtb
+
 dtb-$(CONFIG_S5PC100) += s5pc1xx-smdkc100.dtb
 dtb-$(CONFIG_S5PC110) += s5pc1xx-goni.dtb
 dtb-$(CONFIG_EXYNOS4) += exynos4210-origen.dtb \
@@ -11,6 +16,8 @@ dtb-$(CONFIG_EXYNOS4) += exynos4210-origen.dtb \
 	exynos4412-trats2.dtb \
 	exynos4412-odroid.dtb
 
+dtb-$(CONFIG_TARGET_HIKEY) += hi6220-hikey.dtb
+
 dtb-$(CONFIG_EXYNOS5) += exynos5250-arndale.dtb \
 	exynos5250-snow.dtb \
 	exynos5250-spring.dtb \
@@ -19,11 +26,21 @@ dtb-$(CONFIG_EXYNOS5) += exynos5250-arndale.dtb \
 	exynos5420-peach-pit.dtb \
 	exynos5800-peach-pi.dtb \
 	exynos5422-odroidxu3.dtb
+dtb-$(CONFIG_EXYNOS7420) += exynos7420-espresso7420.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += \
+	rk3036-sdk.dtb \
 	rk3288-firefly.dtb \
-	rk3288-jerry.dtb \
+	rk3288-veyron-jerry.dtb \
+	rk3288-veyron-mickey.dtb \
+	rk3288-veyron-minnie.dtb \
 	rk3288-rock2-square.dtb \
-	rk3036-sdk.dtb
+	rk3288-evb.dtb \
+	rk3288-fennec.dtb \
+	rk3288-miniarm.dtb \
+	rk3288-popmetal.dtb \
+	rk3399-evb.dtb
+dtb-$(CONFIG_ARCH_MESON) += \
+	meson-gxbb-odroidc2.dtb
 dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-medcom-wide.dtb \
 	tegra20-paz00.dtb \
@@ -42,40 +59,49 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra114-dalmore.dtb \
 	tegra124-jetson-tk1.dtb \
 	tegra124-nyan-big.dtb \
+	tegra124-cei-tk1-som.dtb \
 	tegra124-venice2.dtb \
+	tegra186-p2771-0000-000.dtb \
+	tegra186-p2771-0000-500.dtb \
 	tegra210-e2220-1170.dtb \
 	tegra210-p2371-0000.dtb \
 	tegra210-p2371-2180.dtb \
 	tegra210-p2571.dtb
 
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
+	armada-3720-db.dtb			\
 	armada-375-db.dtb			\
 	armada-388-clearfog.dtb			\
 	armada-388-gp.dtb			\
+	armada-385-amc.dtb			\
+	armada-7040-db.dtb			\
+	armada-8040-db.dtb			\
 	armada-xp-gp.dtb			\
 	armada-xp-maxbcm.dtb			\
 	armada-xp-synology-ds414.dtb		\
 	armada-xp-theadorable.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER) += \
-	uniphier-ph1-ld11-ref.dtb \
-	uniphier-ph1-ld20-ref.dtb \
-	uniphier-ph1-ld4-ref.dtb \
-	uniphier-ph1-ld6b-ref.dtb \
-	uniphier-ph1-pro4-ace.dtb \
-	uniphier-ph1-pro4-ref.dtb \
-	uniphier-ph1-pro4-sanji.dtb \
-	uniphier-ph1-pro5-4kbox.dtb \
-	uniphier-ph1-sld3-ref.dtb \
-	uniphier-ph1-sld8-ref.dtb \
-	uniphier-proxstream2-gentil.dtb \
-	uniphier-proxstream2-vodka.dtb
+	uniphier-ld11-ref.dtb \
+	uniphier-ld20-ref.dtb \
+	uniphier-ld4-ref.dtb \
+	uniphier-ld6b-ref.dtb \
+	uniphier-pro4-ace.dtb \
+	uniphier-pro4-ref.dtb \
+	uniphier-pro4-sanji.dtb \
+	uniphier-pro5-4kbox.dtb \
+	uniphier-pxs2-gentil.dtb \
+	uniphier-pxs2-vodka.dtb \
+	uniphier-sld3-ref.dtb \
+	uniphier-sld8-ref.dtb
 dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-zc706.dtb \
 	zynq-zed.dtb \
 	zynq-zybo.dtb \
 	zynq-microzed.dtb \
 	zynq-picozed.dtb \
+	zynq-topic-miami.dtb \
+	zynq-topic-miamiplus.dtb \
 	zynq-zc770-xm010.dtb \
 	zynq-zc770-xm011.dtb \
 	zynq-zc770-xm012.dtb \
@@ -86,32 +112,56 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-zcu102-revB.dtb			\
 	zynqmp-zc1751-xm015-dc1.dtb		\
 	zynqmp-zc1751-xm016-dc2.dtb		\
+	zynqmp-zc1751-xm018-dc4.dtb		\
 	zynqmp-zc1751-xm019-dc5.dtb
-dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-evm.dtb
-dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb
+dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb \
+	am335x-draco.dtb \
+	am335x-evm.dtb \
+	am335x-evmsk.dtb \
+	am335x-bonegreen.dtb \
+	am335x-icev2.dtb \
+	am335x-pxm50.dtb \
+	am335x-rut.dtb
+dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb	\
+	am43x-epos-evm.dtb \
+	am437x-idk-evm.dtb
 dtb-$(CONFIG_THUNDERX) += thunderx-88xx.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_arria5_socdk.dtb			\
+	socfpga_cyclone5_is1.dtb			\
 	socfpga_cyclone5_mcvevk.dtb			\
 	socfpga_cyclone5_socdk.dtb			\
 	socfpga_cyclone5_de0_nano_soc.dtb			\
+	socfpga_cyclone5_de1_soc.dtb			\
 	socfpga_cyclone5_sockit.dtb			\
 	socfpga_cyclone5_socrates.dtb			\
-	socfpga_cyclone5_sr1500.dtb
+	socfpga_cyclone5_sr1500.dtb			\
+	socfpga_cyclone5_vining_fpga.dtb
 
-dtb-$(CONFIG_TARGET_DRA7XX_EVM) += dra72-evm.dtb dra7-evm.dtb
-dtb-$(CONFIG_TARGET_BEAGLE_X15) += am57xx-beagle-x15.dtb
+dtb-$(CONFIG_TARGET_DRA7XX_EVM) += dra72-evm.dtb dra7-evm.dtb	\
+	dra72-evm-revc.dtb dra71-evm.dtb
+dtb-$(CONFIG_TARGET_AM57XX_EVM) += am57xx-beagle-x15.dtb \
+	am57xx-beagle-x15-revb1.dtb \
+	am572x-idk.dtb	\
+	am571x-idk.dtb
 dtb-$(CONFIG_TARGET_STV0991) += stv0991.dtb
 
 dtb-$(CONFIG_LS102XA) += ls1021a-qds-duart.dtb \
 	ls1021a-qds-lpuart.dtb \
-	ls1021a-twr-duart.dtb ls1021a-twr-lpuart.dtb
+	ls1021a-twr-duart.dtb ls1021a-twr-lpuart.dtb \
+	ls1021a-iot-duart.dtb
 dtb-$(CONFIG_FSL_LSCH3) += fsl-ls2080a-qds.dtb \
 	fsl-ls2080a-rdb.dtb
 dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
 	fsl-ls1043a-qds-lpuart.dtb \
-	fsl-ls1043a-rdb.dtb
+	fsl-ls1043a-rdb.dtb \
+	fsl-ls1046a-qds-duart.dtb \
+	fsl-ls1046a-qds-lpuart.dtb \
+	fsl-ls1046a-rdb.dtb \
+	fsl-ls1012a-qds.dtb \
+	fsl-ls1012a-rdb.dtb \
+	fsl-ls1012a-frdm.dtb
 
 dtb-$(CONFIG_ARCH_SNAPDRAGON) += dragonboard410c.dtb
 
@@ -149,6 +199,7 @@ dtb-$(CONFIG_MACH_SUN5I) += \
 	sun5i-a13-ampe-a76.dtb \
 	sun5i-a13-difrnce-dit4350.dtb \
 	sun5i-a13-empire-electronix-d709.dtb \
+	sun5i-a13-empire-electronix-m712.dtb \
 	sun5i-a13-hsg-h702.dtb \
 	sun5i-a13-inet-86vs.dtb \
 	sun5i-a13-inet-98v-rev2.dtb \
@@ -167,6 +218,7 @@ dtb-$(CONFIG_MACH_SUN6I) += \
 	sun6i-a31-mixtile-loftq.dtb \
 	sun6i-a31s-colorfly-e708-q1.dtb \
 	sun6i-a31s-cs908.dtb \
+	sun6i-a31s-inet-q972.dtb \
 	sun6i-a31s-primo81.dtb \
 	sun6i-a31s-sina31s.dtb \
 	sun6i-a31s-sinovoip-bpi-m2.dtb \
@@ -174,6 +226,7 @@ dtb-$(CONFIG_MACH_SUN6I) += \
 dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-ainol-aw1.dtb \
 	sun7i-a20-bananapi.dtb \
+	sun7i-a20-bananapi-m1-plus.dtb \
 	sun7i-a20-bananapro.dtb \
 	sun7i-a20-cubieboard2.dtb \
 	sun7i-a20-cubietruck.dtb \
@@ -188,6 +241,7 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-olimex-som-evb.dtb \
 	sun7i-a20-olinuxino-lime.dtb \
 	sun7i-a20-olinuxino-lime2.dtb \
+	sun7i-a20-olinuxino-lime2-emmc.dtb \
 	sun7i-a20-olinuxino-micro.dtb \
 	sun7i-a20-orangepi.dtb \
 	sun7i-a20-orangepi-mini.dtb \
@@ -200,23 +254,35 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 dtb-$(CONFIG_MACH_SUN8I_A23) += \
 	sun8i-a23-evb.dtb \
 	sun8i-a23-gt90h-v4.dtb \
+	sun8i-a23-inet86dz.dtb \
+	sun8i-a23-polaroid-mid2407pxe03.dtb \
 	sun8i-a23-polaroid-mid2809pxe04.dtb \
 	sun8i-a23-q8-tablet.dtb
 dtb-$(CONFIG_MACH_SUN8I_A33) += \
 	sun8i-a33-ga10h-v1.1.dtb \
+	sun8i-a33-inet-d978-rev2.dtb \
+	sun8i-a33-olinuxino.dtb \
 	sun8i-a33-q8-tablet.dtb \
-	sun8i-a33-sinlinx-sina33.dtb
+	sun8i-a33-sinlinx-sina33.dtb \
+	sun8i-r16-nintendo-nes-classic-edition.dtb \
+	sun8i-r16-parrot.dtb
 dtb-$(CONFIG_MACH_SUN8I_A83T) += \
 	sun8i-a83t-allwinner-h8homlet-v2.dtb \
 	sun8i-a83t-cubietruck-plus.dtb \
 	sun8i-a83t-sinovoip-bpi-m3.dtb
 dtb-$(CONFIG_MACH_SUN8I_H3) += \
+	sun8i-h3-bananapi-m2-plus.dtb \
 	sun8i-h3-orangepi-2.dtb \
+	sun8i-h3-orangepi-lite.dtb \
 	sun8i-h3-orangepi-one.dtb \
 	sun8i-h3-orangepi-pc.dtb \
-	sun8i-h3-orangepi-plus.dtb
+	sun8i-h3-orangepi-pc-plus.dtb \
+	sun8i-h3-orangepi-plus.dtb \
+	sun8i-h3-orangepi-plus2e.dtb \
+	sun8i-h3-nanopi-neo.dtb
 dtb-$(CONFIG_MACH_SUN50I) += \
-	pine64_plus.dtb
+	sun50i-a64-pine64-plus.dtb \
+	sun50i-a64-pine64.dtb
 dtb-$(CONFIG_MACH_SUN9I) += \
 	sun9i-a80-optimus.dtb \
 	sun9i-a80-cubieboard4.dtb
@@ -224,7 +290,20 @@ dtb-$(CONFIG_MACH_SUN9I) += \
 dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	vf610-colibri.dtb \
 	vf610-twr.dtb \
-	pcm052.dtb
+	pcm052.dtb \
+	bk4r1.dtb
+
+dtb-$(CONFIG_MX53) += imx53-cx9020.dtb
+
+dtb-$(CONFIG_MX6) += imx6ull-14x14-evk.dtb \
+	imx6sll-evk.dtb \
+	imx6dl-icore.dtb \
+	imx6dl-icore-rqs.dtb \
+	imx6q-icore.dtb \
+	imx6q-icore-rqs.dtb \
+	imx6ul-geam-kit.dtb
+
+dtb-$(CONFIG_MX7) += imx7-colibri.dtb
 
 dtb-$(CONFIG_SOC_KEYSTONE) += k2hk-evm.dtb \
 	k2l-evm.dtb \
@@ -236,6 +315,18 @@ dtb-$(CONFIG_TARGET_BUBBLEGUM) += \
 
 dtb-$(CONFIG_TARGET_TINY210) += \
 	s5pv210-tiny210.dtb
+
+dtb-$(CONFIG_TARGET_SAMA5D2_XPLAINED) += \
+	at91-sama5d2_xplained.dtb
+
+dtb-$(CONFIG_ARCH_BCM283X) += \
+	bcm2835-rpi-a-plus.dtb \
+	bcm2835-rpi-a.dtb \
+	bcm2835-rpi-b-plus.dtb \
+	bcm2835-rpi-b-rev2.dtb \
+	bcm2835-rpi-b.dtb \
+	bcm2836-rpi-2-b.dtb \
+	bcm2837-rpi-3-b.dtb
 
 targets += $(dtb-y)
 

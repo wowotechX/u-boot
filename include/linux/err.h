@@ -4,7 +4,7 @@
 #include <linux/compiler.h>
 #include <linux/compat.h>
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 
 /*
@@ -34,6 +34,11 @@ static inline long PTR_ERR(const void *ptr)
 static inline long IS_ERR(const void *ptr)
 {
 	return IS_ERR_VALUE((unsigned long)ptr);
+}
+
+static inline bool IS_ERR_OR_NULL(const void *ptr)
+{
+	return !ptr || IS_ERR_VALUE((unsigned long)ptr);
 }
 
 /**

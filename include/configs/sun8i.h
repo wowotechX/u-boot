@@ -15,7 +15,6 @@
 
 #ifdef CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_SUNXI
-#define CONFIG_USB_MAX_CONTROLLER_COUNT	1
 #endif
 
 #ifdef CONFIG_MACH_SUN8I_H3
@@ -24,20 +23,6 @@
 	#define CONFIG_SUNXI_USB_PHYS	3
 #else
 	#define CONFIG_SUNXI_USB_PHYS	2
-#endif
-
-
-#ifndef CONFIG_MACH_SUN8I_A83T
-#define CONFIG_ARMV7_PSCI		1
-#if defined(CONFIG_MACH_SUN8I_A23)
-#define CONFIG_ARMV7_PSCI_NR_CPUS	2
-#elif defined(CONFIG_MACH_SUN8I_A33)
-#define CONFIG_ARMV7_PSCI_NR_CPUS	4
-#elif defined(CONFIG_MACH_SUN8I_H3)
-#define CONFIG_ARMV7_PSCI_NR_CPUS	4
-#else
-#error Unsupported sun8i variant
-#endif
 #endif
 
 /*

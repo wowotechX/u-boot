@@ -7,8 +7,10 @@
 import hashlib
 import os
 import os.path
+import pytest
 import sys
 import time
+import pytest
 
 def md5sum_data(data):
     """Calculate the MD5 hash of some data.
@@ -156,19 +158,47 @@ def run_and_log(u_boot_console, cmd, ignore_errors=False):
 
     Args:
         u_boot_console: A console connection to U-Boot.
-        cmd: The command to run, as an array of argv[].
+        cmd: The command to run, as an array of argv[], or a string.
+            If a string, note that it is split up so that quoted spaces
+            will not be preserved. E.g. "fred and" becomes ['"fred', 'and"']
         ignore_errors: Indicate whether to ignore errors. If True, the function
             will simply return if the command cannot be executed or exits with
             an error code, otherwise an exception will be raised if such
             problems occur.
 
     Returns:
-        Nothing.
+        The output as a string.
     """
-
+    if isinstance(cmd, str):
+        cmd = cmd.split()
     runner = u_boot_console.log.get_runner(cmd[0], sys.stdout)
-    runner.run(cmd, ignore_errors=ignore_errors)
+    output = runner.run(cmd, ignore_errors=ignore_errors)
     runner.close()
+    return output
+
+def run_and_log_expect_exception(u_boot_console, cmd, retcode, msg):
+    """Run a command that is expected to fail.
+
+    This runs a command and checks that it fails with the expected return code
+    and exception method. If not, an exception is raised.
+
+    Args:
+        u_boot_console: A console connection to U-Boot.
+        cmd: The command to run, as an array of argv[].
+        retcode: Expected non-zero return code from the command.
+        msg: String that should be contained within the command's output.
+    """
+    try:
+        runner = u_boot_console.log.get_runner(cmd[0], sys.stdout)
+        runner.run(cmd)
+    except Exception as e:
+        assert(retcode == runner.exit_status)
+        assert(msg in runner.output)
+    else:
+        raise Exception("Expected an exception with retcode %d message '%s',"
+                        "but it was not raised" % (retcode, msg))
+    finally:
+        runner.close()
 
 ram_base = None
 def find_ram_base(u_boot_console):
@@ -199,7 +229,7 @@ def find_ram_base(u_boot_console):
     with u_boot_console.log.section('find_ram_base'):
         response = u_boot_console.run_command('bdinfo')
         for l in response.split('\n'):
-            if '-> start' in l:
+            if '-> start' in l or 'memstart    =' in l:
                 ram_base = int(l.split('=')[1].strip(), 16)
                 break
         if ram_base is None:

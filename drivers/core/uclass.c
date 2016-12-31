@@ -148,6 +148,15 @@ int uclass_get(enum uclass_id id, struct uclass **ucp)
 	return 0;
 }
 
+const char *uclass_get_name(enum uclass_id id)
+{
+	struct uclass *uc;
+
+	if (uclass_get(id, &uc))
+		return NULL;
+	return uc->uc_drv->name;
+}
+
 int uclass_find_device(enum uclass_id id, int index, struct udevice **devp)
 {
 	struct uclass *uc;
@@ -310,6 +319,26 @@ static int uclass_find_device_by_phandle(enum uclass_id id,
 	return -ENODEV;
 }
 #endif
+
+int uclass_get_device_by_driver(enum uclass_id id,
+				const struct driver *find_drv,
+				struct udevice **devp)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(id, &uc);
+	if (ret)
+		return ret;
+
+	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+		if (dev->driver == find_drv)
+			return uclass_get_device_tail(dev, 0, devp);
+	}
+
+	return -ENODEV;
+}
 
 int uclass_get_device_tail(struct udevice *dev, int ret,
 				  struct udevice **devp)

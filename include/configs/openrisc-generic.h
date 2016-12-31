@@ -10,7 +10,6 @@
 /*
  * BOARD/CPU
  */
-
 #define CONFIG_SYS_CLK_FREQ		50000000
 #define CONFIG_SYS_RESET_ADDR		0x00000100
 
@@ -39,13 +38,11 @@
 
 #define CONFIG_BAUDRATE			CONFIG_SYS_UART_BAUD
 #define CONFIG_SYS_BAUDRATE_TABLE	{CONFIG_BAUDRATE}
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* Suppress console info */
 #define CONSOLE_ARG			"console=console=ttyS0,115200\0"
 
 /*
  * Ethernet
  */
-#define CONFIG_ETHOC
 #define CONFIG_SYS_ETHOC_BASE		0x92000000
 
 #define CONFIG_BOOTFILE			"boot.img"
@@ -116,10 +113,6 @@
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_BSP
 
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
-
 #define CONFIG_LMB
 
 /*
@@ -129,6 +122,5 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 #endif /* __CONFIG_H */

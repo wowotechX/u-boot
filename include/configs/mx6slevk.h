@@ -12,8 +12,6 @@
 #include "mx6_common.h"
 
 #ifdef CONFIG_SPL
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"
 #endif
 
@@ -32,7 +30,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -46,9 +43,6 @@
 #define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -141,7 +135,6 @@
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
-#define PHYS_SDRAM_SIZE			SZ_1G
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
@@ -168,7 +161,6 @@
 #define CONFIG_ENV_IS_IN_MMC
 #endif
 
-#define CONFIG_CMD_SF
 #ifdef CONFIG_CMD_SF
 #define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS		0
@@ -178,11 +170,9 @@
 #endif
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_STORAGE
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX

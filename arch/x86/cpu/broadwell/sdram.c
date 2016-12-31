@@ -190,11 +190,6 @@ static int prepare_mrc_cache(struct pei_data *pei_data)
 	return 0;
 }
 
-int reserve_arch(void)
-{
-	return mrccache_reserve();
-}
-
 int dram_init(void)
 {
 	struct pei_data _pei_data __aligned(8);
@@ -296,7 +291,6 @@ void board_debug_uart_init(void)
 
 static const struct udevice_id broadwell_syscon_ids[] = {
 	{ .compatible = "intel,me", .data = X86_SYSCON_ME },
-	{ .compatible = "intel,gma", .data = X86_SYSCON_GMA },
 	{ }
 };
 

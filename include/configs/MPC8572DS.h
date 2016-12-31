@@ -11,13 +11,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #include "../board/freescale/common/ics307_clk.h"
-
-#ifdef CONFIG_36BIT
-#define CONFIG_PHYS_64BIT
-#endif
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xeff40000
@@ -34,21 +28,16 @@
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_MPC8572		1
-#define CONFIG_MPC8572DS	1
 #define CONFIG_MP		1	/* support multiple processors */
 
 #define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
-#define CONFIG_PCI		1	/* Enable PCI/PCIE */
-#define CONFIG_PCIE1		1	/* PCIE controler 1 (slot 1) */
-#define CONFIG_PCIE2		1	/* PCIE controler 2 (slot 2) */
-#define CONFIG_PCIE3		1	/* PCIE controler 3 (ULI bridge) */
+#define CONFIG_PCIE1		1	/* PCIE controller 1 (slot 1) */
+#define CONFIG_PCIE2		1	/* PCIE controller 2 (slot 2) */
+#define CONFIG_PCIE3		1	/* PCIE controller 3 (ULI bridge) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
@@ -176,7 +165,6 @@
 #else
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
 #endif
-
 
 #define CONFIG_FLASH_BR_PRELIM \
 	(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS + 0x8000000) | BR_PS_16 | BR_V)
@@ -318,7 +306,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_RELOC	(CONFIG_SYS_INIT_L2_END - 0x2000)
 #define CONFIG_SYS_NAND_U_BOOT_RELOC_SP	((CONFIG_SYS_INIT_L2_END - 1) & ~0xF)
 
-
 /* NAND flash config */
 #define CONFIG_SYS_NAND_BR_PRELIM  (BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
 			       | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
@@ -358,7 +345,6 @@
 			       | BR_V)		       /* valid */
 #define CONFIG_SYS_OR6_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 
-
 /* Serial Port - controlled on board with jumper J8
  * open - index 2
  * shorted - index 1
@@ -376,9 +362,6 @@
 
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
-
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -474,19 +457,13 @@
 #define VIDEO_IO_OFFSET		CONFIG_SYS_PCIE1_IO_VIRT
 
 /* video */
-#define CONFIG_VIDEO
 
 #if defined(CONFIG_VIDEO)
 #define CONFIG_BIOSEMU
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VIDEO_SW_CURSOR
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_ATI_RADEON_FB
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS VIDEO_IO_OFFSET
 #endif
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
@@ -511,7 +488,6 @@
 #endif /* SCSI */
 
 #endif	/* CONFIG_PCI */
-
 
 #if defined(CONFIG_TSEC_ENET)
 
@@ -579,15 +555,11 @@
  */
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_SCSI
-#define CONFIG_CMD_EXT2
+#define CONFIG_SCSI
 #endif
 
 /*
@@ -596,10 +568,8 @@
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI_PCI
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_USB_STORAGE
 #define CONFIG_PCI_EHCI_DEVICE			0
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
 #endif
@@ -658,7 +628,6 @@
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-#define CONFIG_BOOTDELAY 10	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 #define CONFIG_BAUDRATE	115200
@@ -681,7 +650,7 @@
 "consoledev=ttyS0\0"				\
 "ramdiskaddr=2000000\0"			\
 "ramdiskfile=8572ds/ramdisk.uboot\0"		\
-"fdtaddr=c00000\0"				\
+"fdtaddr=1e00000\0"				\
 "fdtfile=8572ds/mpc8572ds.dtb\0"		\
 "bdev=sda3\0"
 

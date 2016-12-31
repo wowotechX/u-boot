@@ -8,9 +8,6 @@
 #ifndef _CONFIG_KMP204X_H
 #define _CONFIG_KMP204X_H
 
-#define CONFIG_PHYS_64BIT
-#define CONFIG_PPC_P2041
-
 #define CONFIG_SYS_TEXT_BASE	0xfff40000
 
 #define CONFIG_KM_DEF_NETDEV	"netdev=eth0\0"
@@ -20,8 +17,6 @@
 #define CONFIG_KM_UBI_PART_BOOT_OPTS		",2048"
 
 #define CONFIG_NAND_ECC_BCH
-
-#define CONFIG_DISPLAY_BOARDINFO
 
 /* common KM defines */
 #include "keymile-common.h"
@@ -44,15 +39,12 @@
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
 #define CONFIG_FSL_ELBC			/* Has Enhanced localbus controller */
-#define CONFIG_PCI			/* Enable PCI/PCIE */
-#define CONFIG_PCIE1			/* PCIE controler 1 */
-#define CONFIG_PCIE3			/* PCIE controler 3 */
+#define CONFIG_PCIE1			/* PCIE controller 1 */
+#define CONFIG_PCIE3			/* PCIE controller 3 */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
 #define CONFIG_SYS_DPAA_RMAN		/* RMan */
-
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 
 /* Environment in SPI Flash */
 #define CONFIG_SYS_EXTRA_ENV_RELOC
@@ -255,9 +247,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_KM_CONSOLE_TTY	"ttyS0"
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
 /* I2C */
 
 #define CONFIG_SYS_I2C
@@ -288,7 +277,6 @@ int get_scl(void);
  * eSPI - Enhanced SPI
  */
 #define CONFIG_SPI_FLASH_BAR	/* 4 byte-addressing */
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED         20000000
 #define CONFIG_SF_DEFAULT_MODE          0
 
@@ -360,7 +348,6 @@ int get_scl(void);
 #define CONFIG_PHY_MARVELL		/* there is a marvell phy */
 
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION
@@ -410,6 +397,7 @@ int get_scl(void);
 #endif
 
 #define __USB_PHY_TYPE	utmi
+#define CONFIG_USB_EHCI_FSL
 
 /*
  * Environment Configuration

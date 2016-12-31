@@ -468,8 +468,10 @@ int dfu_config_entities(char *env, char *interface, char *devstr)
 		s = strsep(&env, ";");
 		ret = dfu_fill_entity(&dfu[i], s, alt_num_cnt, interface,
 				      devstr);
-		if (ret)
+		if (ret) {
+			free(dfu);
 			return -1;
+		}
 
 		list_add_tail(&dfu[i].list, &dfu_list);
 		alt_num_cnt++;
@@ -480,7 +482,7 @@ int dfu_config_entities(char *env, char *interface, char *devstr)
 
 const char *dfu_get_dev_type(enum dfu_device_type t)
 {
-	const char *dev_t[] = {NULL, "eMMC", "OneNAND", "NAND", "RAM" };
+	const char *dev_t[] = {NULL, "eMMC", "OneNAND", "NAND", "RAM", "SF" };
 	return dev_t[t];
 }
 

@@ -20,26 +20,16 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
-#ifdef CONFIG_HRCON_DH
-#define CONFIG_IDENT_STRING	" hrcon dh 0.01"
-#else
-#define CONFIG_IDENT_STRING	" hrcon 0.01"
-#endif
-
-
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 
-#define CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
 #define CONFIG_SYS_FSL_ERRATUM_ESDHC111
 
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
 
 #define CONFIG_CMD_FPGAD
 #define CONFIG_CMD_IOLOOP
@@ -310,9 +300,6 @@
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR + 0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR + 0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
 /* Pass open firmware flat tree */
 
 /* I2C */
@@ -486,11 +473,8 @@ void fpga_control_clear(unsigned int bus, int pin);
 /* enable PCIE clock */
 #define CONFIG_SYS_SCCR_PCIEXP1CM	1
 
-#define CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCIE
-
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 #define CONFIG_83XX_GENERIC_PCIE_REGISTER_HOSES 1
@@ -537,10 +521,7 @@ void fpga_control_clear(unsigned int bus, int pin);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
@@ -552,11 +533,7 @@ void fpga_control_clear(unsigned int bus, int pin);
 #define CONFIG_SYS_LOAD_ADDR		0x2000000 /* default load address */
 #define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms ticks */
 
-#undef CONFIG_ZERO_BOOTDELAY_CHECK	/* ignore keypress on bootdelay==0 */
-
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size */
-
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -630,7 +607,6 @@ void fpga_control_clear(unsigned int bus, int pin);
 
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY	5	/* -1 disables auto-boot */
 
 #define CONFIG_HOSTNAME		hrcon
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
@@ -669,6 +645,5 @@ void fpga_control_clear(unsigned int bus, int pin);
 	"bootm ${kernel_addr} - ${fdt_addr}"
 
 #define CONFIG_BOOTCOMMAND		CONFIG_MMCBOOTCOMMAND
-
 
 #endif	/* __CONFIG_H */

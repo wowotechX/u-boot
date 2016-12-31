@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * High Level Configuration Options
  */
@@ -23,17 +21,13 @@
 
 #define CONFIG_MISC_INIT_R
 
-#define CONFIG_MMC     1
-
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
 #define CONFIG_SYS_FSL_ERRATUM_ESDHC111
 #define CONFIG_SYS_FSL_ESDHC_USE_PIO
 
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
@@ -205,7 +199,7 @@
  */
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE /* start of monitor */
 
-#define CONFIG_SYS_MONITOR_LEN	(384 * 1024) /* Reserve 384 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN	(512 * 1024) /* Reserve 512 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN	(512 * 1024) /* Reserved for malloc */
 
 /*
@@ -321,11 +315,6 @@
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR + 0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR + 0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
-/* Pass open firmware flat tree */
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL
@@ -344,9 +333,7 @@
  * due to a pinmux conflict between GPIO9 (SPI chip select )and the TSEC2 pins.
  */
 #ifdef CONFIG_MPC8XXX_SPI
-#define CONFIG_CMD_SPI
 #define CONFIG_USE_SPIFLASH
-#define CONFIG_CMD_SF
 #endif
 
 /*
@@ -377,11 +364,8 @@
 /* enable PCIE clock */
 #define CONFIG_SYS_SCCR_PCIEXP1CM	1
 
-#define CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCIE
-
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 #define CONFIG_83XX_GENERIC_PCIE_REGISTER_HOSES 1
@@ -437,11 +421,7 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 
@@ -465,6 +445,7 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(256 << 20) /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
 /*
  * Core HID Setup
@@ -527,7 +508,6 @@
 
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY	5	/* -1 disables auto-boot */
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\

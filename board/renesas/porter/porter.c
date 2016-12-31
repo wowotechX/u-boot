@@ -14,7 +14,7 @@
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/arch/rmobile.h>
@@ -203,7 +203,7 @@ int board_phy_config(struct phy_device *phydev)
 }
 
 const struct rmobile_sysinfo sysinfo = {
-	CONFIG_RMOBILE_BOARD_STRING
+	CONFIG_ARCH_RMOBILE_BOARD_STRING
 };
 
 void reset_cpu(ulong addr)

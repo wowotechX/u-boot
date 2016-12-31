@@ -10,7 +10,6 @@
 	interrupt-parent = <&lic>;
 
 	host1x@50000000 {
-		u-boot,dm-pre-reloc;
 		compatible = "nvidia,tegra20-host1x", "simple-bus";
 		reg = <0x50000000 0x00024000>;
 		interrupts = <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>, /* syncpt */
@@ -78,7 +77,6 @@
 		};
 
 		dc@54200000 {
-			u-boot,dm-pre-reloc;
 			compatible = "nvidia,tegra20-dc";
 			reg = <0x54200000 0x00040000>;
 			interrupts = <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>;
@@ -147,7 +145,7 @@
 		interrupt-parent = <&intc>;
 		reg = <0x50040600 0x20>;
 		interrupts = <GIC_PPI 13
-			(GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_HIGH)>;
+			(GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_EDGE_RISING)>;
 		clocks = <&tegra_car TEGRA20_CLK_TWD>;
 	};
 
@@ -311,7 +309,7 @@
 	 * driver and APB DMA based serial driver for higher baudrate
 	 * and performace. To enable the 8250 based driver, the compatible
 	 * is "nvidia,tegra20-uart" and to enable the APB DMA based serial
-	 * driver, the comptible is "nvidia,tegra20-hsuart".
+	 * driver, the compatible is "nvidia,tegra20-hsuart".
 	 */
 	uarta: serial@70006000 {
 		compatible = "nvidia,tegra20-uart";

@@ -339,9 +339,6 @@ struct rtl8169_private {
 
 static struct rtl8169_private *tpc;
 
-static const u16 rtl8169_intr_mask =
-    SYSErr | PCSTimeout | RxUnderrun | RxOverflow | RxFIFOOver | TxErr |
-    TxOK | RxErr | RxOK;
 static const unsigned int rtl8169_rx_config =
     (RX_FIFO_THRESH << RxCfgFIFOShift) | (RX_DMA_BURST << RxCfgDMAShift);
 
@@ -629,10 +626,11 @@ static int rtl_send_common(pci_dev_t dev, unsigned long dev_iobase,
 	/* point to the current txb incase multiple tx_rings are used */
 	ptxb = tpc->Tx_skbuff[entry * MAX_ETH_FRAME_SIZE];
 	memcpy(ptxb, (char *)packet, (int)length);
-	rtl_flush_buffer(ptxb, length);
 
 	while (len < ETH_ZLEN)
 		ptxb[len++] = '\0';
+
+	rtl_flush_buffer(ptxb, ALIGN(len, RTL8169_ALIGN));
 
 	tpc->TxDescArray[entry].buf_Haddr = 0;
 #ifdef CONFIG_DM_ETH
@@ -666,12 +664,12 @@ static int rtl_send_common(pci_dev_t dev, unsigned long dev_iobase,
 		puts("tx timeout/error\n");
 		printf("%s elapsed time : %lu\n", __func__, currticks()-stime);
 #endif
-		ret = 0;
+		ret = -ETIMEDOUT;
 	} else {
 #ifdef DEBUG_RTL8169_TX
 		puts("tx done\n");
 #endif
-		ret = length;
+		ret = 0;
 	}
 	/* Delay to make net console (nc) work properly */
 	udelay(20);
@@ -850,9 +848,11 @@ static void rtl8169_init_ring(pci_dev_t dev)
 }
 
 #ifdef CONFIG_DM_ETH
-static void rtl8169_common_start(struct udevice *dev, unsigned char *enetaddr)
+static void rtl8169_common_start(struct udevice *dev, unsigned char *enetaddr,
+				 unsigned long dev_iobase)
 #else
-static void rtl8169_common_start(pci_dev_t dev, unsigned char *enetaddr)
+static void rtl8169_common_start(pci_dev_t dev, unsigned char *enetaddr,
+				 unsigned long dev_iobase)
 #endif
 {
 	int i;
@@ -861,6 +861,8 @@ static void rtl8169_common_start(pci_dev_t dev, unsigned char *enetaddr)
 	int stime = currticks();
 	printf ("%s\n", __FUNCTION__);
 #endif
+
+	ioaddr = dev_iobase;
 
 	rtl8169_init_ring(dev);
 	rtl8169_hw_start(dev);
@@ -885,8 +887,9 @@ static void rtl8169_common_start(pci_dev_t dev, unsigned char *enetaddr)
 static int rtl8169_eth_start(struct udevice *dev)
 {
 	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct rtl8169_private *priv = dev_get_priv(dev);
 
-	rtl8169_common_start(dev, plat->enetaddr);
+	rtl8169_common_start(dev, plat->enetaddr, priv->iobase);
 
 	return 0;
 }
@@ -897,7 +900,7 @@ RESET - Finish setting up the ethernet interface
 static int rtl_reset(struct eth_device *dev, bd_t *bis)
 {
 	rtl8169_common_start((pci_dev_t)(unsigned long)dev->priv,
-			     dev->enetaddr);
+			     dev->enetaddr, dev->iobase);
 
 	return 0;
 }

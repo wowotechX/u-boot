@@ -17,11 +17,8 @@
  */
 
 /* USB UHH support options */
-#define CONFIG_CMD_USB
-#define CONFIG_USB_HOST
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
-#define CONFIG_USB_STORAGE
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
 
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO 1
@@ -32,9 +29,6 @@
 #define CONFIG_USB_ETHER_SMSC95XX
 
 #define CONFIG_UBOOT_ENABLE_PADS_ALL
-
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 
 #include <configs/ti_omap4_common.h>
 

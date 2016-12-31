@@ -20,7 +20,7 @@
 #else
 #include <linux/compat.h>
 #include <mtd/mtd-abi.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <div64.h>
 
 #define MAX_MTD_DEVICES 32
@@ -278,6 +278,11 @@ struct mtd_info {
 	int usecount;
 };
 
+static inline int mtd_oobavail(struct mtd_info *mtd, struct mtd_oob_ops *ops)
+{
+	return ops->mode == MTD_OPS_AUTO_OOB ? mtd->oobavail : mtd->oobsize;
+}
+
 int mtd_erase(struct mtd_info *mtd, struct erase_info *instr);
 #ifndef __UBOOT__
 int mtd_point(struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen,
@@ -495,5 +500,10 @@ int mtd_arg_off(const char *arg, int *idx, loff_t *off, loff_t *size,
 int mtd_arg_off_size(int argc, char *const argv[], int *idx, loff_t *off,
 		     loff_t *size, loff_t *maxsize, int devtype,
 		     uint64_t chipsize);
+
+/* drivers/mtd/mtdcore.c */
+void mtd_get_len_incl_bad(struct mtd_info *mtd, uint64_t offset,
+			  const uint64_t length, uint64_t *len_incl_bad,
+			  int *truncated);
 #endif
 #endif /* __MTD_MTD_H__ */

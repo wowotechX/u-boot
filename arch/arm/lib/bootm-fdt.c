@@ -21,6 +21,7 @@
 #include <asm/armv7.h>
 #endif
 #include <asm/psci.h>
+#include <asm/spin_table.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -42,11 +43,21 @@ int arch_fixup_fdt(void *blob)
 	}
 
 	ret = fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);
-#ifdef CONFIG_ARMV7_NONSEC
 	if (ret)
 		return ret;
 
-	ret = psci_update_dt(blob);
+#ifdef CONFIG_ARMV8_SPIN_TABLE
+	ret = spin_table_update_dt(blob);
+	if (ret)
+		return ret;
 #endif
-	return ret;
+
+#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV8_PSCI) || \
+	defined(CONFIG_FSL_PPA_ARMV8_PSCI)
+	ret = psci_update_dt(blob);
+	if (ret)
+		return ret;
+#endif
+
+	return 0;
 }

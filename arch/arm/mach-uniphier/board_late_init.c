@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2014      Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -28,38 +30,32 @@ static void nand_denali_wp_disable(void)
 #endif
 }
 
-struct uniphier_fdt_file {
-	const char *compatible;
-	const char *file_name;
-};
-
-static const struct uniphier_fdt_file uniphier_fdt_files[] = {
-	{ "socionext,ph1-ld4-ref", "uniphier-ph1-ld4-ref.dtb", },
-	{ "socionext,ph1-ld6b-ref", "uniphier-ph1-ld6b-ref.dtb", },
-	{ "socionext,ph1-ld10-ref", "uniphier-ph1-ld10-ref.dtb", },
-	{ "socionext,ph1-pro4-ace", "uniphier-ph1-pro4-ace.dtb", },
-	{ "socionext,ph1-pro4-ref", "uniphier-ph1-pro4-ref.dtb", },
-	{ "socionext,ph1-pro4-sanji", "uniphier-ph1-pro4-sanji.dtb", },
-	{ "socionext,ph1-pro5-4kbox", "uniphier-ph1-pro5-4kbox.dtb", },
-	{ "socionext,ph1-sld3-ref", "uniphier-ph1-sld3-ref.dtb", },
-	{ "socionext,ph1-sld8-ref", "uniphier-ph1-sld8-ref.dtb", },
-	{ "socionext,proxstream2-gentil", "uniphier-proxstream2-gentil.dtb", },
-	{ "socionext,proxstream2-vodka", "uniphier-proxstream2-vodka.dtb", },
-};
-
-static void uniphier_set_fdt_file(void)
+static int uniphier_set_fdt_file(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	int i;
+	const char *compat;
+	char dtb_name[256];
+	int buf_len = sizeof(dtb_name);
 
-	/* lookup DTB file name based on the compatible string */
-	for (i = 0; i < ARRAY_SIZE(uniphier_fdt_files); i++) {
-		if (!fdt_node_check_compatible(gd->fdt_blob, 0,
-					uniphier_fdt_files[i].compatible)) {
-			setenv("fdt_file", uniphier_fdt_files[i].file_name);
-			return;
-		}
-	}
+	if (getenv("fdt_file"))
+		return 0;	/* do nothing if it is already set */
+
+	compat = fdt_stringlist_get(gd->fdt_blob, 0, "compatible", 0, NULL);
+	if (!compat)
+		return -EINVAL;
+
+	/* rip off the vendor prefix "socionext,"  */
+	compat = strchr(compat, ',');
+	if (!compat)
+		return -EINVAL;
+	compat++;
+
+	strncpy(dtb_name, compat, buf_len);
+	buf_len -= strlen(compat);
+
+	strncat(dtb_name, ".dtb", buf_len);
+
+	return setenv("fdt_file", dtb_name);
 }
 
 int board_late_init(void)
@@ -85,11 +81,12 @@ int board_late_init(void)
 		setenv("bootmode", "usbboot");
 		break;
 	default:
-		printf("Unsupported Boot Mode\n");
-		return -1;
+		printf("Unknown\n");
+		break;
 	}
 
-	uniphier_set_fdt_file();
+	if (uniphier_set_fdt_file())
+		printf("fdt_file environment was not set correctly\n");
 
 	return 0;
 }

@@ -21,27 +21,16 @@
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
 #define PHYS_SDRAM_1			0x40000000	/* Base address */
 #define PHYS_SDRAM_1_SIZE		0x20000000	/* Max 512 MB RAM */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-
 
 /* Environment */
 #define CONFIG_ENV_OVERWRITE
@@ -67,7 +56,6 @@
 
 /* UBI and NAND partitioning */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_RBTREE
@@ -93,9 +81,7 @@
 #ifdef CONFIG_CMD_USB
 #define CONFIG_EHCI_MXS_PORT1
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	1
-#define CONFIG_USB_STORAGE
 #endif
-
 
 /* RTC */
 #ifdef CONFIG_CMD_DATE
@@ -104,7 +90,6 @@
 #endif
 
 /* Boot Linux */
-#define CONFIG_BOOTDELAY		1
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_BOOTCOMMAND		"run bootcmd_nand"
 #define CONFIG_LOADADDR			0x41000000

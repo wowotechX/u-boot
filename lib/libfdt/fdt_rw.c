@@ -3,7 +3,7 @@
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  * SPDX-License-Identifier:	GPL-2.0+ BSD-2-Clause
  */
-#include "libfdt_env.h"
+#include <libfdt_env.h>
 
 #ifndef USE_HOSTCC
 #include <fdt.h>
@@ -59,6 +59,8 @@ static int _fdt_splice(void *fdt, void *splicepoint, int oldlen, int newlen)
 	char *end = (char *)fdt + _fdt_data_size(fdt);
 
 	if (((p + oldlen) < p) || ((p + oldlen) > end))
+		return -FDT_ERR_BADOFFSET;
+	if ((p < (char *)fdt) || ((end - oldlen + newlen) < (char *)fdt))
 		return -FDT_ERR_BADOFFSET;
 	if ((end - oldlen + newlen) > ((char *)fdt + fdt_totalsize(fdt)))
 		return -FDT_ERR_NOSPACE;
@@ -148,17 +150,13 @@ int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size)
 int fdt_del_mem_rsv(void *fdt, int n)
 {
 	struct fdt_reserve_entry *re = _fdt_mem_rsv_w(fdt, n);
-	int err;
 
 	FDT_RW_CHECK_HEADER(fdt);
 
 	if (n >= fdt_num_mem_rsv(fdt))
 		return -FDT_ERR_NOTFOUND;
 
-	err = _fdt_splice_mem_rsv(fdt, re, 1, 0);
-	if (err)
-		return err;
-	return 0;
+	return _fdt_splice_mem_rsv(fdt, re, 1, 0);
 }
 
 static int _fdt_resize_property(void *fdt, int nodeoffset, const char *name,
@@ -168,7 +166,7 @@ static int _fdt_resize_property(void *fdt, int nodeoffset, const char *name,
 	int err;
 
 	*prop = fdt_get_property_w(fdt, nodeoffset, name, &oldlen);
-	if (! (*prop))
+	if (!*prop)
 		return oldlen;
 
 	if ((err = _fdt_splice_struct(fdt, (*prop)->data, FDT_TAGALIGN(oldlen),
@@ -283,7 +281,7 @@ int fdt_delprop(void *fdt, int nodeoffset, const char *name)
 	FDT_RW_CHECK_HEADER(fdt);
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (! prop)
+	if (!prop)
 		return len;
 
 	proplen = sizeof(*prop) + FDT_TAGALIGN(len);

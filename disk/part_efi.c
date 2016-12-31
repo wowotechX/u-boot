@@ -296,25 +296,6 @@ int part_get_info_efi(struct blk_desc *dev_desc, int part,
 	return 0;
 }
 
-int part_get_info_efi_by_name(struct blk_desc *dev_desc,
-	const char *name, disk_partition_t *info)
-{
-	int ret;
-	int i;
-	for (i = 1; i < GPT_ENTRY_NUMBERS; i++) {
-		ret = part_get_info_efi(dev_desc, i, info);
-		if (ret != 0) {
-			/* no more entries in table */
-			return -1;
-		}
-		if (strcmp(name, (const char *)info->name) == 0) {
-			/* matched */
-			return 0;
-		}
-	}
-	return -2;
-}
-
 static int part_test_efi(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(legacy_mbr, legacymbr, 1, dev_desc->blksz);
@@ -439,7 +420,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 			gpt_e[i].starting_lba = cpu_to_le64(offset);
 			offset += partitions[i].size;
 		}
-		if (offset >= last_usable_lba) {
+		if (offset > (last_usable_lba + 1)) {
 			printf("Partitions layout exceds disk size\n");
 			return -1;
 		}
@@ -655,6 +636,10 @@ int gpt_verify_partitions(struct blk_desc *dev_desc,
 		      (unsigned long long)partitions[i].size);
 
 		if (le64_to_cpu(gpt_part_size) != partitions[i].size) {
+			/* We do not check the extend partition size */
+			if ((i == parts - 1) && (partitions[i].size == 0))
+				continue;
+
 			error("Partition %s size: %llu does not match %llu!\n",
 			      efi_str, (unsigned long long)gpt_part_size,
 			      (unsigned long long)partitions[i].size);
@@ -886,9 +871,10 @@ static gpt_entry *alloc_read_gpt_entries(struct blk_desc *dev_desc,
 	count = le32_to_cpu(pgpt_head->num_partition_entries) *
 		le32_to_cpu(pgpt_head->sizeof_partition_entry);
 
-	debug("%s: count = %u * %u = %zu\n", __func__,
+	debug("%s: count = %u * %u = %lu\n", __func__,
 	      (u32) le32_to_cpu(pgpt_head->num_partition_entries),
-	      (u32) le32_to_cpu(pgpt_head->sizeof_partition_entry), count);
+	      (u32) le32_to_cpu(pgpt_head->sizeof_partition_entry),
+	      (ulong)count);
 
 	/* Allocate memory for PTE, remember to FREE */
 	if (count != 0) {
@@ -897,9 +883,8 @@ static gpt_entry *alloc_read_gpt_entries(struct blk_desc *dev_desc,
 	}
 
 	if (count == 0 || pte == NULL) {
-		printf("%s: ERROR: Can't allocate 0x%zX "
-		       "bytes for GPT Entries\n",
-			__func__, count);
+		printf("%s: ERROR: Can't allocate %#lX bytes for GPT Entries\n",
+		       __func__, (ulong)count);
 		return NULL;
 	}
 
@@ -954,6 +939,7 @@ static int is_pte_valid(gpt_entry * pte)
 U_BOOT_PART_TYPE(a_efi) = {
 	.name		= "EFI",
 	.part_type	= PART_TYPE_EFI,
+	.max_entries	= GPT_ENTRY_NUMBERS,
 	.get_info	= part_get_info_ptr(part_get_info_efi),
 	.print		= part_print_ptr(part_print_efi),
 	.test		= part_test_efi,

@@ -23,6 +23,11 @@ struct video_uc_platdata {
 	ulong base;
 };
 
+enum video_polarity {
+	VIDEO_ACTIVE_HIGH,	/* Pins are active high */
+	VIDEO_ACTIVE_LOW,	/* Pins are active low */
+};
+
 /*
  * Bits per pixel selector. Each value n is such that the bits-per-pixel is
  * 2 ^ n
@@ -239,6 +244,17 @@ int kwh043st20_f01_spi_startup(unsigned int bus, unsigned int cs,
 int lg4573_spi_startup(unsigned int bus, unsigned int cs,
 	unsigned int max_hz, unsigned int spi_mode);
 #endif
+
+/*
+ * video_get_info_str() - obtain a board string: type, speed, etc.
+ *
+ * This is called if CONFIG_CONSOLE_EXTRA_INFO is enabled.
+ *
+ * line_number:	location to place info string beside logo
+ * info:	buffer for info string (empty if nothing to display on this
+ * line)
+ */
+void video_get_info_str(int line_number, char *info);
 
 #endif /* CONFIG_DM_VIDEO */
 

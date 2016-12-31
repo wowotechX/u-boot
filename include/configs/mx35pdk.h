@@ -18,7 +18,6 @@
  /* High Level Configuration Options */
 #define CONFIG_MX35
 
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_SYS_FSL_CLK
 
 /* Set TEXT at the beginning of the NOR flash */
@@ -47,7 +46,6 @@
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_MXC_SPI
 #define CONFIG_MXC_GPIO
-
 
 /*
  * PMIC Configs
@@ -79,31 +77,18 @@
 /*
  * Command definition
  */
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_DNS
 
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_CACHE
 
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_MII
 #define CONFIG_NET_RETRY_COUNT	100
 #define CONFIG_CMD_DATE
 
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
-#define CONFIG_CMD_MMC
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 
-#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
 
@@ -133,7 +118,6 @@
  */
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_HUSH_PARSER	/* Use the HUSH parser */
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
@@ -235,7 +219,6 @@
 #define CONFIG_MXC_USB_PORTSC	(MXC_EHCI_UTMI_16BIT | MXC_EHCI_MODE_UTMI)
 
 /* mmc driver */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0

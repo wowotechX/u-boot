@@ -25,41 +25,39 @@
  *    or 64KB
  */
 #define CONFIG_SYS_THUMB_BUILD
-#define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/armv7/omap-common/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT	"arch/arm/mach-omap2/u-boot-spl.lds"
 #define CONFIG_SPL_TEXT_BASE		0x00908000
 #define CONFIG_SPL_MAX_SIZE		0x10000
 #define CONFIG_SPL_STACK		0x0091FFB8
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_GPIO_SUPPORT
-#define CONFIG_SPL_WATCHDOG_SUPPORT
+/*
+ * Pad SPL to 68KB (4KB header + 64KB max size). This allows to write the
+ * SPL/U-Boot combination generated with u-boot-with-spl.imx directly to a
+ * boot media (given that boot media specific offset is configured properly).
+ */
+#define CONFIG_SPL_PAD_TO		0x11000
 
 /* NAND support */
 #if defined(CONFIG_SPL_NAND_SUPPORT)
 #define CONFIG_SPL_NAND_MXS
-#define CONFIG_SPL_DMA_SUPPORT
 #endif
 
 /* MMC support */
 #if defined(CONFIG_SPL_MMC_SUPPORT)
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	138 /* offset 69KB */
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	800 /* 400 KB */
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
-#define CONFIG_SYS_MONITOR_LEN  (CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS/2*1024)
+#define CONFIG_SYS_MONITOR_LEN			409600	/* 400 KB */
+#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 #endif
 
 /* SATA support */
 #if defined(CONFIG_SPL_SATA_SUPPORT)
 #define CONFIG_SPL_SATA_BOOT_DEVICE		0
 #define CONFIG_SYS_SATA_FAT_BOOT_PARTITION	1
+#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 #endif
 
 /* Define the payload for FAT/EXT support */
 #if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME  "u-boot.img"
-#define CONFIG_SPL_LIBDISK_SUPPORT
 #endif
 
 #if defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL) || defined(CONFIG_MX6SL)

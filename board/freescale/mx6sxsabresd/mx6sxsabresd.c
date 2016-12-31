@@ -64,7 +64,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = PHYS_SDRAM_SIZE;
+	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }
@@ -504,7 +504,7 @@ static iomux_v3_cfg_t const lcd_pads[] = {
 
 static int setup_lcd(void)
 {
-	enable_lcdif_clock(LCDIF1_BASE_ADDR);
+	enable_lcdif_clock(LCDIF1_BASE_ADDR, 1);
 
 	imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
 
@@ -637,6 +637,8 @@ static void spl_dram_init(void)
 		.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
 		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
 		.ddr_type = DDR_TYPE_DDR3,
+		.refsel = 1,	/* Refresh cycles at 32KHz */
+		.refr = 7,	/* 8 refresh commands per refresh cycle */
 	};
 
 	mx6sx_dram_iocfg(mem_ddr.width, &mx6_ddr_ioregs, &mx6_grp_ioregs);

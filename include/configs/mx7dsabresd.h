@@ -22,12 +22,7 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
 
-/* Uncomment to enable secure boot support */
-/* #define CONFIG_SECURE_BOOT */
-#define CONFIG_CSF_SIZE			0x4000
-
 /* Network */
-#define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define CONFIG_FEC_XCV_TYPE             RGMII
@@ -52,11 +47,7 @@
 #undef CONFIG_BOOTM_PLAN9
 #undef CONFIG_BOOTM_RTEMS
 
-#undef CONFIG_CMD_EXPORTENV
-#undef CONFIG_CMD_IMPORTENV
-
 /* I2C configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -68,7 +59,6 @@
 #ifdef CONFIG_IMX_BOOTAUX
 /* Set to QSPI1 A flash at default */
 #define CONFIG_SYS_AUXCORE_BOOTDATA 0x60000000
-#define CONFIG_CMD_SETEXPR
 
 #define UPDATE_M4_ENV \
 	"m4image=m4_qspi.bin\0" \
@@ -185,7 +175,6 @@
 		   "fi; " \
 	   "else run netboot; fi"
 
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
 
@@ -211,6 +200,9 @@
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_SIZE			SZ_8K
 #define CONFIG_ENV_IS_IN_MMC
+
+/* MXC SPI driver support */
+#define CONFIG_MXC_SPI
 
 /*
  * If want to use nand, define CONFIG_NAND_MXS and rework board
@@ -244,10 +236,6 @@
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC1 */
 
 /* USB Configs */
-#define CONFIG_CMD_USB
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_MX7
-#define CONFIG_USB_STORAGE
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
@@ -259,23 +247,11 @@
 
 #define CONFIG_USBD_HS
 
-#define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
-/* USB Device Firmware Update support */
-#define CONFIG_CMD_DFU
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_MMC
-#define CONFIG_DFU_RAM
-
-#define CONFIG_VIDEO
 #ifdef CONFIG_VIDEO
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_MXS
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_VIDEO_SW_CURSOR
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
 #define CONFIG_CMD_BMP
@@ -285,7 +261,6 @@
 #endif
 
 #ifdef CONFIG_FSL_QSPI
-#define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_MACRONIX
 #define CONFIG_SPI_FLASH_BAR

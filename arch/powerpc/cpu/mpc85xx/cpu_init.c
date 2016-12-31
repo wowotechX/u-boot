@@ -45,7 +45,9 @@
 #include <nand.h>
 #include <errno.h>
 #endif
-
+#ifndef CONFIG_ARCH_QEMU_E500
+#include <fsl_ddr.h>
+#endif
 #include "../../../../drivers/block/fsl_sata.h"
 #ifdef CONFIG_U_QE
 #include <fsl_qe.h>
@@ -114,10 +116,10 @@ void fsl_erratum_a006261_workaround(struct ccsr_usb_phy __iomem *usb_phy)
 	setbits_be32(&usb_phy->config2,
 		     CONFIG_SYS_FSL_USB_RX_AUTO_CAL_RD_WR_SEL);
 
-	temp = squelch_prog_rd_0_2 << CONFIG_SYS_FSL_USB_SQUELCH_PROG_WR_0;
+	temp = squelch_prog_rd_0_2 << CONFIG_SYS_FSL_USB_SQUELCH_PROG_WR_3;
 	out_be32(&usb_phy->config2, in_be32(&usb_phy->config2) | temp);
 
-	temp = squelch_prog_rd_3_5 << CONFIG_SYS_FSL_USB_SQUELCH_PROG_WR_3;
+	temp = squelch_prog_rd_3_5 << CONFIG_SYS_FSL_USB_SQUELCH_PROG_WR_0;
 	out_be32(&usb_phy->config2, in_be32(&usb_phy->config2) | temp);
 #endif
 }
@@ -439,10 +441,10 @@ ulong cpu_init_f(void)
 #ifdef CONFIG_SYS_DCSRBAR_PHYS
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif
-#if defined(CONFIG_SECURE_BOOT)
+#if defined(CONFIG_SECURE_BOOT) && !defined(CONFIG_SYS_RAMBOOT)
 	struct law_entry law;
 #endif
-#ifdef CONFIG_MPC8548
+#ifdef CONFIG_ARCH_MPC8548
 	ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 	uint svr = get_svr();
 
@@ -459,7 +461,7 @@ ulong cpu_init_f(void)
 	disable_tlb(14);
 	disable_tlb(15);
 
-#if defined(CONFIG_SECURE_BOOT)
+#if defined(CONFIG_SECURE_BOOT) && !defined(CONFIG_SYS_RAMBOOT)
 	/* Disable the LAW created for NOR flash by the PBI commands */
 	law = find_law(CONFIG_SYS_PBI_FLASH_BASE);
 	if (law.index != -1)
@@ -947,6 +949,10 @@ int cpu_init_r(void)
 
 #endif /* CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE */
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009942
+	erratum_a009942_check_cpo();
+#endif
+
 #ifdef CONFIG_FMAN_ENET
 	fman_enet_init();
 #endif
@@ -958,6 +964,15 @@ int cpu_init_r(void)
 
 #ifdef CONFIG_FSL_CAAM
 	sec_init();
+
+#if defined(CONFIG_ARCH_C29X)
+	if ((SVR_SOC_VER(svr) == SVR_C292) ||
+	    (SVR_SOC_VER(svr) == SVR_C293))
+		sec_init_idx(1);
+
+	if (SVR_SOC_VER(svr) == SVR_C293)
+		sec_init_idx(2);
+#endif
 #endif
 
 #if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_FSL_SATA_ERRATUM_A001)

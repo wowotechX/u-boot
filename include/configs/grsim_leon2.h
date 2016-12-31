@@ -12,9 +12,6 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
-#define CONFIG_SYS_GENERIC_BOARD
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -54,14 +51,12 @@
 /*
  * Autobooting
  */
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
-/*#define CONFIG_SYS_HUSH_PARSER 0*/
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
@@ -190,7 +185,6 @@
 #undef CONFIG_SYS_SRAM_BASE
 #undef CONFIG_SYS_SRAM_SIZE
 
-
 /* Always Run U-Boot from SDRAM */
 #define CONFIG_SYS_RAM_BASE CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_RAM_SIZE CONFIG_SYS_SDRAM_SIZE
@@ -290,7 +284,5 @@
 
 /* default kernel command line */
 #define CONFIG_DEFAULT_KERNEL_COMMAND_LINE "console=ttyS0,38400\0\0"
-
-#define CONFIG_IDENT_STRING " Gaisler GRSIM LEON2"
 
 #endif				/* __CONFIG_H */

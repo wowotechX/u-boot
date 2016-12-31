@@ -28,10 +28,12 @@
 #define __EXT4__
 #include <ext_common.h>
 
+#define EXT4_INDEX_FL		0x00001000 /* Inode uses hash tree index */
 #define EXT4_EXTENTS_FL		0x00080000 /* Inode uses extents */
 #define EXT4_EXT_MAGIC			0xf30a
 #define EXT4_FEATURE_RO_COMPAT_GDT_CSUM	0x0010
 #define EXT4_FEATURE_INCOMPAT_EXTENTS	0x0040
+#define EXT4_FEATURE_INCOMPAT_64BIT	0x0080
 #define EXT4_INDIRECT_BLOCKS		12
 
 #define EXT4_BG_INODE_UNINIT		0x0001
@@ -85,6 +87,8 @@ struct ext_filesystem {
 	uint32_t inodesz;
 	/* Sectors per Block */
 	uint32_t sect_perblk;
+	/* Group Descriptor size */
+	uint16_t gdsize;
 	/* Group Descriptor Block Number */
 	uint32_t gdtable_blkno;
 	/* Total block groups of partition */
@@ -94,7 +98,6 @@ struct ext_filesystem {
 	/* Superblock */
 	struct ext2_sblock *sb;
 	/* Block group descritpor table */
-	struct ext2_block_group *bgd;
 	char *gdtable;
 
 	/* Block Bitmap Related */
@@ -123,7 +126,7 @@ extern int gindex;
 
 int ext4fs_init(void);
 void ext4fs_deinit(void);
-int ext4fs_filename_check(char *filename);
+int ext4fs_filename_unlink(char *filename);
 int ext4fs_write(const char *fname, unsigned char *buffer,
 		 unsigned long sizebytes);
 int ext4_write_file(const char *filename, void *buf, loff_t offset, loff_t len,
@@ -132,7 +135,7 @@ int ext4_write_file(const char *filename, void *buf, loff_t offset, loff_t len,
 
 struct ext_filesystem *get_fs(void);
 int ext4fs_open(const char *filename, loff_t *len);
-int ext4fs_read(char *buf, loff_t len, loff_t *actread);
+int ext4fs_read(char *buf, loff_t offset, loff_t len, loff_t *actread);
 int ext4fs_mount(unsigned part_length);
 void ext4fs_close(void);
 void ext4fs_reinit_global(void);

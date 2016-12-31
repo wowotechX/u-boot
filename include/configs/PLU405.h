@@ -21,7 +21,6 @@
 #define CONFIG_PLU405		1	/* ...on a PLU405 board		*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
@@ -47,7 +46,6 @@
 
 #define CONFIG_PHY_CLK_FREQ	EMAC_STACR_CLK_66MHZ /* 66 MHz OPB clock*/
 
-
 /*
  * BOOTP options
  */
@@ -56,22 +54,15 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_USB
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
@@ -90,8 +81,6 @@
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
 
-#undef	CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser	*/
-
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
@@ -102,8 +91,6 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
-
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
 #define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
 
@@ -127,10 +114,6 @@
 #define CONFIG_SYS_EXTBDINFO	1		/* To use extended board_into (bd_t) */
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
-#define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
-
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 #define CONFIG_SYS_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
 
@@ -156,10 +139,8 @@
 #define PCI_HOST_FORCE  1               /* configure as pci host        */
 #define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
 
-#define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_PCI_HOST	PCI_HOST_FORCE  /* select pci host function     */
-#define CONFIG_PCI_PNP			/* do pci plug-and-play         */
 					/* resource configuration       */
 
 #define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */
@@ -384,12 +365,10 @@
 #define CONFIG_SYS_OHCI_SWAP_REG_ACCESS 1
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 15
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME	"ohci_pci"
-#define CONFIG_USB_STORAGE	1
 
 /*
  * UBI
  */
-#define CONFIG_CMD_UBI
 #define CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS

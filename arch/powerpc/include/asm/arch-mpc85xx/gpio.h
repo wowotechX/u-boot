@@ -14,6 +14,14 @@
 #ifndef __ASM_ARCH_MX85XX_GPIO_H
 #define __ASM_ARCH_MX85XX_GPIO_H
 
+#ifndef CONFIG_MPC85XX_GPIO
 #include <asm/mpc85xx_gpio.h>
+#endif
+
+struct mpc85xx_gpio_plat {
+	ulong addr;
+	unsigned long size;
+	uint ngpios;
+};
 
 #endif

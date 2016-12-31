@@ -12,8 +12,6 @@
 #undef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX       2
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define I2C_MUX_CH_VOL_MONITOR		0xa
 #define I2C_VOL_MONITOR_ADDR		0x38
 #define CONFIG_VOL_MONITOR_IR36021_READ
@@ -62,9 +60,7 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
-#define CONFIG_CMD_SCSI
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
+#define CONFIG_SCSI
 #define CONFIG_DOS_PARTITION
 #define CONFIG_BOARD_LATE_INIT
 
@@ -126,7 +122,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_NAND_FSL_IFC
 #define CONFIG_SYS_NAND_MAX_ECCPOS	256
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
-
 
 #define CONFIG_SYS_NAND_CSPR_EXT	(0x0)
 #define CONFIG_SYS_NAND_CSPR	(CSPR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
@@ -272,9 +267,9 @@ unsigned long get_board_sys_clk(void);
 
 /* SPI */
 #ifdef CONFIG_FSL_DSPI
-#define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_BAR
+#define CONFIG_SPI_FLASH_STMICRO
 #endif
 
 /*
@@ -296,23 +291,18 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 #define CONFIG_FSL_MEMAC
-#define CONFIG_PCI		/* Enable PCIE */
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 
 #ifdef CONFIG_PCI
-#define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_CMD_PCI
 #endif
 
 /*  MMC  */
-#define CONFIG_MMC
 #ifdef CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
@@ -322,19 +312,29 @@ unsigned long get_board_sys_clk(void);
  * USB
  */
 #define CONFIG_HAS_FSL_XHCI_USB
-#define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_FSL
-#define CONFIG_USB_XHCI_DWC3
 #define CONFIG_USB_MAX_CONTROLLER_COUNT         2
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS      2
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
-#define CONFIG_CMD_EXT2
+
+#undef CONFIG_CMDLINE_EDITING
+#include <config_distro_defaults.h>
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(USB, usb, 0) \
+	func(MMC, mmc, 0) \
+	func(SCSI, scsi, 0) \
+	func(DHCP, dhcp, na)
+#include <config_distro_bootcmd.h>
 
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
+	"scriptaddr=0x80800000\0"		\
+	"kernel_addr_r=0x81000000\0"		\
+	"pxefile_addr_r=0x81000000\0"		\
+	"fdt_addr_r=0x88000000\0"		\
+	"ramdisk_addr_r=0x89000000\0"		\
 	"loadaddr=0x80100000\0"			\
 	"kernel_addr=0x100000\0"		\
 	"ramdisk_addr=0x800000\0"		\
@@ -344,14 +344,23 @@ unsigned long get_board_sys_clk(void);
 	"kernel_start=0x581100000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
+	"fdtfile=fsl-ls2080a-rdb.dtb\0"		\
 	"mcinitcmd=fsl_mc start mc 0x580300000"	\
-	" 0x580800000 \0"
+	" 0x580800000 \0"			\
+	BOOTENV
 
 #undef CONFIG_BOOTARGS
 #define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
 				"earlycon=uart8250,mmio,0x21c0600 " \
 				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
 				" hugepagesz=2m hugepages=256"
+
+#undef CONFIG_BOOTCOMMAND
+/* Try to boot an on-NOR kernel first, then do normal distro boot */
+#define CONFIG_BOOTCOMMAND "run mcinitcmd && fsl_mc lazyapply dpl 0x580700000" \
+			   " && cp.b $kernel_start $kernel_load $kernel_size" \
+			   " && bootm $kernel_load" \
+			   " || run distro_bootcmd"
 
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET
@@ -374,7 +383,7 @@ unsigned long get_board_sys_clk(void);
 #define AQR405_IRQ_MASK		0x36
 
 #define CONFIG_MII
-#define CONFIG_ETHPRIME		"DPNI1"
+#define CONFIG_ETHPRIME		"DPMAC1@xgmii"
 #define CONFIG_PHY_GIGE
 #define CONFIG_PHY_AQUANTIA
 #endif

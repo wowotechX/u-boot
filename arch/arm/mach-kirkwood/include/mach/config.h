@@ -24,8 +24,6 @@
 #endif /* CONFIG_KW88F6281 */
 
 #include <asm/arch/soc.h>
-#define CONFIG_SYS_CACHELINE_SIZE	32
-				/* default Dcache Line length for kirkwood */
 #define CONFIG_MD5	/* get_random_hex on krikwood needs MD5 support */
 #define CONFIG_KIRKWOOD_EGIGA_INIT	/* Enable GbePort0/1 for kernel */
 #define CONFIG_KIRKWOOD_RGMII_PAD_1V8	/* Set RGMII Pad voltage to 1.8V */
@@ -80,7 +78,6 @@
  * Ethernet Driver configuration
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_CMD_MII
 #define CONFIG_NETCONSOLE	/* include NetConsole support   */
 #define CONFIG_MII		/* expose smi ove miiphy interface */
 #define CONFIG_MVGBE		/* Enable Marvell Gbe Controller Driver */
@@ -102,7 +99,6 @@
  */
 #ifdef CONFIG_CMD_IDE
 #define __io
-#define CONFIG_CMD_EXT2
 #define CONFIG_MVSATA_IDE
 #define CONFIG_IDE_PREINIT
 #define CONFIG_MVSATA_IDE_USE_PORT1

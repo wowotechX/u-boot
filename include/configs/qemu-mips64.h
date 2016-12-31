@@ -14,10 +14,8 @@
 
 #define CONFIG_QEMU_MIPS
 
-#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_MISC_INIT_R
 
-#define CONFIG_BOOTDELAY	10	/* autoboot after 10 seconds */
 
 #define CONFIG_BAUDRATE		115200
 
@@ -45,9 +43,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_DHCP
 
 #define CONFIG_DRIVER_NE2000
 #define CONFIG_DRIVER_NE2000_BASE	0xffffffffb4000300
@@ -61,6 +56,10 @@
 #define CONFIG_CMD_IDE
 #define CONFIG_DOS_PARTITION
 
+#ifdef CONFIG_SYS_BIG_ENDIAN
+#define CONFIG_IDE_SWAP_IO
+#endif
+
 #define CONFIG_SYS_IDE_MAXBUS		2
 #define CONFIG_SYS_ATA_IDE0_OFFSET	0x1f0
 #define CONFIG_SYS_ATA_IDE1_OFFSET	0x170
@@ -70,24 +69,13 @@
 
 #define CONFIG_SYS_IDE_MAXDEVICE	4
 
-#define CONFIG_CMD_RARP
-
 /*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
-/* Monitor Command Prompt */
-#undef CONFIG_SYS_PROMPT
-#if defined(CONFIG_SYS_LITTLE_ENDIAN)
-#define CONFIG_SYS_PROMPT		"qemu-mips64el # "
-#else
-#define CONFIG_SYS_PROMPT		"qemu-mips64 # "
-#endif
-
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_HUSH_PARSER
 
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		256
@@ -117,7 +105,6 @@
  * FLASH and environment organization
  */
 /* The following #defines are needed to get flash environment right */
-#define CONFIG_SYS_TEXT_BASE		0xffffffffbfc00000 /* Rom version */
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(192 << 10)
 
@@ -142,12 +129,5 @@
 #define MEM_SIZE		128
 
 #define CONFIG_LZMA
-
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CONFIG_SYS_DCACHE_SIZE		16384
-#define CONFIG_SYS_ICACHE_SIZE		16384
-#define CONFIG_SYS_CACHELINE_SIZE	32
 
 #endif /* __CONFIG_H */

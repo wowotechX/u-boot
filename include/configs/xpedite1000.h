@@ -22,7 +22,6 @@
 #define CONFIG_440GX		1		/* 440 GX */
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_pre_init	*/
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll */
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
@@ -108,11 +107,6 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /*
- * Use the HUSH parser
- */
-#define CONFIG_SYS_HUSH_PARSER
-
-/*
  * NOR flash configuration
  */
 #define CONFIG_SYS_MAX_FLASH_BANKS	3
@@ -149,9 +143,7 @@ extern void out32(unsigned int, unsigned long);
  * PCI
  */
 /* General PCI */
-#define CONFIG_PCI				/* include pci support */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_PCI_PNP				/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW			/* show pci devices on startup */
 #define CONFIG_SYS_PCI_TARGBASE	0x80000000	/* PCIaddr mapped to CONFIG_SYS_PCI_MEMBASE */
 
@@ -185,17 +177,11 @@ extern void out32(unsigned int, unsigned long);
 /*
  * Command configuration
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SNTP
 
 /*
  * Miscellaneous configurable options
@@ -207,7 +193,6 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 #define CONFIG_CMDLINE_EDITING	1		/* Command-line editing */
-#define CONFIG_BOOTDELAY	3		/* -1 disables auto-boot */
 #define CONFIG_PANIC_HANG			/* do not reset board on panic */
 #define CONFIG_PREBOOT				/* enable preboot variable */
 #define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */
@@ -316,7 +301,7 @@ extern void out32(unsigned int, unsigned long);
 	"osfile=/home/user/board.uImage\0"				\
 	"fdtfile=/home/user/board.dtb\0"				\
 	"ubootfile=/home/user/u-boot.bin\0"				\
-	"fdtaddr=c00000\0"						\
+	"fdtaddr=0x1e00000\0"						\
 	"osaddr=0x1000000\0"						\
 	"loadaddr=0x1000000\0"						\
 	"prog_uboot="CONFIG_PROG_UBOOT"\0"				\

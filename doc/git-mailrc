@@ -11,7 +11,7 @@ alias u-boot uboot
 # Maintainer aliases.  Use the same alias here as patchwork to keep
 # things simple and easy to look up/coordinate.
 alias aaribaud       Albert Aribaud <albert.u.boot@aribaud.net>
-alias abiessmann     Andreas Bießmann <andreas.devel@googlemail.com>
+alias abiessmann     Andreas Bießmann <andreas@biessmann.org>
 alias abrodkin       Alexey Brodkin <alexey.brodkin@synopsys.com>
 alias afleming       Andy Fleming <afleming@gmail.com>
 alias ag             Anatolij Gustschin <agust@denx.de>
@@ -19,11 +19,13 @@ alias alisonwang     Alison Wang <alison.wang@freescale.com>
 alias angelo_ts      Angelo Dureghello <angelo@sysam.it>
 alias bmeng          Bin Meng <bmeng.cn@gmail.com>
 alias danielschwierzeck Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
+alias dinh	     Dinh Nguyen <dinguyen@kernel.org>
 alias galak          Kumar Gala <galak@kernel.crashing.org>
 alias hs             Heiko Schocher <hs@denx.de>
 alias ijc            Ian Campbell <ijc+uboot@hellion.org.uk>
 alias iwamatsu       Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-alias jagan          Jagan Teki <jteki@openedev.com>
+alias jaehoon        Jaehoon Chung <jh80.chung@samsung.com>
+alias jagan          Jagan Teki <jagan@openedev.com>
 alias jasonjin       Jason Jin <jason.jin@freescale.com>
 alias jhersh         Joe Hershberger <joe.hershberger@ni.com>
 alias jwrdegoede     Hans de Goede <hdegoede@redhat.com>
@@ -34,10 +36,9 @@ alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
 alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
 alias mateusz        Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
+alias maxime	     Maxime Ripard <maxime.ripard@free-electrons.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
-alias panto          Pantelis Antoniou <panto@antoniou-consulting.com>
 alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
-alias bobenstein     Przemyslaw Marczak <p.marczak@samsung.com>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
 alias rbohmer        Remy Bohmer <linux@bohmer.net>
 alias reinhardm      Reinhard Meyer <u-boot@emk-elektronik.de>
@@ -69,14 +70,14 @@ alias s3c            samsung
 alias s5pc           samsung
 alias samsung        uboot, prom
 alias snapdragon     uboot, mateusz
-alias socfpga        uboot, marex, Dinh Nguyen <dinguyen@opensource.altera.com>
-alias sunxi          uboot, ijc, jwrdegoede
+alias socfpga        uboot, marex, dinh
+alias sunxi          uboot, jagan, maxime
 alias tegra          uboot, sjg, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
 alias tegra2         tegra
 alias ti             uboot, trini
 alias uniphier       uboot, masahiro
 alias zynq           uboot, monstr
-
+alias rockchip       uboot, sjg, Lin huang <hl@rock-chips.com>
 alias avr32          uboot, abiessmann
 
 alias bfin           uboot, vapier, sonic
@@ -124,7 +125,7 @@ alias kerneldoc      uboot, marex
 alias fdt            uboot, sjg
 alias i2c            uboot, hs
 alias kconfig        uboot, masahiro
-alias mmc            uboot, panto
+alias mmc            uboot, jaehoon
 alias nand           uboot, scottwood
 alias net            uboot, jhersh
 alias phy            uboot, jhersh
@@ -135,4 +136,4 @@ alias usb            uboot, marex
 alias video          uboot, ag
 alias patman         uboot, sjg
 alias buildman       uboot, sjg
-alias pmic           uboot, bobenstein
+alias pmic           uboot, jaehoon

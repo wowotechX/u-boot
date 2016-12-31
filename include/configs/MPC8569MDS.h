@@ -10,20 +10,15 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_MPC8569		1	/* MPC8569 specific */
-#define CONFIG_MPC8569MDS	1	/* MPC8569MDS board specific */
 
 #define CONFIG_FSL_ELBC		1	/* Has Enhance localbus controller */
 
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 
-#define CONFIG_PCI		1	/* Disable PCI/PCIE */
 #define CONFIG_PCIE1		1	/* PCIE controller */
 #define CONFIG_FSL_PCI_INIT	1	/* use common fsl pci init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
@@ -31,7 +26,6 @@
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_QE			/* Enable QE */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 #ifndef __ASSEMBLY__
 extern unsigned long get_clock_freq(void);
@@ -248,11 +242,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_NS16550_COM1        (CONFIG_SYS_CCSRBAR+0x4500)
 #define CONFIG_SYS_NS16550_COM2        (CONFIG_SYS_CCSRBAR+0x4600)
 
-/* Use the HUSH parser*/
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef  CONFIG_SYS_HUSH_PARSER
-#endif
-
 /*
  * I2C
  */
@@ -432,9 +421,6 @@ extern unsigned long get_clock_freq(void);
 #endif /* CONFIG_QE */
 
 #if defined(CONFIG_PCI)
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
-
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
@@ -468,13 +454,9 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
 
@@ -482,19 +464,13 @@ extern unsigned long get_clock_freq(void);
     #define CONFIG_CMD_PCI
 #endif
 
-
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
-
-#define CONFIG_MMC     1
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_ESDHC_PIN_MUX
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
@@ -541,7 +517,6 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_LOADADDR  200000   /*default location for tftp and bootm*/
 
-#define CONFIG_BOOTDELAY 10       /* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS           /* the boot command will set bootargs*/
 
 #define CONFIG_BAUDRATE	115200

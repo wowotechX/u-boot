@@ -17,7 +17,6 @@
 /* CPU and board */
 #define CONFIG_MPC5200		1	/* This is a MPC5200 CPU */
 #define CONFIG_MOTIONPRO	1	/* ... on Promess Motion-PRO board */
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
@@ -34,19 +33,13 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BEDBUG
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 /*
@@ -69,14 +62,9 @@
 /*
  * Autobooting
  */
-#define CONFIG_BOOTDELAY	2	/* autoboot after 2 seconds */
 #undef CONFIG_BOOTARGS
 
 #define CONFIG_CMDLINE_EDITING		1	/* add command line history	*/
-#define	CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-
-#define CONFIG_VERSION_VARIABLE	1	/* include version env variable */
 
 /*
  * Default environment settings

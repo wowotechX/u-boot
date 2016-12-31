@@ -9,13 +9,6 @@
 
 #include "ls1043a_common.h"
 
-#define CONFIG_DISPLAY_CPUINFO
-#ifdef CONFIG_QSPI_BOOT
-#define CONFIG_DISPLAY_BOARDINFO_LATE
-#else
-#define CONFIG_DISPLAY_BOARDINFO
-#endif
-
 #if defined(CONFIG_NAND_BOOT) || defined(CONFIG_SD_BOOT)
 #define CONFIG_SYS_TEXT_BASE		0x82000000
 #elif defined(CONFIG_QSPI_BOOT)
@@ -29,8 +22,8 @@ unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);
 #endif
 
-#define CONFIG_SYS_CLK_FREQ		100000000
-#define CONFIG_DDR_CLK_FREQ		100000000
+#define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
+#define CONFIG_DDR_CLK_FREQ		get_board_ddr_clk()
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -46,17 +39,12 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
-#ifndef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_FSL_DDR3		/* Use DDR3 memory */
-#endif
 
 #define CONFIG_DDR_ECC
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #endif
-
-#define CONFIG_SYS_HAS_SERDES
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
@@ -108,12 +96,9 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
-#define CONFIG_CMD_SCSI
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
+#define CONFIG_SCSI
 #define CONFIG_DOS_PARTITION
 #define CONFIG_BOARD_LATE_INIT
-
 
 /* EEPROM */
 #define CONFIG_ID_EEPROM
@@ -228,8 +213,8 @@ unsigned long get_board_ddr_clk(void);
 
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_QIXIS_I2C_ACCESS
+#define CONFIG_SYS_I2C_EARLY_INIT
 #define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_IMLS
 #endif
 
 /*
@@ -392,14 +377,9 @@ unsigned long get_board_ddr_clk(void);
 /* USB */
 #define CONFIG_HAS_FSL_XHCI_USB
 #ifdef CONFIG_HAS_FSL_XHCI_USB
-#define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_FSL
-#define CONFIG_USB_XHCI_DWC3
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		3
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
-#define CONFIG_CMD_EXT2
 #endif
 
 /*
@@ -407,17 +387,11 @@ unsigned long get_board_ddr_clk(void);
  */
 #define CONFIG_MISC_INIT_R
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_PROMPT		"=> "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_PBSIZE		\
 		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_MEMINFO
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
@@ -464,8 +438,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ENV_SIZE			0x20000
 #endif
 
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_MII
 #define CONFIG_CMDLINE_TAG
 
 #include <asm/fsl_secure_boot.h>

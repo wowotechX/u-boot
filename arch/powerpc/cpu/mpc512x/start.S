@@ -15,9 +15,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#ifndef  CONFIG_IDENT_STRING
-#define  CONFIG_IDENT_STRING "MPC512X"
-#endif
 #include <version.h>
 
 #define CONFIG_521X	1		/* needed for Linux kernel header files*/
@@ -444,6 +441,11 @@ dcache_status:
 	.globl get_pvr
 get_pvr:
 	mfspr	r3, PVR
+	blr
+
+	.globl get_svr
+get_svr:
+	mfspr	r3, SVR
 	blr
 
 /*-------------------------------------------------------------------*/

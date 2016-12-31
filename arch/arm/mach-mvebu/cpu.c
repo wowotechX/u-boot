@@ -452,8 +452,15 @@ int arch_cpu_init(void)
 
 u32 mvebu_get_nand_clock(void)
 {
+	u32 reg;
+
+	if (mvebu_soc_family() == MVEBU_SOC_A38X)
+		reg = MVEBU_DFX_DIV_CLK_CTRL(1);
+	else
+		reg = MVEBU_CORE_DIV_CLK_CTRL(1);
+
 	return CONFIG_SYS_MVEBU_PLL_CLOCK /
-		((readl(MVEBU_CORE_DIV_CLK_CTRL(1)) &
+		((readl(reg) &
 		  NAND_ECC_DIVCKL_RATIO_MASK) >> NAND_ECC_DIVCKL_RATIO_OFFS);
 }
 
@@ -468,7 +475,7 @@ int arch_misc_init(void)
 }
 #endif /* CONFIG_ARCH_MISC_INIT */
 
-#ifdef CONFIG_MV_SDHCI
+#ifdef CONFIG_MMC_SDHCI_MV
 int board_mmc_init(bd_t *bis)
 {
 	mv_sdh_init(MVEBU_SDIO_BASE, 0, 0,

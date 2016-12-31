@@ -55,12 +55,6 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Available command configuration */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_DHCP
-
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
@@ -110,7 +104,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x800000
 
-#define CONFIG_BOOTDELAY	5
 #define CONFIG_BOOTCOMMAND	"bootm ffe40000"
 #define CONFIG_SYS_MEMTEST_START	0x400
 #define CONFIG_SYS_MEMTEST_END		0x380000

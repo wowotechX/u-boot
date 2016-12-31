@@ -72,7 +72,7 @@ static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
 	struct udevice *config;
 	int state, size, i, ret;
 
-	state = fdt_find_string(fdt, node, "pinctrl-names", statename);
+	state = fdt_stringlist_search(fdt, node, "pinctrl-names", statename);
 	if (state < 0) {
 		char *end;
 		/*
@@ -113,7 +113,7 @@ static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
 }
 
 /**
- * pinconfig_post-bind() - post binding for PINCONFIG uclass
+ * pinconfig_post_bind() - post binding for PINCONFIG uclass
  * Recursively bind its children as pinconfig devices.
  *
  * @dev: pinconfig device
@@ -257,7 +257,7 @@ int pinctrl_get_gpio_mux(struct udevice *dev, int banknum, int index)
 }
 
 /**
- * pinconfig_post-bind() - post binding for PINCTRL uclass
+ * pinconfig_post_bind() - post binding for PINCTRL uclass
  * Recursively bind child nodes as pinconfig devices in case of full pinctrl.
  *
  * @dev: pinctrl device
@@ -287,5 +287,6 @@ static int pinctrl_post_bind(struct udevice *dev)
 UCLASS_DRIVER(pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.post_bind = pinctrl_post_bind,
+	.flags = DM_UC_FLAG_SEQ_ALIAS,
 	.name = "pinctrl",
 };

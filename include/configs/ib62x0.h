@@ -10,11 +10,6 @@
 #define _CONFIG_IB62x0_H
 
 /*
- * Version number information
- */
-#define CONFIG_IDENT_STRING	" RaidSonic ICY BOX IB-NAS62x0"
-
-/*
  * High level configuration options
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
@@ -35,9 +30,7 @@
  */
 #define CONFIG_SYS_NO_FLASH		/* declare no flash (NOR/SPI) */
 #define CONFIG_SYS_MVFS
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_MII
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

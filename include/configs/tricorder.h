@@ -16,12 +16,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 /* High Level Configuration Options */
 #define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_OMAP			/* in a TI OMAP core */
-#define CONFIG_OMAP_COMMON
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_454179
 #define CONFIG_ARM_ERRATA_430973
@@ -40,14 +37,6 @@
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
-
-
-/* Display CPU and Board information */
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
-#define CONFIG_SILENT_CONSOLE
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 /* Clock Defines */
 #define V_OSCK				26000000 /* Clock output from T2 */
@@ -100,7 +89,6 @@
 
 /* MMC */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MMC
 #define CONFIG_OMAP_HSMMC
 #define CONFIG_DOS_PARTITION
 
@@ -147,14 +135,9 @@
 #define CONFIG_SYS_NAND_MAX_ECCPOS	56
 
 /* commands to include */
-#define CONFIG_CMD_EXT2			/* EXT2 Support */
-#define CONFIG_CMD_FAT			/* FAT support */
-#define CONFIG_CMD_I2C			/* I2C serial bus support */
-#define CONFIG_CMD_MMC			/* MMC support */
 #define CONFIG_CMD_MTDPARTS		/* Enable MTD parts commands */
 #define CONFIG_CMD_NAND			/* NAND support */
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands */
-#define CONFIG_CMD_UBI			/* UBI commands */
 #define CONFIG_CMD_UBIFS		/* UBIFS commands */
 #define CONFIG_LZO			/* LZO is needed for UBIFS */
 
@@ -167,7 +150,6 @@
 
 /* Environment information (this is the common part) */
 
-#define CONFIG_BOOTDELAY		0
 
 /* hang() the board on panic() */
 #define CONFIG_PANIC_HANG
@@ -279,7 +261,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_CMDLINE_EDITING		/* enable cmdline history */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
@@ -329,26 +310,16 @@
 #define CONFIG_SPL_NAND_SIMPLE
 
 #define CONFIG_SPL_BOARD_INIT
-#define CONFIG_SPL_GPIO_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBDISK_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_POWER_SUPPORT
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME        "u-boot.img"
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x300 /* address 0x60000 */
 
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
-#define CONFIG_SPL_MAX_SIZE		(57 * 1024)	/* 7 KB for stack */
+#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
+					 CONFIG_SPL_TEXT_BASE)
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000 /*CONFIG_SYS_SDRAM_BASE*/
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000

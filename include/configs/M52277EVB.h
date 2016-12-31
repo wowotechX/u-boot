@@ -37,15 +37,10 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Command line configuration */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO
-#undef CONFIG_CMD_USB
 #undef CONFIG_CMD_BMP
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_SF
 
 #define CONFIG_HOSTNAME			M52277EVB
 #define CONFIG_SYS_UBOOT_END		0x3FFFF
@@ -87,10 +82,8 @@
 	""
 #endif
 
-#define CONFIG_BOOTDELAY		3	/* autoboot after 3 seconds */
 /* LCD */
 #ifdef CONFIG_CMD_BMP
-#define CONFIG_LCD
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_LCD_LOGO
 #define CONFIG_SHARP_LQ035Q7DH06
@@ -99,7 +92,6 @@
 /* USB */
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
-#define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
 #define CONFIG_MAC_PARTITION
 #define CONFIG_ISO_PARTITION

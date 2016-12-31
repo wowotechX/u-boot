@@ -14,10 +14,6 @@
  /* High Level Configuration Options */
 #define CONFIG_MX31		1		/* This is a mx31 */
 
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_SYS_TEXT_BASE		0xA0000000
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX31ADS
@@ -63,12 +59,8 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_SPI
 #define CONFIG_CMD_DATE
 
-#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
 
@@ -156,7 +148,6 @@
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
-
 
 /*-----------------------------------------------------------------------
  * CFI FLASH driver setup

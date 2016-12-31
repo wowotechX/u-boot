@@ -13,7 +13,6 @@ config CMDLINE
 
 config HUSH_PARSER
 	bool "Use hush shell"
-	select SYS_HUSH_PARSER
 	depends on CMDLINE
 	help
 	  This option enables the "hush" shell (from Busybox) as command line
@@ -24,11 +23,6 @@ config HUSH_PARSER
 	  If disabled, you get the old, much simpler behaviour with a somewhat
 	  smaller memory footprint.
 
-config SYS_HUSH_PARSER
-	bool
-	help
-	  Backward compatibility.
-
 config SYS_PROMPT
 	string "Shell prompt"
 	default "=> "
@@ -37,6 +31,12 @@ config SYS_PROMPT
 	  cursor.
 
 menu "Autoboot options"
+
+config AUTOBOOT
+	bool "Autoboot"
+	default y
+	help
+	  This enables the autoboot.  See doc/README.autoboot for detail.
 
 config AUTOBOOT_KEYED
 	bool "Stop autobooting via specific input key / string"
@@ -114,6 +114,8 @@ config AUTOBOOT_STOP_STR_SHA256
 
 endmenu
 
+source "cmd/fastboot/Kconfig"
+
 comment "Commands"
 
 menu "Info commands"
@@ -160,12 +162,52 @@ config CMD_BOOTM
 	help
 	  Boot an application image from the memory.
 
+config CMD_BOOTZ
+	bool "bootz"
+	help
+	  Boot the Linux zImage
+
+config CMD_BOOTI
+	bool "booti"
+	depends on ARM64
+	default y
+	help
+	  Boot an AArch64 Linux Kernel image from memory.
+
 config CMD_BOOTEFI
 	bool "bootefi"
 	depends on EFI_LOADER
 	default y
 	help
 	  Boot an EFI image from memory.
+
+config CMD_BOOTEFI_HELLO_COMPILE
+	bool "Compile a standard EFI hello world binary for testing"
+	depends on CMD_BOOTEFI && (ARM || X86)
+	default y
+	help
+	  This compiles a standard EFI hello world application with U-Boot so
+	  that it can be used with the test/py testing framework. This is useful
+	  for testing that EFI is working at a basic level, and for bringing
+	  up EFI support on a new architecture.
+
+	  No additional space will be required in the resulting U-Boot binary
+	  when this option is enabled.
+
+config CMD_BOOTEFI_HELLO
+	bool "Allow booting a standard EFI hello world for testing"
+	depends on CMD_BOOTEFI_HELLO_COMPILE
+	help
+	  This adds a standard EFI hello world application to U-Boot so that
+	  it can be used with the 'bootefi hello' command. This is useful
+	  for testing that EFI is working at a basic level, and for bringing
+	  up EFI support on a new architecture.
+
+config CMD_BOOTMENU
+	bool "bootmenu"
+	select MENU
+	help
+	  Add an ANSI terminal boot menu command.
 
 config CMD_ELF
 	bool "bootelf, bootvx"
@@ -217,6 +259,11 @@ endmenu
 
 menu "Environment commands"
 
+config CMD_ASKENV
+	bool "ask for env variable"
+	help
+	  Ask for environment variable
+
 config CMD_EXPORTENV
 	bool "env export"
 	default y
@@ -234,6 +281,11 @@ config CMD_EDITENV
 	default y
 	help
 	  Edit environment variable.
+
+config CMD_GREPENV
+	bool "search env"
+	help
+	  Allow for searching environment variables
 
 config CMD_SAVEENV
 	bool "saveenv"
@@ -257,7 +309,7 @@ config CMD_MEMORY
 	bool "md, mm, nm, mw, cp, cmp, base, loop"
 	default y
 	help
-	  Memeory commands.
+	  Memory commands.
 	    md - memory display
 	    mm - memory modify (auto-incrementing address)
 	    nm - memory modify (constant address)
@@ -265,7 +317,7 @@ config CMD_MEMORY
 	    cp - memory copy
 	    cmp - memory compare
 	    base - print or set address offset
-	    loop - initinite loop on address range
+	    loop - initialize loop on address range
 
 config CMD_CRC32
 	bool "crc32"
@@ -343,10 +395,15 @@ config CMD_FLASH
 	    protect - enable or disable FLASH write protection
 
 config CMD_ARMFLASH
-	depends on FLASH_CFI_DRIVER
+	#depends on FLASH_CFI_DRIVER
 	bool "armflash"
 	help
 	  ARM Ltd reference designs flash partition access
+
+config CMD_MMC
+	bool "mmc"
+	help
+	  MMC memory mapped support.
 
 config CMD_NAND
 	bool "nand"
@@ -372,6 +429,18 @@ config CMD_USB
 	bool "usb"
 	help
 	  USB support.
+
+config CMD_DFU
+	bool "dfu"
+	select USB_FUNCTION_DFU
+	help
+	  Enables the command "dfu" which is used to have U-Boot create a DFU
+	  class device via USB.
+
+config CMD_USB_MASS_STORAGE
+	bool "UMS usb mass storage"
+	help
+	  USB mass storage support
 
 config CMD_FPGA
 	bool "fpga"
@@ -455,11 +524,22 @@ config CMD_DHCP
 	help
 	  Boot image via network using DHCP/TFTP protocol
 
+config CMD_PXE
+	bool "pxe"
+	select MENU
+	help
+	  Boot image via network using PXE protocol
+
 config CMD_NFS
 	bool "nfs"
 	default y
 	help
 	  Boot image via network using NFS protocol.
+
+config CMD_MII
+	bool "mii"
+	help
+	  Enable MII utility commands.
 
 config CMD_PING
 	bool "ping"
@@ -504,6 +584,15 @@ config SYS_AMBAPP_PRINT_ON_STARTUP
 	help
 	  Show AMBA Plug-n-Play information on startup.
 
+config CMD_BKOPS_ENABLE
+	bool "mmc bkops enable"
+	depends on CMD_MMC
+	default n
+	help
+	  Enable command for setting manual background operations handshake
+	  on a eMMC device. The feature is optionally available on eMMC devices
+	  conforming to standard >= 4.41.
+
 config CMD_BLOCK_CACHE
 	bool "blkcache - control and stats for block cache"
 	depends on BLOCK_CACHE
@@ -514,6 +603,11 @@ config CMD_BLOCK_CACHE
 	  This is most useful when fine-tuning the operation of the cache
 	  during development, but also allows the cache to be disabled when
 	  it might hurt performance (e.g. when using the ums command).
+
+config CMD_CACHE
+	bool "icache or dcache"
+	help
+	  Enable the "icache" and "dcache" commands
 
 config CMD_TIME
 	bool "time"
@@ -551,6 +645,16 @@ config CMD_SOUND
 
 	     sound init   - set up sound system
 	     sound play   - play a sound
+
+config CMD_QFW
+	bool "qfw"
+	select QFW
+	help
+	  This provides access to the QEMU firmware interface.  The main
+	  feature is to allow easy loading of files passed to qemu-system
+	  via -kernel / -initrd
+
+source "cmd/mvebu/Kconfig"
 
 endmenu
 
@@ -618,5 +722,59 @@ config CMD_TPM_TEST
 	  for other devices.
 
 endmenu
+
+menu "Firmware commands"
+config CMD_CROS_EC
+	bool "Enable crosec command"
+	depends on CROS_EC
+	default y
+	help
+	  Enable command-line access to the Chrome OS EC (Embedded
+	  Controller). This provides the 'crosec' command which has
+	  a number of sub-commands for performing EC tasks such as
+	  updating its flash, accessing a small saved context area
+	  and talking to the I2C bus behind the EC (if there is one).
+endmenu
+
+menu "Filesystem commands"
+config CMD_EXT2
+	bool "ext2 command support"
+	help
+	  Enables EXT2 FS command
+
+config CMD_EXT4
+	bool "ext4 command support"
+	help
+	  Enables EXT4 FS command
+
+config CMD_EXT4_WRITE
+	depends on CMD_EXT4
+	bool "ext4 write command support"
+	help
+	  Enables EXT4 FS write command
+
+config CMD_FAT
+	bool "FAT command support"
+	help
+	  Support for the FAT fs
+
+config CMD_FS_GENERIC
+	bool "filesystem commands"
+	help
+	  Enables filesystem commands (e.g. load, ls) that work for multiple
+	  fs types.
+endmenu
+
+config CMD_UBI
+	tristate "Enable UBI - Unsorted block images commands"
+	select CRC32
+	select MTD_UBI
+	help
+	  UBI is a software layer above MTD layer which admits use of LVM-like
+	  logical volumes on top of MTD devices, hides some complexities of
+	  flash chips like wear and bad blocks and provides some other useful
+	  capabilities. Please, consult the MTD web site for more details
+	  (www.linux-mtd.infradead.org). Activate this option if you want
+	  to use U-Boot UBI commands.
 
 endmenu

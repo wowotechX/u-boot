@@ -35,16 +35,9 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS       6       /* 64 byte pages */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS   10      /* take up to 10 msec */
 
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200
-
-#undef CONFIG_SPL_NET_SUPPORT
-#undef CONFIG_SPL_NET_VCI_STRING
-#undef CONFIG_SPL_ETH_SUPPORT
-
 #define CONFIG_PHY_NATSEMI
 
 #define CONFIG_FACTORYSET
-
 
 /* Watchdog */
 #define WATCHDOG_TRIGGER_GPIO	14
@@ -57,6 +50,7 @@
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"hostname=rut\0" \
+	"ubi_off=2048\0"\
 	"nand_img_size=0x500000\0" \
 	"splashpos=m,m\0" \
 	"optargs=fixrtc --no-log consoleblank=0 \0" \
@@ -86,7 +80,6 @@
 
 #ifndef CONFIG_RESTORE_FLASH
 /* set to negative value for no autoboot */
-#define CONFIG_BOOTDELAY		3
 
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan; then " \
@@ -108,7 +101,6 @@
 	"reset;"
 
 #else
-#define CONFIG_BOOTDELAY		0
 
 #define CONFIG_BOOTCOMMAND			\
 	"setenv autoload no; "			\
@@ -124,11 +116,8 @@
 #undef CONFIG_HW_WATCHDOG
 #endif
 
-#define CONFIG_VIDEO
 #if defined(CONFIG_VIDEO)
 #define CONFIG_VIDEO_DA8XX
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
 #define CONFIG_VIDEO_LOGO
@@ -144,8 +133,6 @@
 #define CONFIG_ARCH_EARLY_INIT_R
 #define CONFIG_FORMIKE
 #define DISPL_PLL_SPREAD_SPECTRUM
-#define CONFIG_SYS_CONSOLE_BG_COL	0xff
-#define CONFIG_SYS_CONSOLE_FG_COL	0x00
 #endif
 
 #endif	/* ! __CONFIG_RUT_H */

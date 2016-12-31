@@ -20,9 +20,6 @@
 #include <asm/hardware.h>
 /* ARM asynchronous clock */
 
-
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define MASTER_PLL_DIV		15
 #define MASTER_PLL_MUL		162
 #define MAIN_PLL_DIV		2
@@ -152,7 +149,6 @@
 #define	CONFIG_USART_ID			ATMEL_ID_SYS
 
 /* LCD */
-#define CONFIG_LCD			1
 #define LCD_BPP				LCD_COLOR8
 #define CONFIG_LCD_LOGO			1
 #undef LCD_TEST_PATTERN
@@ -161,7 +157,6 @@
 #define CONFIG_SYS_WHITE_ON_BLACK	1
 #define CONFIG_ATMEL_LCD		1
 #define CONFIG_ATMEL_LCD_BGR555		1
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 
 /* LED */
 #define CONFIG_AT91_LED
@@ -169,7 +164,6 @@
 #define CONFIG_GREEN_LED	GPIO_PIN_PC(13)
 #define CONFIG_YELLOW_LED	GPIO_PIN_PC(15)
 
-#define CONFIG_BOOTDELAY	3
 
 /*
  * BOOTP options
@@ -182,11 +176,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_PING		1
-#define CONFIG_CMD_DHCP		1
 #define CONFIG_CMD_NAND		1
-#define CONFIG_CMD_USB		1
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS			1
@@ -241,7 +231,6 @@
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00500000
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9261"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
-#define CONFIG_USB_STORAGE			1
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000
 

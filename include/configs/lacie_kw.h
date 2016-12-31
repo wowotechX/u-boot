@@ -12,27 +12,20 @@
  */
 #if defined(CONFIG_INETSPACE_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_INETSPACE_V2
-#define CONFIG_IDENT_STRING		" IS v2"
 #elif defined(CONFIG_NETSPACE_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_V2
-#define CONFIG_IDENT_STRING		" NS v2"
 #elif defined(CONFIG_NETSPACE_LITE_V2)
 #define MACH_TYPE_NETSPACE_LITE_V2	2983 /* missing in mach-types.h */
 #define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_LITE_V2
-#define CONFIG_IDENT_STRING		" NS v2 Lite"
 #elif defined(CONFIG_NETSPACE_MINI_V2)
 #define MACH_TYPE_NETSPACE_MINI_V2	2831 /* missing in mach-types.h */
 #define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_MINI_V2
-#define CONFIG_IDENT_STRING		" NS v2 Mini"
 #elif defined(CONFIG_NETSPACE_MAX_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_MAX_V2
-#define CONFIG_IDENT_STRING		" NS Max v2"
 #elif defined(CONFIG_D2NET_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_D2NET_V2
-#define CONFIG_IDENT_STRING		" D2 v2"
 #elif defined(CONFIG_NET2BIG_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_NET2BIG_V2
-#define CONFIG_IDENT_STRING		" 2Big v2"
 #else
 #error "Unknown board"
 #endif
@@ -54,13 +47,8 @@
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
 #ifndef CONFIG_NETSPACE_MINI_V2 /* No USB ports on Network Space v2 Mini */
-#define CONFIG_CMD_USB
 #endif
 
 /*
@@ -94,15 +82,7 @@
 #undef CONFIG_ENV_SPI_MAX_HZ
 #undef CONFIG_SYS_IDE_MAXBUS
 #undef CONFIG_SYS_IDE_MAXDEVICE
-#undef CONFIG_SYS_PROMPT
 #define CONFIG_ENV_SPI_MAX_HZ           20000000 /* 20Mhz */
-#if defined(CONFIG_D2NET_V2)
-#define CONFIG_SYS_PROMPT		"d2v2> "
-#elif defined(CONFIG_NET2BIG_V2)
-#define CONFIG_SYS_PROMPT		"2big2> "
-#else
-#define CONFIG_SYS_PROMPT		"ns2> "
-#endif
 
 /*
  * Enable platform initialisation via misc_init_r() function
@@ -161,19 +141,6 @@
 /*
  * File systems support
  */
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-
-/*
- * Use the HUSH parser
- */
-#define CONFIG_SYS_HUSH_PARSER
-
-/*
- * Console configuration
- */
-#define CONFIG_CONSOLE_MUX
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /*
  * Environment variables configurations

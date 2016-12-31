@@ -12,6 +12,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/display.h>
 #include <asm/arch/gpio.h>
+#include <asm/arch/pwm.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -743,6 +744,16 @@ static void sunxi_lcdc_backlight_enable(void)
 		gpio_direction_output(pin, 1);
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_PWM);
+#ifdef SUNXI_PWM_PIN0
+	if (pin == SUNXI_PWM_PIN0) {
+		writel(SUNXI_PWM_CTRL_POLARITY0(PWM_ON) |
+		       SUNXI_PWM_CTRL_ENABLE0 |
+		       SUNXI_PWM_CTRL_PRESCALE0(0xf), SUNXI_PWM_CTRL_REG);
+		writel(SUNXI_PWM_PERIOD_80PCT, SUNXI_PWM_CH0_PERIOD);
+		sunxi_gpio_set_cfgpin(pin, SUNXI_PWM_MUX);
+		return;
+	}
+#endif
 	if (pin >= 0)
 		gpio_direction_output(pin, PWM_ON);
 }
@@ -1551,8 +1562,8 @@ int sunxi_simplefb_setup(void *blob)
 	offset = fdt_node_offset_by_compatible(blob, -1,
 					       "allwinner,simple-framebuffer");
 	while (offset >= 0) {
-		ret = fdt_find_string(blob, offset, "allwinner,pipeline",
-				      pipeline);
+		ret = fdt_stringlist_search(blob, offset, "allwinner,pipeline",
+					    pipeline);
 		if (ret == 0)
 			break;
 		offset = fdt_node_offset_by_compatible(blob, offset,

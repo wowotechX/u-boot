@@ -13,14 +13,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 /*
  * High Level Configuration Options
  */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP3_AM3517CRANE	1	/* working with CRANEBOARD */
-#define CONFIG_OMAP_COMMON
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_454179
 #define CONFIG_ARM_ERRATA_430973
@@ -30,12 +27,6 @@
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
-
-/*
- * Display CPU and Board information
- */
-#define CONFIG_DISPLAY_CPUINFO		1
-#define CONFIG_DISPLAY_BOARDINFO	1
 
 /* Clock Defines */
 #define V_OSCK			26000000	/* Clock output from T2 */
@@ -85,7 +76,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
 #define CONFIG_GENERIC_MMC		1
-#define CONFIG_MMC			1
 #define CONFIG_OMAP_HSMMC		1
 #define CONFIG_DOS_PARTITION		1
 
@@ -100,11 +90,8 @@
 #ifdef CONFIG_USB_AM35X
 
 #ifdef CONFIG_USB_MUSB_HCD
-#define CONFIG_CMD_USB
 
-#define CONFIG_USB_STORAGE
 #define CONGIG_CMD_STORAGE
-#define CONFIG_CMD_FAT
 
 #ifdef CONFIG_USB_KEYBOARD
 #define CONFIG_SYS_USB_EVENT_POLL
@@ -117,7 +104,6 @@
 /* USB device configuration */
 #define CONFIG_USB_DEVICE		1
 #define CONFIG_USB_TTY			1
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 /* Change these to suit your needs */
 #define CONFIG_USBD_VENDORID		0x0451
 #define CONFIG_USBD_PRODUCTID		0x5678
@@ -128,16 +114,9 @@
 #endif /* CONFIG_USB_AM35X */
 
 /* commands to include */
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 
-#define CONFIG_CMD_I2C		/* I2C serial bus support	*/
-#define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_DHCP
-#undef CONFIG_CMD_PING
-
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_I2C
@@ -165,7 +144,6 @@
 #define CONFIG_JFFS2_PART_SIZE		0xf980000	/* sz of jffs2 part */
 
 /* Environment information */
-#define CONFIG_BOOTDELAY	10
 
 #define CONFIG_BOOTFILE		"uImage"
 
@@ -208,7 +186,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
@@ -290,29 +267,19 @@
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SPL_TEXT_BASE		0x40200800
-#define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
+#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
+					 CONFIG_SPL_TEXT_BASE)
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
 
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBDISK_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
-#define CONFIG_SPL_POWER_SUPPORT
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 
 /* NAND boot config */
 #define CONFIG_SYS_NAND_BUSWIDTH_16BIT

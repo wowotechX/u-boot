@@ -25,14 +25,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CPU_CLOCK_RATE			324000000 /* Clock for the MIPS core */
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_CLOCK_RATE / 2)
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* SDRAM is initialized by the bootstrap code */
 
-#define CONFIG_SYS_TEXT_BASE		0x87000000
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)
@@ -83,17 +80,13 @@
 /*
  * Commands
  */
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 
 /*
  * Only Premium/Platinum have ethernet support right now
  */
 #if (defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)) && \
 	!defined(CONFIG_VCT_SMALL_IMAGE)
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SNTP
 #endif
 
 /*
@@ -101,12 +94,9 @@
  */
 #if (defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)) && \
 	!defined(CONFIG_VCT_SMALL_IMAGE)
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_FAT
 #endif
 
 #if defined(CONFIG_CMD_USB)
-#define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
@@ -150,7 +140,6 @@
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
 #define CONFIG_TIMESTAMP			/* Print image info with timestamp */
 #define CONFIG_CMDLINE_EDITING			/* add command line history	*/
-#define CONFIG_SYS_CONSOLE_INFO_QUIET		/* don't print console @ startup*/
 
 /*
  * FLASH and environment organization
@@ -211,13 +200,6 @@
 #endif /* CONFIG_VCT_ONENAND */
 
 /*
- * Cache Configuration
- */
-#define CONFIG_SYS_DCACHE_SIZE		16384
-#define CONFIG_SYS_ICACHE_SIZE		16384
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
-/*
  * I2C/EEPROM
  */
 #define CONFIG_SYS_I2C
@@ -254,7 +236,6 @@ int vct_gpio_get(int pin);
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
 
 #define CONFIG_BOOTCOMMAND	"run test3"
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
 /*
  * UBI configuration
@@ -262,7 +243,6 @@ int vct_gpio_get(int pin);
 #if defined(CONFIG_VCT_ONENAND)
 #define CONFIG_SYS_USE_UBI
 #define	CONFIG_CMD_JFFS2
-#define	CONFIG_CMD_UBI
 #define	CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
@@ -281,24 +261,14 @@ int vct_gpio_get(int pin);
  * (NOR/OneNAND) usage and Linux kernel booting.
  */
 #if defined(CONFIG_VCT_SMALL_IMAGE)
-#undef CONFIG_CMD_ASKENV
 #undef CONFIG_CMD_BEDBUG
-#undef CONFIG_CMD_CACHE
-#undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_FAT
-#undef CONFIG_CMD_I2C
-#undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_IRQ
 #undef CONFIG_CMD_LOADY
-#undef CONFIG_CMD_MII
-#undef CONFIG_CMD_PING
 #undef CONFIG_CMD_REGINFO
-#undef CONFIG_CMD_SNTP
 #undef CONFIG_CMD_STRINGS
 #undef CONFIG_CMD_TERMINAL
-#undef CONFIG_CMD_USB
 
 #undef CONFIG_SMC911X
 #undef CONFIG_SYS_I2C_SOFT

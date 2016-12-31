@@ -19,7 +19,6 @@
 #define CONFIG_ZBOOT_32
 #define CONFIG_PHYSMEM
 #define CONFIG_DISPLAY_BOARDINFO_LATE
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_LAST_STAGE_INIT
 #define CONFIG_NR_DRAM_BANKS		8
 
@@ -62,14 +61,9 @@
 					 9600, 19200, 38400, 115200}
 #define CONFIG_SYS_NS16550_PORT_MAPPED
 
-#define CONFIG_CONSOLE_MUX
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_STDIO_DEREGISTER
-
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_COMMAND_HISTORY
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 
 #define CONFIG_SUPPORT_VFAT
 
@@ -85,11 +79,7 @@
 #ifdef CONFIG_SYS_COREBOOT
 #define CONFIG_CMD_CBFS
 #endif
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_PARTITION_UUIDS
-
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 
 /* x86 GPIOs are accessed through a PCI device */
 #define CONFIG_INTEL_ICH6_GPIO
@@ -98,18 +88,12 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_IO
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_TIME
 #define CONFIG_CMD_GETTIME
-#define CONFIG_CMD_SCSI
-
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
+#define CONFIG_SCSI
 
 #define CONFIG_CMD_ZBOOT
 
@@ -138,16 +122,6 @@
 #define CONFIG_SYS_LOAD_ADDR			0x20000000
 
 /*-----------------------------------------------------------------------
- * Video Configuration
- */
-#define CONFIG_VIDEO
-#define CONFIG_VIDEO_SW_CURSOR
-#define VIDEO_FB_16BPP_WORD_SWAP
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_CONSOLE_SCROLL_LINES 5
-
-/*-----------------------------------------------------------------------
  * CPU Features
  */
 
@@ -162,9 +136,7 @@
  * FLASH configuration
  */
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_CMD_SF
 #define CONFIG_CMD_SF_TEST
-#define CONFIG_CMD_SPI
 #define CONFIG_SPI
 
 /*-----------------------------------------------------------------------
@@ -176,7 +148,6 @@
 /*-----------------------------------------------------------------------
  * PCI configuration
  */
-#define CONFIG_PCI
 #define CONFIG_PCI_CONFIG_HOST_BRIDGE
 
 /*-----------------------------------------------------------------------
@@ -186,35 +157,35 @@
 #define CONFIG_USB_EHCI_PCI
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS     12
 #define CONFIG_USB_MAX_CONTROLLER_COUNT        2
-#define CONFIG_USB_STORAGE
-#define CONFIG_USB_KEYBOARD
 #define CONFIG_SYS_USB_EVENT_POLL
 
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_TFTP_TSIZE
-#define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_BOOTFILESIZE
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
-#define CONFIG_CMD_USB
 
 /* Default environment */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_HOSTNAME		x86
 #define CONFIG_BOOTFILE		"bzImage"
 #define CONFIG_LOADADDR		0x1000000
-#define CONFIG_RAMDISK_ADDR		0x4000000
+#define CONFIG_RAMDISK_ADDR	0x4000000
+#ifdef CONFIG_GENERATE_ACPI_TABLE
+#define CONFIG_OTHBOOTARGS	"othbootargs=\0"
+#else
+#define CONFIG_OTHBOOTARGS	"othbootargs=acpi=off\0"
+#endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS			\
 	CONFIG_STD_DEVICES_SETTINGS			\
 	"pciconfighost=1\0"				\
 	"netdev=eth0\0"					\
 	"consoledev=ttyS0\0"				\
-	"othbootargs=acpi=off\0"			\
+	CONFIG_OTHBOOTARGS				\
 	"ramdiskaddr=0x4000000\0"			\
 	"ramdiskfile=initramfs.gz\0"
 
@@ -234,6 +205,5 @@
 	"tftpboot $loadaddr $bootfile;"			\
 	"zboot $loadaddr"
 
-#define CONFIG_BOOTDELAY	2
 
 #endif	/* __CONFIG_H */

@@ -21,35 +21,6 @@
 #define PRINTF(fmt,args...)
 #endif
 
-const struct block_drvr block_drvr[] = {
-#if defined(CONFIG_CMD_IDE)
-	{ .name = "ide", .get_dev = ide_get_dev, },
-#endif
-#if defined(CONFIG_CMD_SATA)
-	{.name = "sata", .get_dev = sata_get_dev, },
-#endif
-#if defined(CONFIG_CMD_SCSI)
-	{ .name = "scsi", .get_dev = scsi_get_dev, },
-#endif
-#if defined(CONFIG_CMD_USB) && defined(CONFIG_USB_STORAGE)
-	{ .name = "usb", .get_dev = usb_stor_get_dev, },
-#endif
-#if defined(CONFIG_MMC)
-	{
-		.name = "mmc",
-		.get_dev = mmc_get_dev,
-		.select_hwpart = mmc_select_hwpart,
-	},
-#endif
-#if defined(CONFIG_SYSTEMACE)
-	{ .name = "ace", .get_dev = systemace_get_dev, },
-#endif
-#if defined(CONFIG_SANDBOX)
-	{ .name = "host", .get_dev = host_get_dev, },
-#endif
-	{ },
-};
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef HAVE_BLOCK_DEVICE
@@ -71,45 +42,23 @@ static struct part_driver *part_driver_lookup_type(int part_type)
 
 static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
-	const struct block_drvr *drvr = block_drvr;
-	struct blk_desc* (*reloc_get_dev)(int dev);
-	int (*select_hwpart)(int dev_num, int hwpart);
-	char *name;
+	struct blk_desc *dev_desc;
 	int ret;
 
-	if (!ifname)
+	dev_desc = blk_get_devnum_by_typename(ifname, dev);
+	if (!dev_desc) {
+		debug("%s: No device for iface '%s', dev %d\n", __func__,
+		      ifname, dev);
 		return NULL;
-
-	name = drvr->name;
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	name += gd->reloc_off;
-#endif
-	while (drvr->name) {
-		name = drvr->name;
-		reloc_get_dev = drvr->get_dev;
-		select_hwpart = drvr->select_hwpart;
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-		name += gd->reloc_off;
-		reloc_get_dev += gd->reloc_off;
-		if (select_hwpart)
-			select_hwpart += gd->reloc_off;
-#endif
-		if (strncmp(ifname, name, strlen(name)) == 0) {
-			struct blk_desc *dev_desc = reloc_get_dev(dev);
-			if (!dev_desc)
-				return NULL;
-			if (hwpart == 0 && !select_hwpart)
-				return dev_desc;
-			if (!select_hwpart)
-				return NULL;
-			ret = select_hwpart(dev_desc->devnum, hwpart);
-			if (ret < 0)
-				return NULL;
-			return dev_desc;
-		}
-		drvr++;
 	}
-	return NULL;
+	ret = blk_dselect_hwpart(dev_desc, hwpart);
+	if (ret) {
+		debug("%s: Failed to select h/w partition: err-%d\n", __func__,
+		      ret);
+		return NULL;
+	}
+
+	return dev_desc;
 }
 
 struct blk_desc *blk_get_dev(const char *ifname, int dev)
@@ -241,13 +190,13 @@ void dev_print (struct blk_desc *dev_desc)
 			printf ("            Supports 48-bit addressing\n");
 #endif
 #if defined(CONFIG_SYS_64BIT_LBA)
-		printf ("            Capacity: %ld.%ld MB = %ld.%ld GB (%Ld x %ld)\n",
+		printf ("            Capacity: %lu.%lu MB = %lu.%lu GB (%llu x %lu)\n",
 			mb_quot, mb_rem,
 			gb_quot, gb_rem,
 			lba,
 			dev_desc->blksz);
 #else
-		printf ("            Capacity: %ld.%ld MB = %ld.%ld GB (%ld x %ld)\n",
+		printf ("            Capacity: %lu.%lu MB = %lu.%lu GB (%lu x %lu)\n",
 			mb_quot, mb_rem,
 			gb_quot, gb_rem,
 			(ulong)lba,
@@ -401,7 +350,7 @@ int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
 	if (*ep) {
 		printf("** Bad device specification %s %s **\n",
 		       ifname, dev_str);
-		dev = -1;
+		dev = -EINVAL;
 		goto cleanup;
 	}
 
@@ -410,7 +359,7 @@ int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
 		if (*ep) {
 			printf("** Bad HW partition specification %s %s **\n",
 			    ifname, hwpart_str);
-			dev = -1;
+			dev = -EINVAL;
 			goto cleanup;
 		}
 	}
@@ -418,7 +367,7 @@ int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
 	*dev_desc = get_dev_hwpart(ifname, dev, hwpart);
 	if (!(*dev_desc) || ((*dev_desc)->type == DEV_TYPE_UNKNOWN)) {
 		printf("** Bad device %s %s **\n", ifname, dev_hwpart_str);
-		dev = -1;
+		dev = -ENOENT;
 		goto cleanup;
 	}
 
@@ -665,4 +614,62 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 cleanup:
 	free(dup_str);
 	return ret;
+}
+
+int part_get_info_by_name(struct blk_desc *dev_desc, const char *name,
+	disk_partition_t *info)
+{
+	struct part_driver *first_drv =
+		ll_entry_start(struct part_driver, part_driver);
+	const int n_drvs = ll_entry_count(struct part_driver, part_driver);
+	struct part_driver *part_drv;
+
+	for (part_drv = first_drv; part_drv != first_drv + n_drvs; part_drv++) {
+		int ret;
+		int i;
+		for (i = 1; i < part_drv->max_entries; i++) {
+			ret = part_drv->get_info(dev_desc, i, info);
+			if (ret != 0) {
+				/* no more entries in table */
+				break;
+			}
+			if (strcmp(name, (const char *)info->name) == 0) {
+				/* matched */
+				return 0;
+			}
+		}
+	}
+	return -1;
+}
+
+void part_set_generic_name(const struct blk_desc *dev_desc,
+	int part_num, char *name)
+{
+	char *devtype;
+
+	switch (dev_desc->if_type) {
+	case IF_TYPE_IDE:
+	case IF_TYPE_SATA:
+	case IF_TYPE_ATAPI:
+		devtype = "hd";
+		break;
+	case IF_TYPE_SCSI:
+		devtype = "sd";
+		break;
+	case IF_TYPE_USB:
+		devtype = "usbd";
+		break;
+	case IF_TYPE_DOC:
+		devtype = "docd";
+		break;
+	case IF_TYPE_MMC:
+	case IF_TYPE_SD:
+		devtype = "mmcsd";
+		break;
+	default:
+		devtype = "xx";
+		break;
+	}
+
+	sprintf(name, "%s%c%d", devtype, 'a' + dev_desc->devnum, part_num);
 }

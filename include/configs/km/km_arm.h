@@ -41,7 +41,6 @@
 #include "keymile-common.h"
 
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_SF
 
 /* SPI NOR Flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_SPEED		8100000
@@ -147,10 +146,8 @@
 /*
  * Other required minimal configurations
  */
-#define CONFIG_CONSOLE_INFO_QUIET	/* some code reduction */
 #define CONFIG_ARCH_CPU_INIT		/* call arch_cpu_init() */
 #define CONFIG_ARCH_MISC_INIT		/* call arch_misc_init() */
-#define CONFIG_DISPLAY_CPUINFO		/* Display cpu info */
 #define CONFIG_NR_DRAM_BANKS	4
 #define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 
@@ -159,7 +156,6 @@
  */
 #define CONFIG_NETCONSOLE	/* include NetConsole support   */
 #define CONFIG_MII		/* expose smi ove miiphy interface */
-#define CONFIG_CMD_MII		/* to debug mdio phy config */
 #define CONFIG_MVGBE		/* Enable Marvell Gbe Controller Driver */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */

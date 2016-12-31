@@ -10,12 +10,6 @@
 #ifndef _CONFIG_GURUPLUG_H
 #define _CONFIG_GURUPLUG_H
 
-
-/*
- * Version number information
- */
-#define CONFIG_IDENT_STRING	"\nMarvell-GuruPlug"
-
 /*
  * High Level Configuration Options (easy to change)
  */

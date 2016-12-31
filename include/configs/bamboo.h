@@ -175,7 +175,6 @@
 #ifdef CONFIG_440EP
 /* USB */
 #define CONFIG_USB_OHCI
-#define CONFIG_USB_STORAGE
 
 /*Comment this out to enable USB 1.1 device*/
 #define USB_2_0_DEVICE
@@ -185,12 +184,8 @@
  * Commands additional to the ones defined in amcc-common.h
  */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_SNTP
-#define CONFIG_CMD_USB
 
 #ifdef CONFIG_BAMBOO_NAND
 #define CONFIG_CMD_NAND
@@ -208,9 +203,7 @@
  *-----------------------------------------------------------------------
  */
 /* General PCI */
-#define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#undef  CONFIG_PCI_PNP			/* do (not) pci plug-and-play   */
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup  */
 #define CONFIG_SYS_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CONFIG_SYS_PCI_MEMBASE*/
 

@@ -17,14 +17,10 @@
 #define CONFIG_S5PC110		1	/* which is in a S5PC110 */
 #define CONFIG_MACH_GONI	1	/* working with Goni */
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #include <linux/sizes.h>
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
 #define CONFIG_ARCH_CPU_INIT
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 /* input clock of PLL: has 24MHz input clock at S5PC110 */
 #define CONFIG_SYS_CLK_FREQ_C110	24000000
@@ -52,9 +48,6 @@
 
 /* MMC */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MMC
-#define CONFIG_SDHCI
-#define CONFIG_S5P_SDHCI
 #define SDHCI_MAX_HOSTS		4
 
 /* PWM */
@@ -62,16 +55,11 @@
 
 #define CONFIG_SYS_NO_FLASH		1
 
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ONENAND
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_DFU
 #define CONFIG_CMD_GPT
 
 /* USB Composite download gadget - g_dnl */
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_MMC
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_32M
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
@@ -96,8 +84,6 @@
 				",1m(log)"\
 				",12m(modem)"\
 				",60m(qboot)\0"
-
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 /* partitions definitions */
 #define PARTS_CSA			"csa-mmc"
@@ -144,7 +130,6 @@
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS					\
@@ -195,7 +180,6 @@
 	"dfu_alt_info=" CONFIG_DFU_ALT "\0"
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser	*/
 #define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE	384	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
@@ -232,10 +216,6 @@
 
 #define CONFIG_DOS_PARTITION		1
 
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-
 /* write support for filesystems */
 #define CONFIG_FAT_WRITE
 #define CONFIG_EXT4_WRITE
@@ -246,29 +226,7 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
 
-#define CONFIG_SYS_CACHELINE_SIZE       64
-
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
-#define CONFIG_POWER_MAX8998
-
-#include <asm/arch/gpio.h>
-/*
- * I2C Settings
- */
-#define CONFIG_SOFT_I2C_GPIO_SCL S5PC110_GPIO_J43
-#define CONFIG_SOFT_I2C_GPIO_SDA S5PC110_GPIO_J40
-
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
-#define CONFIG_SYS_I2C_SOFT_SPEED	50000
-#define CONFIG_SYS_I2C_SOFT_SLAVE	0x7F
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_I2C_INIT_BOARD
-
-#define CONFIG_SYS_MAX_I2C_BUS	7
 #define CONFIG_USB_GADGET_DWC2_OTG_PHY
-#define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 #endif	/* __CONFIG_H */

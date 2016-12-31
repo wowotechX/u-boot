@@ -16,27 +16,27 @@
 #include <mmc.h>
 #include <scsi.h>
 #include <fm_eth.h>
-#include <fsl_csu.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
-#include <environment.h>
 #include <fsl_sec.h>
 #include "cpld.h"
 #ifdef CONFIG_U_QE
 #include <fsl_qe.h>
 #endif
-
+#ifdef CONFIG_FSL_LS_PPA
+#include <asm/arch/ppa.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int checkboard(void)
 {
-	static const char *freq[3] = {"100.00MHZ", "156.25MHZ"};
+	static const char *freq[2] = {"100.00MHZ", "156.25MHZ"};
 #ifndef CONFIG_SD_BOOT
 	u8 cfg_rcw_src1, cfg_rcw_src2;
-	u32 cfg_rcw_src;
+	u16 cfg_rcw_src;
 #endif
-	u32 sd1refclk_sel;
+	u8 sd1refclk_sel;
 
 	printf("Board: LS1043ARDB, boot from ");
 
@@ -83,29 +83,42 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 
-	/*
-	 * Set CCI-400 control override register to enable barrier
-	 * transaction
-	 */
-	out_le32(&cci->ctrl_ord, CCI400_CTRLORD_EN_BARRIER);
+#ifdef CONFIG_SYS_FSL_ERRATUM_A010315
+	erratum_a010315();
+#endif
 
 #ifdef CONFIG_FSL_IFC
 	init_final_memctl_regs();
 #endif
 
-#ifdef CONFIG_ENV_IS_NOWHERE
-	gd->env_addr = (ulong)&default_environment[0];
+#ifdef CONFIG_SECURE_BOOT
+	/* In case of Secure Boot, the IBR configures the SMMU
+	 * to allow only Secure transactions.
+	 * SMMU must be reset in bypass mode.
+	 * Set the ClientPD bit and Clear the USFCFG Bit
+	 */
+	u32 val;
+	val = (in_le32(SMMU_SCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
+	out_le32(SMMU_SCR0, val);
+	val = (in_le32(SMMU_NSCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
+	out_le32(SMMU_NSCR0, val);
 #endif
 
-#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
+#endif
+
+#ifdef CONFIG_FSL_LS_PPA
+	ppa_init();
 #endif
 
 #ifdef CONFIG_U_QE
 	u_qe_init();
 #endif
+	/* invert AQR105 IRQ pins polarity */
+	out_be32(&scfg->intpcr, AQR105_IRQ_MASK);
 
 	return 0;
 }
@@ -140,21 +153,6 @@ int config_board_mux(void)
 int misc_init_r(void)
 {
 	config_board_mux();
-#ifdef CONFIG_SECURE_BOOT
-	/* In case of Secure Boot, the IBR configures the SMMU
-	 * to allow only Secure transactions.
-	 * SMMU must be reset in bypass mode.
-	 * Set the ClientPD bit and Clear the USFCFG Bit
-	 */
-	u32 val;
-	val = (in_le32(SMMU_SCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
-	out_le32(SMMU_SCR0, val);
-	val = (in_le32(SMMU_NSCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
-	out_le32(SMMU_NSCR0, val);
-#endif
-#ifdef CONFIG_FSL_CAAM
-	return sec_init();
-#endif
 	return 0;
 }
 #endif

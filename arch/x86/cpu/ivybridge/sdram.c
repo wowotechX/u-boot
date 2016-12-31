@@ -201,11 +201,6 @@ static int recovery_mode_enabled(void)
 	return false;
 }
 
-int reserve_arch(void)
-{
-	return mrccache_reserve();
-}
-
 static int copy_spd(struct udevice *dev, struct pei_data *peid)
 {
 	const void *data;
@@ -462,6 +457,11 @@ int dram_init(void)
 	struct pei_data *pei_data = &_pei_data;
 	struct udevice *dev, *me_dev;
 	int ret;
+
+	/* We need the pinctrl set up early */
+	ret = syscon_get_by_driver_data(X86_SYSCON_PINCONF, &dev);
+	if (ret)
+		return ret;
 
 	ret = uclass_first_device_err(UCLASS_NORTHBRIDGE, &dev);
 	if (ret)

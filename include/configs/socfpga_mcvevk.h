@@ -14,27 +14,10 @@
 #define CONFIG_FAT_WRITE
 #define CONFIG_HW_WATCHDOG
 
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_DFU
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_USB_MASS_STORAGE
-
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on MCV */
 
 /* Booting Linux */
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		"fitImage"
 #define CONFIG_BOOTARGS		"console=ttyS0," __stringify(CONFIG_BAUDRATE)
 #define CONFIG_PREBOOT		"run try_bootscript"

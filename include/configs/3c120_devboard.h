@@ -12,14 +12,12 @@
 /*
  * BOARD/CPU
  */
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /*
  * SERIAL
  */
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* Suppress console info */
 
 /*
  * CFI Flash
@@ -36,7 +34,6 @@
  * NET options
  */
 #define CONFIG_SYS_RX_ETH_BUFFER	0
-#define CONFIG_CMD_MII
 #define CONFIG_PHY_GIGE
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 #define CONFIG_PHY_MARVELL
@@ -100,7 +97,6 @@
 					 CONFIG_ENV_SIZE - \
 					 CONFIG_SYS_MALLOC_LEN -	\
 					 0x10000)
-#define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
 

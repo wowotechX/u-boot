@@ -24,11 +24,14 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
+#include <syscon.h>
 #include <asm/control_regs.h>
+#include <asm/coreboot_tables.h>
 #include <asm/cpu.h>
 #include <asm/lapic.h>
 #include <asm/microcode.h>
 #include <asm/mp.h>
+#include <asm/mrccache.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>
@@ -132,7 +135,7 @@ static void load_gdt(const u64 *boot_gdt, u16 num_entries)
 	struct gdt_ptr gdt;
 
 	gdt.len = (num_entries * X86_GDT_ENTRY_SIZE) - 1;
-	gdt.ptr = (u32)boot_gdt;
+	gdt.ptr = (ulong)boot_gdt;
 
 	asm volatile("lgdtl %0\n" : : "m" (gdt));
 }
@@ -627,13 +630,11 @@ static void build_pagetable(uint32_t *pgtable)
 	memset(pgtable, '\0', PAGETABLE_SIZE);
 
 	/* Level 4 needs a single entry */
-	pgtable[0] = (uint32_t)&pgtable[1024] + 7;
+	pgtable[0] = (ulong)&pgtable[1024] + 7;
 
 	/* Level 3 has one 64-bit entry for each GiB of memory */
-	for (i = 0; i < 4; i++) {
-		pgtable[1024 + i * 2] = (uint32_t)&pgtable[2048] +
-							0x1000 * i + 7;
-	}
+	for (i = 0; i < 4; i++)
+		pgtable[1024 + i * 2] = (ulong)&pgtable[2048] + 0x1000 * i + 7;
 
 	/* Level 2 has 2048 64-bit entries, each repesenting 2MiB */
 	for (i = 0; i < 2048; i++)
@@ -661,9 +662,19 @@ void show_boot_progress(int val)
 }
 
 #ifndef CONFIG_SYS_COREBOOT
+/*
+ * Implement a weak default function for boards that optionally
+ * need to clean up the system before jumping to the kernel.
+ */
+__weak void board_final_cleanup(void)
+{
+}
+
 int last_stage_init(void)
 {
 	write_tables();
+
+	board_final_cleanup();
 
 	return 0;
 }
@@ -739,5 +750,24 @@ int cpu_init_r(void)
 	uclass_first_device(UCLASS_PCH, &dev);
 	uclass_first_device(UCLASS_LPC, &dev);
 
+	/* Set up pin control if available */
+	ret = syscon_get_by_driver_data(X86_SYSCON_PINCONF, &dev);
+	debug("%s, pinctrl=%p, ret=%d\n", __func__, dev, ret);
+
 	return 0;
 }
+
+#ifndef CONFIG_EFI_STUB
+int reserve_arch(void)
+{
+#ifdef CONFIG_ENABLE_MRC_CACHE
+	mrccache_reserve();
+#endif
+
+#ifdef CONFIG_SEABIOS
+	high_table_reserve();
+#endif
+
+	return 0;
+}
+#endif

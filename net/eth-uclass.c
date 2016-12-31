@@ -227,6 +227,7 @@ static int on_ethaddr(const char *name, const char *value, enum env_op op,
 		case env_op_create:
 		case env_op_overwrite:
 			eth_parse_enetaddr(value, pdata->enetaddr);
+			eth_write_hwaddr(dev);
 			break;
 		case env_op_delete:
 			memset(pdata->enetaddr, 0, 6);
@@ -511,7 +512,8 @@ static int eth_post_probe(struct udevice *dev)
 		eth_setenv_enetaddr_by_index("eth", dev->seq, pdata->enetaddr);
 		printf("\nWarning: %s using MAC address from ROM\n",
 		       dev->name);
-	} else if (is_zero_ethaddr(pdata->enetaddr)) {
+	} else if (is_zero_ethaddr(pdata->enetaddr) ||
+		   !is_valid_ethaddr(pdata->enetaddr)) {
 #ifdef CONFIG_NET_RANDOM_ETHADDR
 		net_random_ethaddr(pdata->enetaddr);
 		printf("\nWarning: %s (eth%d) using random MAC address - %pM\n",

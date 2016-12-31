@@ -12,12 +12,7 @@
 #include <asm/imx-common/gpio.h>
 
 /* SPL options */
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(16 << 20)
@@ -33,7 +28,6 @@
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 
 /* I2C configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -42,14 +36,12 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* Miscellaneous configurable options */
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x10000000)
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_CMDLINE_EDITING
 
 /* Physical Memory Map */
@@ -77,15 +69,11 @@
 #define CONFIG_SYS_MMC_ENV_PART		1	/* boot parition */
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC2 */
 
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_CACHE
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_STORAGE
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
@@ -93,7 +81,6 @@
 
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
-#define CONFIG_CMD_MII
 #define CONFIG_FEC_ENET_DEV		0
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR          0x0
