@@ -24,12 +24,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct mm_region bubblegum_mem_map[] = {
 	{
-		.base = 0x0UL,
+		.virt = 0x0UL,
+		.phys = 0x0UL,
 		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.base = 0x80000000UL,
+		.virt = 0x80000000UL,
+		.phys = 0x80000000UL,
 		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
@@ -94,6 +96,10 @@ void board_init_f(ulong bootflag)
 #endif
 
 	reboot_to_adfu();
+}
+
+void board_init_r(gd_t *new_gd, ulong dest_addr)
+{
 }
 
 void panic(const char *fmt, ...)
@@ -182,4 +188,9 @@ int board_run_command(const char *cmdline)
 	printf("## Commands are disabled. Please enable CONFIG_CMDLINE.\n");
 
 	return 1;
+}
+
+int print_cpuinfo(void)
+{
+	return 0;
 }
