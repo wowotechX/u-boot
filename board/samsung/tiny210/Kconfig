@@ -23,4 +23,12 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "tiny210"
 
+config CLK_1000_200_166_133
+	default 1
+
+config EVT1
+	default 1
+
+config MCP_SINGLE
+	default 1
 endif

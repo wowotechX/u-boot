@@ -18,7 +18,6 @@
 #define CONFIG_SAMSUNG			1	/* SAMSUNG core*/
 #define CONFIG_S5P			1	/* S5P Family */
 #define CONFIG_S5PC110		1	/* which is in a S5PC110 SoC */
-#define CONFIG_TINY210		1
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
@@ -26,8 +25,6 @@
 #define DEBUG	/* it will print the log that debug() to uart */
 
 #define CONFIG_ARCH_CPU_INIT
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_MCP_SINGLE	1
 #define CONFIG_EVT1		1		/* EVT1 */
@@ -45,7 +42,6 @@
 #define BOOT_SEC_DEV		0x5
 
 /* Keep L2 Cache Disabled */
-#define CONFIG_L2_OFF                   1
 #define CONFIG_SYS_DCACHE_OFF           1
 
 #define CONFIG_SYS_SDRAM_BASE           0x20000000
@@ -60,14 +56,7 @@
 #define CONFIG_ENABLE_MMU
 #endif
 
-#define CONFIG_MEMORY_UPPER_CODE
-
 #undef CONFIG_USE_IRQ				/* we don't need IRQ/FIQ stuff */
-
-#define CONFIG_INCLUDE_TEST
-
-#define CONFIG_ZIMAGE_BOOT
-#define CONFIG_IMAGE_BOOT
 
 #define BOARD_LATE_INIT
 
@@ -113,12 +102,9 @@
 //#undef CONFIG_CMD_NET
 //#undef CONFIG_CMD_NFS
 #endif
-#define CONFIG_BOOTDELAY		3
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP             /* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER          /* use "hush" command parser    */
 #define CONFIG_SYS_PROMPT_HUSH_PS2      "> "
 /*
  * #define CONFIG_SYS_PROMPT              "[FriendlyLEG-TINY210]# "
@@ -165,7 +151,6 @@
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH		1
 #undef CONFIG_CMD_IMLS
-#define CONFIG_IDENT_STRING	" for FriendlyLEG-TINY210"
 
 #define CONFIG_ENV_IS_IN_MMC		1
 #define CONFIG_SYS_MMC_ENV_DEV		0
@@ -394,7 +379,6 @@
 #define CONFIG_NET_MULTI               1
 #define CONFIG_NET_RETRY_COUNT 1
 #define CONFIG_DM9000_NO_SROM 1
-#define CONFIG_DM9000_BUGGY_PHY 1
 #ifdef CONFIG_DRIVER_DM9000  
 #define CONFIG_DM9000_BASE		(0x88001000)
 #define DM9000_IO			(CONFIG_DM9000_BASE)
